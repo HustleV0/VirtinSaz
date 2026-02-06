@@ -12,5 +12,6 @@ User = get_user_model()
 users = User.objects.all()
 print("Users and their sites:")
 for u in users:
-    has_site = hasattr(u, 'site')
-    print(f"{u.phone_number}: {'Has Site' if has_site else 'No Site'}")
+    has_site = u.sites.exists()
+    site_count = u.sites.count()
+    print(f"{u.phone_number}: {site_count} Site(s)")

@@ -43,7 +43,7 @@ class SiteMeView(generics.RetrieveAPIView):
     permission_classes = [permissions.IsAuthenticated]
 
     def get_object(self):
-        return getattr(self.request.user, 'site', None)
+        return self.request.user.sites.first()
 
     def get(self, request, *args, **kwargs):
         instance = self.get_object()
@@ -57,11 +57,6 @@ class SiteCreateView(generics.CreateAPIView):
     permission_classes = [permissions.IsAuthenticated]
 
     def perform_create(self, serializer):
-        # Ensure user doesn't already have a site
-        if hasattr(self.request.user, 'site'):
-            from rest_framework.exceptions import ValidationError
-            raise ValidationError({"detail": "User already has a site."})
-        
         # Get data from validated_data or request.data
         validated_data = serializer.validated_data
         
@@ -97,7 +92,7 @@ class SiteSettingsUpdateView(generics.UpdateAPIView):
     http_method_names = ['patch']
 
     def get_object(self):
-        return getattr(self.request.user, 'site', None)
+        return self.request.user.sites.first()
 
     def patch(self, request, *args, **kwargs):
         instance = self.get_object()

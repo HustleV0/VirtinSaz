@@ -13,10 +13,11 @@ class UserSerializer(serializers.ModelSerializer):
         fields = ['id', 'phone_number', 'email', 'full_name', 'restaurant_name', 'is_verified', 'avatar', 'has_site', 'site_slug']
 
     def get_has_site(self, obj):
-        return hasattr(obj, 'site')
+        return obj.sites.exists()
 
     def get_site_slug(self, obj):
-        return obj.site.slug if hasattr(obj, 'site') else None
+        first_site = obj.sites.first()
+        return first_site.slug if first_site else None
 
 class OTPSerializer(serializers.ModelSerializer):
     class Meta:

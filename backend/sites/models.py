@@ -29,7 +29,7 @@ class Template(models.Model):
         return f"{self.name} ({self.category.name})"
 
 class Site(models.Model):
-    owner = models.OneToOneField(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='site')
+    owner = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='sites')
     name = models.CharField(max_length=255)
     slug = models.SlugField(max_length=255, unique=True, allow_unicode=True, null=True, blank=True)
     logo = models.ImageField(upload_to='site_logos/', null=True, blank=True)
@@ -44,7 +44,7 @@ class Site(models.Model):
         if not user.is_authenticated:
             return None
         
-        site = getattr(user, 'site', None)
+        site = user.sites.first()
         if site:
             return site
             
