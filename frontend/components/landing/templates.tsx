@@ -5,13 +5,13 @@ import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import { Eye, Loader2 } from "lucide-react"
 import { motion, AnimatePresence } from "framer-motion"
-import { SiteCategory, Template } from "@/types"
+import { SiteCategory, Theme } from "@/types"
 
 export function Templates() {
   const [categories, setCategories] = useState<SiteCategory[]>([])
-  const [templates, setTemplates] = useState<Template[]>([])
+  const [themes, setThemes] = useState<Theme[]>([])
   const [activeCategoryId, setActiveCategoryId] = useState<number | null>(null)
-  const [activeTemplate, setActiveTemplate] = useState<Template | null>(null)
+  const [activeTheme, setActiveTheme] = useState<Theme | null>(null)
   const [isLoading, setIsLoading] = useState(true)
 
   const API_BASE_URL = "http://localhost:8000/api"
@@ -21,21 +21,21 @@ export function Templates() {
       try {
         const [catsRes, tempsRes] = await Promise.all([
           fetch(`${API_BASE_URL}/site-categories/`),
-          fetch(`${API_BASE_URL}/templates/`)
+          fetch(`${API_BASE_URL}/themes/`)
         ])
         
         const catsData = await catsRes.json()
         const tempsData = await tempsRes.json()
         
         setCategories(catsData)
-        setTemplates(tempsData)
+        setThemes(tempsData)
         
         if (catsData.length > 0) {
           setActiveCategoryId(catsData[0].id)
         }
         
         if (tempsData.length > 0) {
-          setActiveTemplate(tempsData[0])
+          setActiveTheme(tempsData[0])
         }
       } catch (error) {
         console.error("Error fetching landing data:", error)
@@ -47,17 +47,17 @@ export function Templates() {
     fetchData()
   }, [])
 
-  const filteredTemplates = activeCategoryId 
-    ? templates.filter(t => t.category === activeCategoryId)
-    : templates
+  const filteredThemes = activeCategoryId 
+    ? themes.filter(t => t.category === activeCategoryId)
+    : themes
 
   useEffect(() => {
-    if (filteredTemplates.length > 0) {
-      setActiveTemplate(filteredTemplates[0])
+    if (filteredThemes.length > 0) {
+      setActiveTheme(filteredThemes[0])
     } else {
-      setActiveTemplate(null)
+      setActiveTheme(null)
     }
-  }, [activeCategoryId, templates])
+  }, [activeCategoryId, themes])
 
   if (isLoading) {
     return (
@@ -68,7 +68,7 @@ export function Templates() {
   }
 
   return (
-    <section id="templates" className="py-24">
+    <section id="themes" className="py-24">
       <div className="container mx-auto px-4">
         {/* Section Header */}
         <motion.div 
@@ -108,31 +108,31 @@ export function Templates() {
           </motion.div>
         )}
 
-        {/* Template List for Selected Category (if categories > 1) or all templates */}
+        {/* Theme List for Selected Category (if categories > 1) or all themes */}
         <div className="mb-12 flex flex-wrap justify-center gap-4">
-          {filteredTemplates.map((template) => (
+          {filteredThemes.map((theme) => (
             <Button
-              key={template.id}
-              variant={activeTemplate?.id === template.id ? "secondary" : "ghost"}
-              onClick={() => setActiveTemplate(template)}
+              key={theme.id}
+              variant={activeTheme?.id === theme.id ? "secondary" : "ghost"}
+              onClick={() => setActiveTheme(theme)}
               className="px-6 py-2"
             >
-              {template.name}
-              {template.tag && (
+              {theme.name}
+              {theme.tag && (
                 <Badge variant="outline" className="mr-2 border-primary text-primary">
-                  {template.tag}
+                  {theme.tag}
                 </Badge>
               )}
             </Button>
           ))}
         </div>
 
-        {/* Template Preview */}
+        {/* Theme Preview */}
         <div className="mx-auto max-w-5xl">
           <AnimatePresence mode="wait">
-            {activeTemplate && (
+            {activeTheme && (
               <motion.div
-                key={activeTemplate.id}
+                key={activeTheme.id}
                 initial={{ opacity: 0, x: 20 }}
                 animate={{ opacity: 1, x: 0 }}
                 exit={{ opacity: 0, x: -20 }}
@@ -148,7 +148,7 @@ export function Templates() {
                     </div>
                     <div className="flex-1 px-4">
                       <div className="mx-auto max-w-md rounded-md bg-background px-4 py-1.5 text-center text-xs text-muted-foreground ltr">
-                        {activeTemplate.slug}.menusaz.ir
+                        {activeTheme.slug}.menusaz.ir
                       </div>
                     </div>
                     <Button variant="ghost" size="sm" className="gap-2">
@@ -159,10 +159,10 @@ export function Templates() {
 
                   {/* Theme Preview Content */}
                   <div className="aspect-[16/9] relative bg-muted flex items-center justify-center">
-                    {activeTemplate.preview_image ? (
+                    {activeTheme.preview_image ? (
                       <img 
-                        src={activeTemplate.preview_image} 
-                        alt={activeTemplate.name}
+                        src={activeTheme.preview_image} 
+                        alt={activeTheme.name}
                         className="w-full h-full object-cover"
                       />
                     ) : (
@@ -171,19 +171,19 @@ export function Templates() {
                   </div>
                 </div>
 
-                {/* Template Info */}
+                {/* Theme Info */}
                 <div className="mt-6 text-center">
                   <div className="flex items-center justify-center gap-2 mb-2">
-                    <h3 className="text-xl font-semibold">{activeTemplate.name}</h3>
-                    {activeTemplate.tag && (
+                    <h3 className="text-xl font-semibold">{activeTheme.name}</h3>
+                    {activeTheme.tag && (
                       <Badge className="bg-primary/10 text-primary hover:bg-primary/20 border-none">
-                        {activeTemplate.tag}
+                        {activeTheme.tag}
                       </Badge>
                     )}
                   </div>
-                  {activeTemplate.description && (
+                  {activeTheme.description && (
                     <p className="text-muted-foreground max-w-2xl mx-auto">
-                      {activeTemplate.description}
+                      {activeTheme.description}
                     </p>
                   )}
                 </div>

@@ -7,7 +7,7 @@ import { Badge } from "@/components/ui/badge"
 import { Check, Eye, Lock, Loader2, Globe } from "lucide-react"
 import { toast } from "sonner"
 import { api } from "@/lib/api"
-import { Template } from "@/types"
+import { Theme } from "@/types"
 import Image from "next/image"
 import {
   Dialog,
@@ -19,24 +19,24 @@ import {
 } from "@/components/ui/dialog"
 
 export default function ThemesPage() {
-  const [templates, setTemplates] = useState<Template[]>([])
+  const [themes, setThemes] = useState<Theme[]>([])
   const [site, setSite] = useState<any>(null)
   const [selectedThemeId, setSelectedThemeId] = useState<number | null>(null)
   const [isLoading, setIsLoading] = useState(true)
   const [isApplying, setIsApplying] = useState(false)
-  const [previewTheme, setPreviewTheme] = useState<Template | null>(null)
+  const [previewTheme, setPreviewTheme] = useState<Theme | null>(null)
   const [isPreviewOpen, setIsPreviewOpen] = useState(false)
 
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const [siteData, templatesData] = await Promise.all([
+        const [siteData, themesData] = await Promise.all([
           api.get("/site/me/"),
-          api.get("/templates/")
+          api.get("/themes/")
         ])
         setSite(siteData)
-        setTemplates(templatesData)
-        setSelectedThemeId(siteData.template)
+        setThemes(themesData)
+        setSelectedThemeId(siteData.theme)
       } catch (error) {
         console.error("Error fetching data:", error)
         toast.error("خطا در دریافت اطلاعات")
@@ -48,12 +48,12 @@ export default function ThemesPage() {
   }, [])
 
   const handleApply = async () => {
-    if (!selectedThemeId || selectedThemeId === site?.template) return
+    if (!selectedThemeId || selectedThemeId === site?.theme) return
     
     setIsApplying(true)
     try {
       const formData = new FormData()
-      formData.append("template_id", selectedThemeId.toString())
+      formData.append("theme_id", selectedThemeId.toString())
       
       const updatedSite = await api.patch("/site/settings/", formData)
       setSite(updatedSite)
@@ -86,7 +86,7 @@ export default function ThemesPage() {
         </div>
         <Button 
           onClick={handleApply} 
-          disabled={selectedThemeId === site?.template || isApplying}
+          disabled={selectedThemeId === site?.theme || isApplying}
         >
           {isApplying && <Loader2 className="ml-2 h-4 w-4 animate-spin" />}
           اعمال قالب
@@ -95,26 +95,26 @@ export default function ThemesPage() {
 
       {/* Themes Grid */}
       <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-        {templates.map((template) => {
-          const isSelected = selectedThemeId === template.id
-          const isCurrent = site?.template === template.id
+        {themes.map((theme) => {
+          const isSelected = selectedThemeId === theme.id
+          const isCurrent = site?.theme === theme.id
 
           return (
             <Card
-              key={template.id}
+              key={theme.id}
               className={`cursor-pointer overflow-hidden transition-all flex flex-col ${
                 isSelected
                   ? "ring-2 ring-primary"
                   : "hover:border-primary/50"
               }`}
-              onClick={() => setSelectedThemeId(template.id)}
+              onClick={() => setSelectedThemeId(theme.id)}
             >
               {/* Theme Preview */}
               <div className="relative aspect-[4/3] bg-muted">
-                {template.preview_image ? (
+                {theme.preview_image ? (
                   <Image 
-                    src={template.preview_image} 
-                    alt={template.name}
+                    src={theme.preview_image} 
+                    alt={theme.name}
                     fill
                     className="object-cover"
                   />
@@ -126,9 +126,9 @@ export default function ThemesPage() {
 
                 {/* Badges */}
                 <div className="absolute right-2 top-2 flex flex-col gap-1">
-                  {template.tag && (
+                  {theme.tag && (
                     <Badge variant="default" className="text-xs">
-                      {template.tag === "New" ? "جدید" : template.tag}
+                      {theme.tag === "New" ? "جدید" : theme.tag}
                     </Badge>
                   )}
                 </div>
@@ -145,9 +145,9 @@ export default function ThemesPage() {
               <CardContent className="p-4 flex-1 flex flex-col">
                 <div className="flex items-center justify-between mb-2">
                   <div className="text-right">
-                    <h3 className="font-semibold">{template.name}</h3>
+                    <h3 className="font-semibold">{theme.name}</h3>
                     <p className="text-xs text-muted-foreground">
-                      {template.category_name}
+                      {theme.category_name}
                     </p>
                   </div>
                   {isCurrent && (
@@ -156,14 +156,14 @@ export default function ThemesPage() {
                 </div>
                 
                 <p className="text-sm text-muted-foreground line-clamp-2 text-right mb-4 flex-1">
-                  {template.description || "بدون توضیح"}
+                  {theme.description || "بدون توضیح"}
                 </p>
 
                 {/* Actions */}
                 <div className="mt-auto flex gap-2">
-                  <Dialog open={isPreviewOpen && previewTheme?.id === template.id} onOpenChange={(open) => {
+                  <Dialog open={isPreviewOpen && previewTheme?.id === theme.id} onOpenChange={(open) => {
                     setIsPreviewOpen(open)
-                    if (open) setPreviewTheme(template)
+                    if (open) setPreviewTheme(theme)
                   }}>
                     <DialogTrigger asChild>
                       <Button 
@@ -172,7 +172,7 @@ export default function ThemesPage() {
                         className="flex-1 gap-1"
                         onClick={(e) => {
                           e.stopPropagation()
-                          setPreviewTheme(template)
+                          setPreviewTheme(theme)
                           setIsPreviewOpen(true)
                         }}
                       >
@@ -180,26 +180,34 @@ export default function ThemesPage() {
                         پیش‌نمایش
                       </Button>
                     </DialogTrigger>
-                    <DialogContent className="max-w-[95vw] md:max-w-2xl p-0 overflow-hidden sm:rounded-2xl flex flex-col max-h-[85vh]">
+                    <DialogContent className="max-w-[95vw] md:max-w-4xl p-0 overflow-hidden sm:rounded-2xl flex flex-col max-h-[90vh]">
                       <DialogHeader className="p-6 pb-2 border-b">
                         <DialogTitle className="text-xl text-right">{previewTheme?.name}</DialogTitle>
                       </DialogHeader>
                       <div className="flex-1 overflow-y-auto p-4 md:p-6 bg-muted/20">
-                        <div 
-                          className="w-full relative rounded-lg border overflow-hidden shadow-sm bg-background"
-                        >
-                          {previewTheme?.preview_image ? (
-                            <img 
-                              src={previewTheme.preview_image} 
-                              alt={previewTheme.name}
-                              className="w-full h-auto object-cover max-h-[50vh]"
+                        {previewTheme?.preview_url ? (
+                          <div className="w-full h-[60vh] rounded-lg border overflow-hidden shadow-sm bg-background">
+                            <iframe 
+                              src={previewTheme.preview_url} 
+                              className="w-full h-full" 
+                              title={previewTheme.name}
                             />
-                          ) : (
-                            <div className="aspect-video flex items-center justify-center">
-                              <p className="text-muted-foreground">تصویری برای پیش‌نمایش یافت نشد</p>
-                            </div>
-                          )}
-                        </div>
+                          </div>
+                        ) : (
+                          <div className="w-full relative rounded-lg border overflow-hidden shadow-sm bg-background">
+                            {previewTheme?.preview_image ? (
+                              <img 
+                                src={previewTheme.preview_image} 
+                                alt={previewTheme.name}
+                                className="w-full h-auto object-cover max-h-[50vh]"
+                              />
+                            ) : (
+                              <div className="aspect-video flex items-center justify-center">
+                                <p className="text-muted-foreground">تصویری برای پیش‌نمایش یافت نشد</p>
+                              </div>
+                            )}
+                          </div>
+                        )}
                         {previewTheme?.description && (
                           <p className="mt-4 text-right text-muted-foreground">{previewTheme.description}</p>
                         )}
@@ -209,7 +217,7 @@ export default function ThemesPage() {
                           <Button variant="outline" size="sm">بستن</Button>
                         </DialogClose>
                         <Button size="sm" onClick={() => {
-                          setSelectedThemeId(template.id)
+                          setSelectedThemeId(theme.id)
                           setIsPreviewOpen(false)
                         }}>انتخاب این قالب</Button>
                       </div>
@@ -222,7 +230,7 @@ export default function ThemesPage() {
                     variant={isSelected ? "default" : "outline"}
                     onClick={(e) => {
                       e.stopPropagation()
-                      setSelectedThemeId(template.id)
+                      setSelectedThemeId(theme.id)
                     }}
                   >
                     {isSelected ? "انتخاب شده" : "انتخاب"}

@@ -10,7 +10,7 @@ const footerLinks = {
     links: [
       { href: "/#features", label: "امکانات" },
       { href: "/pricing", label: "تعرفه‌ها" },
-      { href: "/#templates", label: "قالب‌ها" },
+      { href: "/#themes", label: "قالب‌ها" },
       { href: "/#faq", label: "سوالات متداول" },
     ],
   },

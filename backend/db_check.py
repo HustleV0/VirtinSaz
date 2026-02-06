@@ -12,14 +12,14 @@ else:
         tables = cursor.fetchall()
         print("Tables:", [t[0] for t in tables])
         
-        if ('sites_template',) in tables:
-            cursor.execute("SELECT * FROM sites_template;")
+        if ('sites_theme',) in tables:
+            cursor.execute("SELECT * FROM sites_theme;")
             rows = cursor.fetchall()
-            print(f"Found {len(rows)} templates in sites_template")
+            print(f"Found {len(rows)} themes in sites_theme")
             for row in rows:
                 print(row)
         else:
-            print("Table sites_template not found")
+            print("Table sites_theme not found")
             
     except Exception as e:
         print(f"Error: {e}")

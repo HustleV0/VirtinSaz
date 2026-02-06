@@ -130,7 +130,7 @@ export interface PaymentGateway {
   isDefault: boolean
 }
 
-// Themes/Templates
+// Themes
 export interface SiteCategory {
   id: number
   name: string
@@ -139,39 +139,22 @@ export interface SiteCategory {
   created_at: string
 }
 
-export interface Template {
+export interface Theme {
   id: number
   name: string
   slug: string
-  category: number
+  category: number | null
   category_name: string
+  site_types: string[]
   preview_image: string
+  preview_url: string | null
   tag?: string | null
   description?: string | null
   source_identifier: string
+  config: Record<string, any>
+  default_settings: Record<string, any>
   is_active: boolean
   created_at: string
-}
-
-export interface Theme {
-  id: string
-  name: string
-  nameEn: string
-  description: string
-  thumbnail: string
-  previewUrl: string
-  category: 'minimal' | 'modern' | 'traditional'
-  colors: ThemeColors
-  isNew?: boolean
-  isPremium?: boolean
-}
-
-export interface ThemeColors {
-  primary: string
-  secondary: string
-  accent: string
-  background: string
-  text: string
 }
 
 // Dashboard Stats

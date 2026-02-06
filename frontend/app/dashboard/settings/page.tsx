@@ -19,7 +19,7 @@ export default function SettingsPage() {
   const [isLoading, setIsLoading] = useState(true)
   const [isSaving, setIsSaving] = useState(false)
   const [site, setSite] = useState<any>(null)
-  const [templates, setTemplates] = useState<any[]>([])
+  const [themes, setThemes] = useState<any[]>([])
   const [logoFile, setLogoFile] = useState<File | null>(null)
   const [logoPreview, setLogoPreview] = useState<string | null>(null)
   const [coverFile, setCoverFile] = useState<File | null>(null)
@@ -64,8 +64,8 @@ export default function SettingsPage() {
         })
 
         if (siteData.category) {
-          const templatesData = await api.get(`/templates/?category_id=${siteData.category}`)
-          setTemplates(templatesData)
+          const themesData = await api.get(`/themes/?category_id=${siteData.category}`)
+          setThemes(themesData)
         }
       } catch (error) {
         toast.error("خطا در بارگذاری اطلاعات")
@@ -97,8 +97,8 @@ export default function SettingsPage() {
         formData.append("cover_image", coverFile)
       }
 
-      if (data.template_id) {
-        formData.append("template_id", data.template_id.toString())
+      if (data.theme_id) {
+        formData.append("theme_id", data.theme_id.toString())
       }
 
       const updatedSite = await api.patch("/site/settings/", formData)
@@ -150,9 +150,9 @@ export default function SettingsPage() {
     }
   }
 
-  const changeTemplate = async (templateId: number) => {
-    if (templateId === site.template) return
-    handleSave({ template_id: templateId })
+  const changeTheme = async (themeId: number) => {
+    if (themeId === site.theme) return
+    handleSave({ theme_id: themeId })
   }
 
   if (isLoading) {
@@ -174,7 +174,7 @@ export default function SettingsPage() {
           <TabsTrigger value="general">اطلاعات کلی</TabsTrigger>
           <TabsTrigger value="social">شبکه‌های اجتماعی</TabsTrigger>
           <TabsTrigger value="appearance">ظاهر</TabsTrigger>
-          <TabsTrigger value="templates">انتخاب قالب</TabsTrigger>
+          <TabsTrigger value="themes">انتخاب قالب</TabsTrigger>
           <TabsTrigger value="domain">دامنه</TabsTrigger>
         </TabsList>
 
@@ -398,30 +398,30 @@ export default function SettingsPage() {
         </TabsContent>
 
         {/* Templates */}
-        <TabsContent value="templates">
+        <TabsContent value="themes">
           <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
-            {templates.map((template) => (
+            {themes.map((theme) => (
               <Card 
-                key={template.id} 
-                className={`overflow-hidden cursor-pointer transition-all ${template.id === site.template ? 'ring-2 ring-primary' : 'hover:shadow-md'}`}
-                onClick={() => changeTemplate(template.id)}
+                key={theme.id} 
+                className={`overflow-hidden cursor-pointer transition-all ${theme.id === site.theme ? 'ring-2 ring-primary' : 'hover:shadow-md'}`}
+                onClick={() => changeTheme(theme.id)}
               >
                 <div className="relative aspect-video">
                   <Image
-                    src={template.preview_image || "/placeholder.svg"}
-                    alt={template.name}
+                    src={theme.preview_image || "/placeholder.svg"}
+                    alt={theme.name}
                     fill
                     className="object-cover"
                   />
-                  {template.id === site.template && (
+                  {theme.id === site.theme && (
                     <div className="absolute top-2 right-2 bg-primary text-primary-foreground rounded-full p-1 shadow-lg">
                       <Check className="h-4 w-4" />
                     </div>
                   )}
                 </div>
                 <CardHeader className="p-4">
-                  <CardTitle className="text-base">{template.name}</CardTitle>
-                  <CardDescription>{template.tag || "قالب پیش‌فرض"}</CardDescription>
+                  <CardTitle className="text-base">{theme.name}</CardTitle>
+                  <CardDescription>{theme.tag || "قالب پیش‌فرض"}</CardDescription>
                 </CardHeader>
               </Card>
             ))}

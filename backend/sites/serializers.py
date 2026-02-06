@@ -1,7 +1,7 @@
 from rest_framework import serializers
 from django.db import transaction
 from django.contrib.auth import get_user_model
-from .models import SiteCategory, Template, Site
+from .models import SiteCategory, Theme, Site
 from rest_framework_simplejwt.tokens import RefreshToken
 
 User = get_user_model()
@@ -11,27 +11,28 @@ class SiteCategorySerializer(serializers.ModelSerializer):
         model = SiteCategory
         fields = ['id', 'name', 'slug', 'is_active', 'created_at']
 
-class TemplateSerializer(serializers.ModelSerializer):
+class ThemeSerializer(serializers.ModelSerializer):
     category_name = serializers.CharField(source='category.name', read_only=True)
 
     class Meta:
-        model = Template
+        model = Theme
         fields = [
             'id', 'name', 'slug', 'category', 'category_name', 
-            'preview_image', 'tag', 'description', 
-            'source_identifier', 'is_active', 'created_at'
+            'site_types', 'preview_image', 'preview_url', 'tag', 
+            'description', 'source_identifier', 'config', 
+            'default_settings', 'is_active', 'created_at'
         ]
 
 class SiteSerializer(serializers.ModelSerializer):
     category_name = serializers.CharField(source='category.name', read_only=True)
-    template_name = serializers.CharField(source='template.name', read_only=True)
-    source_identifier = serializers.CharField(source='template.source_identifier', read_only=True)
+    theme_name = serializers.CharField(source='theme.name', read_only=True)
+    source_identifier = serializers.CharField(source='theme.source_identifier', read_only=True)
     owner_phone = serializers.CharField(source='owner.phone_number', read_only=True)
     owner_id = serializers.IntegerField(source='owner.id', read_only=True)
 
     class Meta:
         model = Site
-        fields = ['id', 'name', 'slug', 'logo', 'cover_image', 'category', 'category_name', 'template', 'template_name', 'source_identifier', 'owner_phone', 'owner_id', 'settings', 'created_at']
+        fields = ['id', 'name', 'slug', 'logo', 'cover_image', 'category', 'category_name', 'theme', 'theme_name', 'source_identifier', 'owner_phone', 'owner_id', 'settings', 'created_at']
         read_only_fields = ['owner']
 
 class SignupSerializer(serializers.Serializer):
@@ -39,7 +40,7 @@ class SignupSerializer(serializers.Serializer):
     password = serializers.CharField(write_only=True)
     site_name = serializers.CharField(max_length=255)
     category_id = serializers.IntegerField()
-    template_id = serializers.IntegerField()
+    theme_id = serializers.IntegerField()
     
     tokens = serializers.SerializerMethodField()
 
@@ -48,15 +49,16 @@ class SignupSerializer(serializers.Serializer):
         if not category:
             raise serializers.ValidationError({"category_id": "Category not found or inactive."})
         
-        template = Template.objects.filter(id=attrs['template_id'], is_active=True).first()
-        if not template:
-            raise serializers.ValidationError({"template_id": "Template not found or inactive."})
+        theme = Theme.objects.filter(id=attrs['theme_id'], is_active=True).first()
+        if not theme:
+            raise serializers.ValidationError({"theme_id": "Theme not found or inactive."})
         
-        if template.category_id != category.id:
-            raise serializers.ValidationError({"template_id": "Template does not belong to the selected category."})
+        # Check if theme supports this category
+        if theme.category_id != category.id and category.slug not in (theme.site_types or []):
+            raise serializers.ValidationError({"theme_id": "Theme does not support the selected category."})
         
         attrs['category'] = category
-        attrs['template'] = template
+        attrs['theme'] = theme
         return attrs
 
     @transaction.atomic
@@ -73,8 +75,8 @@ class SignupSerializer(serializers.Serializer):
             name=validated_data['site_name'],
             slug=slugify(validated_data['site_name'], allow_unicode=True),
             category=validated_data['category'],
-            template=validated_data['template'],
-            settings=validated_data['template'].default_settings
+            theme=validated_data['theme'],
+            settings=validated_data['theme'].default_settings
         )
         
         self.user = user

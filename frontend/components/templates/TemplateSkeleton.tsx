@@ -2,7 +2,7 @@
 
 import { Skeleton } from "@/components/ui/skeleton"
 
-export function TemplateSkeleton() {
+export function ThemeSkeleton() {
   return (
     <div className="min-h-screen bg-background">
       {/* Header Skeleton */}

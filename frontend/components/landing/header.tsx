@@ -13,7 +13,7 @@ const navItems = [
   { href: "/", label: "خانه" },
   { href: "/pricing", label: "تعرفه‌ها" },
   { href: "/#features", label: "امکانات" },
-  { href: "/#templates", label: "قالب‌ها" },
+  { href: "/#themes", label: "قالب‌ها" },
   { href: "/#faq", label: "سوالات متداول" },
 ]
 

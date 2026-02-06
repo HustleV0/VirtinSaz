@@ -1,27 +1,34 @@
 from rest_framework import generics, status, permissions
 from rest_framework.response import Response
-from .models import SiteCategory, Template, Site
-from .serializers import SiteCategorySerializer, TemplateSerializer, SiteSerializer, SignupSerializer
+from .models import SiteCategory, Theme, Site
+from .serializers import SiteCategorySerializer, ThemeSerializer, SiteSerializer, SignupSerializer
 
 class SiteCategoryListView(generics.ListAPIView):
     queryset = SiteCategory.objects.filter(is_active=True)
     serializer_class = SiteCategorySerializer
     permission_classes = [permissions.AllowAny]
 
-class TemplateListView(generics.ListAPIView):
-    serializer_class = TemplateSerializer
+class ThemeListView(generics.ListAPIView):
+    serializer_class = ThemeSerializer
     permission_classes = [permissions.AllowAny]
 
     def get_queryset(self):
-        queryset = Template.objects.filter(is_active=True)
+        queryset = Theme.objects.filter(is_active=True)
         category_id = self.request.query_params.get('category_id')
         if category_id:
-            queryset = queryset.filter(category_id=category_id)
+            try:
+                category = SiteCategory.objects.get(id=category_id)
+                from django.db.models import Q
+                queryset = queryset.filter(
+                    Q(category_id=category_id) | Q(site_types__contains=category.slug)
+                )
+            except SiteCategory.DoesNotExist:
+                queryset = queryset.filter(category_id=category_id)
         return queryset
 
-class TemplateDetailView(generics.RetrieveAPIView):
-    queryset = Template.objects.filter(is_active=True)
-    serializer_class = TemplateSerializer
+class ThemeDetailView(generics.RetrieveAPIView):
+    queryset = Theme.objects.filter(is_active=True)
+    serializer_class = ThemeSerializer
     permission_classes = [permissions.AllowAny]
 
 class SignupView(generics.CreateAPIView):
@@ -67,11 +74,11 @@ class SiteCreateView(generics.CreateAPIView):
             name = validated_data.get('name', self.request.data.get('name'))
             slug = slugify(name, allow_unicode=True)
             
-        # Get template default settings
-        template = validated_data.get('template')
+        # Get theme default settings
+        theme = validated_data.get('theme')
         default_settings = {}
-        if template:
-            default_settings = template.default_settings
+        if theme:
+            default_settings = theme.default_settings
 
         serializer.save(owner=self.request.user, slug=slug, settings=default_settings)
 
@@ -99,27 +106,27 @@ class SiteSettingsUpdateView(generics.UpdateAPIView):
         if not instance:
             return Response({"detail": "No site found for this user."}, status=status.HTTP_404_NOT_FOUND)
         
-        # 1. Handle Template Update
-        template_id = request.data.get('template_id')
-        if template_id:
+        # 1. Handle Theme Update
+        theme_id = request.data.get('theme_id')
+        if theme_id:
             try:
-                new_template = Template.objects.get(id=template_id, is_active=True)
-                # Check if template is in the same category
-                if new_template.category_id != instance.category_id:
+                new_theme = Theme.objects.get(id=theme_id, is_active=True)
+                # Check if theme supports this category
+                if new_theme.category_id != instance.category_id and instance.category.slug not in (new_theme.site_types or []):
                     return Response(
-                        {"detail": "You can only switch templates within your current category."}, 
+                        {"detail": "This theme does not support your site type."}, 
                         status=status.HTTP_400_BAD_REQUEST
                     )
-                instance.template = new_template
-                # Merge new template default settings with existing settings
-                if isinstance(new_template.default_settings, dict) and isinstance(instance.settings, dict):
-                    merged_settings = new_template.default_settings.copy()
+                instance.theme = new_theme
+                # Merge new theme default settings with existing settings
+                if isinstance(new_theme.default_settings, dict) and isinstance(instance.settings, dict):
+                    merged_settings = new_theme.default_settings.copy()
                     merged_settings.update(instance.settings)
                     instance.settings = merged_settings
                 else:
-                    instance.settings = new_template.default_settings
-            except Template.DoesNotExist:
-                return Response({"detail": "Template not found or inactive."}, status=status.HTTP_400_BAD_REQUEST)
+                    instance.settings = new_theme.default_settings
+            except Theme.DoesNotExist:
+                return Response({"detail": "Theme not found or inactive."}, status=status.HTTP_400_BAD_REQUEST)
 
         # 2. Handle Settings Update
         settings_data = request.data.get('settings')

@@ -1,7 +1,7 @@
 from rest_framework import serializers
 from .models import User, OTP
 from rest_framework_simplejwt.tokens import RefreshToken
-from sites.models import Site, SiteCategory, Template
+from sites.models import Site, SiteCategory, Theme
 from django.db import transaction
 
 class UserSerializer(serializers.ModelSerializer):
@@ -29,11 +29,11 @@ class RegisterSerializer(serializers.ModelSerializer):
     tokens = serializers.SerializerMethodField()
     site_slug = serializers.CharField(required=False, allow_blank=True)
     category_id = serializers.IntegerField(required=False, allow_null=True)
-    template_id = serializers.IntegerField(required=False, allow_null=True)
+    theme_id = serializers.IntegerField(required=False, allow_null=True)
 
     class Meta:
         model = User
-        fields = ['phone_number', 'email', 'full_name', 'restaurant_name', 'password', 'tokens', 'site_slug', 'category_id', 'template_id']
+        fields = ['phone_number', 'email', 'full_name', 'restaurant_name', 'password', 'tokens', 'site_slug', 'category_id', 'theme_id']
 
     def get_tokens(self, user):
         refresh = RefreshToken.for_user(user)

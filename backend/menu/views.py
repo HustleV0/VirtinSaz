@@ -2,7 +2,7 @@ from rest_framework import viewsets, permissions, filters, exceptions, generics
 from rest_framework.response import Response
 from .models import ProductTag, ProductCategory, Product
 from .serializers import ProductTagSerializer, ProductCategorySerializer, ProductSerializer
-from sites.models import Site, SiteCategory, Template
+from sites.models import Site, SiteCategory, Theme
 
 class PublicMenuDataView(generics.RetrieveAPIView):
     permission_classes = [permissions.AllowAny]

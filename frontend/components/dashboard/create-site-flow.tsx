@@ -17,7 +17,7 @@ interface Category {
   slug: string
 }
 
-interface Template {
+interface Theme {
   id: number
   name: string
   slug: string
@@ -35,11 +35,11 @@ export function CreateSiteFlow() {
     name: user?.restaurant_name || "",
     slug: "",
     category_id: "",
-    template_id: "",
+    theme_id: "",
   })
 
   const [categories, setCategories] = useState<Category[]>([])
-  const [templates, setTemplates] = useState<Template[]>([])
+  const [themes, setThemes] = useState<Theme[]>([])
 
   useEffect(() => {
     fetchCategories()
@@ -47,7 +47,7 @@ export function CreateSiteFlow() {
 
   useEffect(() => {
     if (formData.category_id) {
-      fetchTemplates(formData.category_id)
+      fetchThemes(formData.category_id)
     }
   }, [formData.category_id])
 
@@ -61,11 +61,11 @@ export function CreateSiteFlow() {
     }
   }
 
-  const fetchTemplates = async (categoryId: string) => {
+  const fetchThemes = async (categoryId: string) => {
     try {
-      const res = await fetch(`http://localhost:8000/api/templates/?category_id=${categoryId}`)
+      const res = await fetch(`http://localhost:8000/api/themes/?category_id=${categoryId}`)
       const data = await res.json()
-      setTemplates(data)
+      setThemes(data)
     } catch (error) {
       toast.error("خطا در دریافت قالب‌ها")
     }
@@ -87,7 +87,7 @@ export function CreateSiteFlow() {
   }
 
   const handleSubmit = async () => {
-    if (!formData.template_id) return toast.error("انتخاب قالب الزامی است")
+    if (!formData.theme_id) return toast.error("انتخاب قالب الزامی است")
     
     setIsLoading(true)
     try {
@@ -101,7 +101,7 @@ export function CreateSiteFlow() {
           name: formData.name,
           slug: formData.slug,
           category: formData.category_id,
-          template: formData.template_id
+          theme: formData.theme_id
         })
       })
 
@@ -220,14 +220,14 @@ export function CreateSiteFlow() {
 
           {step === 3 && (
             <div className="grid grid-cols-2 gap-4">
-              {templates.length > 0 ? (
-                templates.map((tpl) => (
+              {themes.length > 0 ? (
+                themes.map((tpl) => (
                   <div
                     key={tpl.id}
-                    onClick={() => setFormData({ ...formData, template_id: tpl.id.toString() })}
+                    onClick={() => setFormData({ ...formData, theme_id: tpl.id.toString() })}
                     className={cn(
                       "relative cursor-pointer overflow-hidden rounded-xl border-2 transition-all hover:shadow-md",
-                      formData.template_id === tpl.id.toString() ? "border-primary" : "border-border"
+                      formData.theme_id === tpl.id.toString() ? "border-primary" : "border-border"
                     )}
                   >
                     <div className="aspect-video bg-muted">
@@ -242,7 +242,7 @@ export function CreateSiteFlow() {
                     <div className="p-3">
                       <p className="text-sm font-medium">{tpl.name}</p>
                     </div>
-                    {formData.template_id === tpl.id.toString() && (
+                    {formData.theme_id === tpl.id.toString() && (
                       <div className="absolute top-2 left-2 flex h-6 w-6 items-center justify-center rounded-full bg-primary text-primary-foreground">
                         <Check className="h-4 w-4" />
                       </div>
@@ -274,7 +274,7 @@ export function CreateSiteFlow() {
               <ArrowLeft className="mr-2 h-4 w-4" />
             </Button>
           ) : (
-            <Button onClick={handleSubmit} disabled={isLoading || !formData.template_id}>
+            <Button onClick={handleSubmit} disabled={isLoading || !formData.theme_id}>
               {isLoading ? (
                 <>
                   <Loader2 className="ml-2 h-4 w-4 animate-spin" />

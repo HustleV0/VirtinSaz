@@ -13,20 +13,23 @@ class SiteCategory(models.Model):
     class Meta:
         verbose_name_plural = "Site Categories"
 
-class Template(models.Model):
+class Theme(models.Model):
     name = models.CharField(max_length=255)
     slug = models.SlugField(max_length=255, unique=True, allow_unicode=True)
-    category = models.ForeignKey(SiteCategory, on_delete=models.PROTECT, related_name='templates')
-    preview_image = models.ImageField(upload_to='template_previews/')
+    category = models.ForeignKey(SiteCategory, on_delete=models.SET_NULL, null=True, blank=True, related_name='themes')
+    site_types = models.JSONField(default=list, blank=True, help_text="List of SiteCategory slugs this theme supports")
+    preview_image = models.ImageField(upload_to='theme_previews/')
+    preview_url = models.URLField(max_length=500, null=True, blank=True)
     tag = models.CharField(max_length=50, null=True, blank=True, help_text="e.g. New, Special")
     description = models.TextField(null=True, blank=True)
-    source_identifier = models.CharField(max_length=255, help_text="Used by frontend to load template assets")
+    source_identifier = models.CharField(max_length=255, help_text="Used by frontend to load theme assets")
+    config = models.JSONField(default=dict, blank=True, help_text="Modular theme configuration")
     default_settings = models.JSONField(default=dict, blank=True)
     is_active = models.BooleanField(default=True)
     created_at = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):
-        return f"{self.name} ({self.category.name})"
+        return self.name
 
 class Site(models.Model):
     owner = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='sites')
@@ -35,7 +38,7 @@ class Site(models.Model):
     logo = models.ImageField(upload_to='site_logos/', null=True, blank=True)
     cover_image = models.ImageField(upload_to='site_covers/', null=True, blank=True)
     category = models.ForeignKey(SiteCategory, on_delete=models.PROTECT, related_name='sites')
-    template = models.ForeignKey(Template, on_delete=models.PROTECT, related_name='sites')
+    theme = models.ForeignKey(Theme, on_delete=models.PROTECT, related_name='sites', null=True, blank=True)
     settings = models.JSONField(default=dict, blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
 
@@ -53,10 +56,10 @@ class Site(models.Model):
             slug='general',
             defaults={'name': 'General'}
         )
-        template, _ = Template.objects.get_or_create(
+        theme, _ = Theme.objects.get_or_create(
             slug='default',
             defaults={
-                'name': 'Default Template',
+                'name': 'Default Theme',
                 'category': category,
                 'source_identifier': 'default'
             }
@@ -69,8 +72,8 @@ class Site(models.Model):
                 'name': getattr(user, 'restaurant_name', '') or f"Site for {user.phone_number}",
                 'slug': slugify(getattr(user, 'restaurant_name', '') or f"site-{user.phone_number}", allow_unicode=True),
                 'category': category,
-                'template': template,
-                'settings': template.default_settings
+                'theme': theme,
+                'settings': theme.default_settings
             }
         )
         return site
