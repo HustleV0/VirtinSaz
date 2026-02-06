@@ -102,12 +102,26 @@ WSGI_APPLICATION = 'core.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/6.0/ref/settings/#databases
 
+
+# settings.py
+
+# settings.py
+
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
+        'ENGINE': 'django.db.backends.postgresql',
+        'NAME': 'neondb',  # نام دیتابیس
+        'USER': 'neondb_owner',  # یوزر NeonDB
+        'PASSWORD': 'npg_yVB8utiAocG0',  # پسورد واقعی
+        'HOST': 'ep-silent-breeze-ai9b3ne9-pooler.c-4.us-east-1.aws.neon.tech',  # هاست NeonDB
+        'PORT': '5432',
+        'OPTIONS': {
+            'sslmode': 'require',          # SSL لازم
+            'channel_binding': 'require',  # همونه که تو URL هست
+        },
     }
 }
+
 
 
 # Password validation
