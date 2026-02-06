@@ -1,0 +1,16 @@
+{
+    "slug": "restaurant_minimal",
+    "version": "1.0.0",
+    "required_plugins": ["menu_management"],
+    "optional_plugins": [],
+    "dashboard_sections": [
+        {
+            "title": "Menu Overview",
+            "plugin": "menu_management"
+        }
+    ],
+    "customization_schema": {
+        "primary_color": "string",
+        "show_hero": "boolean"
+    }
+}

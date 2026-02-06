@@ -9,3 +9,5 @@ categories = list(SiteCategory.objects.all())
 print(f"Found {len(categories)} categories")
 for cat in categories:
     print(f"ID: {cat.id}, Name: {cat.name}")
+
+

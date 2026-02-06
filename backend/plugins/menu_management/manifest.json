@@ -1,0 +1,11 @@
+{
+    "slug": "menu_management",
+    "version": "1.0.0",
+    "capabilities": ["menu_crud", "category_management"],
+    "dependencies": {
+        "plugins": [],
+        "packages": ["django-rest-framework"]
+    },
+    "dashboard_widgets": ["menu_stats", "recent_items"],
+    "api_endpoints": ["/api/plugins/menu_management/"]
+}
