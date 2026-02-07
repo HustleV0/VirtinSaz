@@ -147,7 +147,7 @@ export default function RegisterPage() {
             <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-primary">
               <span className="text-lg font-bold text-primary-foreground">م</span>
             </div>
-            <span className="text-2xl font-bold">منوساز</span>
+            <span className="text-2xl font-bold">ویترین ساز</span>
           </Link>
 
           <h1 className="text-2xl font-bold">ایجاد حساب کاربری</h1>
@@ -321,7 +321,7 @@ export default function RegisterPage() {
             وبسایت رستوران خود را در چند دقیقه بسازید
           </h2>
           <p className="mt-4 text-lg text-primary-foreground/80">
-            با منوساز، به سادگی وبسایت حرفه‌ای برای رستوران یا کافه خود بسازید و
+            با ویترین ساز، به سادگی وبسایت حرفه‌ای برای رستوران یا کافه خود بسازید و
             مشتریان بیشتری جذب کنید.
           </p>
         </div>

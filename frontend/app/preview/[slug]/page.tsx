@@ -56,7 +56,7 @@ export default function PreviewPage() {
     return <div className="flex h-screen items-center justify-center">سایت مورد نظر یافت نشد.</div>
   }
 
-  const themeId = siteData.settings?.themeId || "minimal-cafe"
+  const themeId = siteData.source_identifier || "minimal-cafe"
 
   if (loadingStage === "skeleton") {
     switch (themeId) {
@@ -74,7 +74,7 @@ export default function PreviewPage() {
   const restaurantProps = {
     id: siteData.id,
     name: siteData.name,
-    slug: siteData.id.toString(),
+    slug: siteData.slug || siteData.id.toString(),
     description: siteData.settings?.description,
     logo: siteData.logo,
     coverImage: siteData.cover_image,
@@ -88,8 +88,11 @@ export default function PreviewPage() {
       themeId: themeId,
       primaryColor: siteData.settings?.primaryColor || "#000000",
       showPrices: siteData.settings?.showPrices ?? true,
+      address_line: siteData.settings?.address_line,
     }
   }
+
+  console.log("Rendering site with theme:", themeId);
 
   switch (themeId) {
     case "minimal-cafe":

@@ -42,7 +42,7 @@ export default function CareersPage() {
             animate={{ opacity: 1, y: 0 }}
             className="mx-auto max-w-4xl text-center mb-16"
           >
-            <h1 className="text-4xl font-bold mb-4">به تیم منوساز بپیوندید</h1>
+            <h1 className="text-4xl font-bold mb-4">به تیم ویترین ساز بپیوندید</h1>
             <p className="text-muted-foreground text-lg">
               ما همیشه به دنبال افراد بااستعداد و باانگیزه هستیم تا با هم آینده صنعت رستوران‌داری را بسازیم.
             </p>

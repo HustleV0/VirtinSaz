@@ -116,7 +116,9 @@ export function MinimalCafe({
 
   const filteredProducts = products.filter((product) => {
     const matchesCategory =
-      !activeCategory || product.category === activeCategory || product.categoryId === activeCategory
+      !activeCategory || 
+      product.category?.toString() === activeCategory || 
+      product.categoryId?.toString() === activeCategory
     const title = product.title || product.name || ""
     const matchesSearch = title
       .toLowerCase()
@@ -559,7 +561,7 @@ export function MinimalCafe({
             ) : (
               categories.map((category) => {
                 const categoryProducts = filteredProducts.filter(
-                  (p) => (p.category === category.id || p.categoryId === category.id.toString())
+                  (p) => (p.category?.toString() === category.id.toString() || p.categoryId?.toString() === category.id.toString())
                 )
                 if (categoryProducts.length === 0) return null
 
@@ -611,10 +613,10 @@ export function MinimalCafe({
               <span className="font-bold">{restaurant.name}</span>
             </div>
 
-            {restaurant.address && (
+            {(restaurant.settings.address_line || restaurant.address) && (
               <div className="flex items-center gap-2 text-sm text-muted-foreground">
                 <MapPin className="h-4 w-4" />
-                {restaurant.address}
+                {restaurant.settings.address_line || restaurant.address}
               </div>
             )}
 
@@ -631,7 +633,7 @@ export function MinimalCafe({
             <p className="mt-4 text-xs text-muted-foreground">
               ساخته شده با{" "}
               <Link href="/" className="text-primary hover:underline">
-                منوساز
+                ویترین ساز
               </Link>
             </p>
           </div>

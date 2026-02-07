@@ -48,7 +48,7 @@ export function Hero() {
             transition={{ duration: 0.5, delay: 0.2 }}
             className="mx-auto mb-10 max-w-2xl text-lg text-muted-foreground text-pretty md:text-xl"
           >
-            با منوساز به سادگی وبسایت حرفه‌ای برای رستوران یا کافه خود بسازید.
+            با ویترین ساز به سادگی وبسایت حرفه‌ای برای رستوران یا کافه خود بسازید.
             منوی آنلاین، سفارش آنلاین و مدیریت کامل در یک پلتفرم.
           </motion.p>
 
@@ -121,7 +121,7 @@ export function Hero() {
               <div className="h-3 w-3 rounded-full bg-destructive/60" />
               <div className="h-3 w-3 rounded-full bg-warning/60" />
               <div className="h-3 w-3 rounded-full bg-success/60" />
-              <span className="mr-4 text-xs text-muted-foreground">cafe-lezzat.menusaz.ir</span>
+              <span className="mr-4 text-xs text-muted-foreground">cafe-lezzat.vitrinsaz.ir</span>
             </div>
             <div className="aspect-[16/9] overflow-hidden rounded-b-lg bg-muted">
               <div className="flex h-full flex-col">

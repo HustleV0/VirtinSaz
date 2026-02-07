@@ -32,7 +32,7 @@ export default function ForgotPasswordPage() {
           <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-primary">
             <span className="text-lg font-bold text-primary-foreground">م</span>
           </div>
-          <span className="text-2xl font-bold text-foreground">منوساز</span>
+          <span className="text-2xl font-bold text-foreground">ویترین ساز</span>
         </Link>
 
         {!isSubmitted ? (

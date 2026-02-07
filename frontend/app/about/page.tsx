@@ -19,7 +19,7 @@ export default function AboutPage() {
             <h1 className="text-4xl font-bold text-center">درباره ما</h1>
             <div className="prose prose-slate dark:prose-invert max-w-none">
               <p className="text-xl text-muted-foreground text-center">
-                منوساز پلتفرمی نوآورانه برای دیجیتال‌سازی رستوران‌ها و کافه‌های ایران است.
+                ویترین ساز پلتفرمی نوآورانه برای دیجیتال‌سازی رستوران‌ها و کافه‌های ایران است.
               </p>
               <div className="mt-12 grid gap-8">
                 <section>

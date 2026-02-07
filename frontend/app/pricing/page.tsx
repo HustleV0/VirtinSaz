@@ -7,7 +7,7 @@ import { Check } from "lucide-react"
 import { mockPlans, formatPrice } from "@/lib/mock-data"
 
 export const metadata = {
-  title: "تعرفه‌ها | منوساز",
+  title: "تعرفه‌ها | ویترین ساز",
   description: "پلن مناسب کسب‌وکار خود را انتخاب کنید",
 }
 

@@ -312,7 +312,7 @@ export function TraditionalIranian({ restaurant }: { restaurant: Restaurant }) {
                   </div>
                 </nav>
                 <div className="p-6 text-center text-xs opacity-40 border-t" style={{ borderColor: `${themeColors.accent}40` }}>
-                  ساخته شده با عشق در منوساز
+                  ساخته شده با عشق در ویترین ساز
                 </div>
               </SheetContent>
             </Sheet>
@@ -486,7 +486,7 @@ export function TraditionalIranian({ restaurant }: { restaurant: Restaurant }) {
               </a>
             )}
           </div>
-          <p className="text-sm opacity-60">ساخته شده با عشق در منوساز</p>
+          <p className="text-sm opacity-60">ساخته شده با عشق در ویترین ساز</p>
         </div>
       </footer>
     </div>

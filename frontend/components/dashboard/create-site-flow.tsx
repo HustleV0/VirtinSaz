@@ -100,8 +100,8 @@ export function CreateSiteFlow() {
         body: JSON.stringify({
           name: formData.name,
           slug: formData.slug,
-          category: formData.category_id,
-          theme: formData.theme_id
+          category: parseInt(formData.category_id),
+          theme: parseInt(formData.theme_id)
         })
       })
 
@@ -233,7 +233,7 @@ export function CreateSiteFlow() {
                     <div className="aspect-video bg-muted">
                       {tpl.preview_image && (
                         <img 
-                          src={`http://localhost:8000${tpl.preview_image}`} 
+                          src={tpl.preview_image.startsWith('http') ? tpl.preview_image : `http://localhost:8000${tpl.preview_image}`} 
                           alt={tpl.name} 
                           className="h-full w-full object-cover"
                         />

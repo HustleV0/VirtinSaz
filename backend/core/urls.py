@@ -19,6 +19,10 @@ from django.urls import path, include
 from django.conf import settings
 from django.conf.urls.static import static
 
+admin.site.site_header = "VitrinSaz Admin"
+admin.site.site_title = "VitrinSaz Admin"
+admin.site.index_title = "Welcome to VitrinSaz Admin"
+
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('api/accounts/', include('accounts.urls')),

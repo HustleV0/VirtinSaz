@@ -167,7 +167,7 @@ export function TraditionalIranianAbout({ restaurant }: { restaurant: Restaurant
             )}
           </div>
           <p className="opacity-50 font-medium">
-             © ۱۴۰۳ {restaurant.name} | ساخته شده در منوساز
+             © ۱۴۰۳ {restaurant.name} | ساخته شده در ویترین ساز
           </p>
         </div>
       </footer>

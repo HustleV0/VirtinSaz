@@ -36,6 +36,10 @@ export default function SettingsPage() {
     primaryColor: "#000000",
     showPrices: true,
     isPublished: true,
+    our_story: "",
+    working_hours_sat_wed: "",
+    working_hours_thu_fri: "",
+    address_line: "",
   })
 
   useEffect(() => {
@@ -50,7 +54,7 @@ export default function SettingsPage() {
           setCoverPreview(siteData.cover_image)
         }
         setSettings({
-          name: siteData.name,
+          name: siteData.name || "",
           description: siteData.settings?.description || "",
           address: siteData.settings?.address || "",
           phone: siteData.settings?.phone || "",
@@ -61,6 +65,10 @@ export default function SettingsPage() {
           primaryColor: siteData.settings?.primaryColor || "#000000",
           showPrices: siteData.settings?.showPrices ?? true,
           isPublished: siteData.settings?.isPublished ?? true,
+          our_story: siteData.settings?.our_story || "",
+          working_hours_sat_wed: siteData.settings?.working_hours_sat_wed || "",
+          working_hours_thu_fri: siteData.settings?.working_hours_thu_fri || "",
+          address_line: siteData.settings?.address_line || "",
         })
 
         if (siteData.category) {
@@ -286,16 +294,72 @@ export default function SettingsPage() {
                 />
               </div>
 
+              {/* Address Line */}
+              <div className="space-y-2">
+                <Label htmlFor="address_line" className="text-right block">آدرس (یک خطی)</Label>
+                <Input
+                  id="address_line"
+                  value={settings.address_line}
+                  onChange={(e) =>
+                    setSettings({ ...settings, address_line: e.target.value })
+                  }
+                  className="text-right"
+                  placeholder="مثال: تهران، خیابان ولیعصر، نرسیده به میدان ونک"
+                />
+              </div>
+
+              {/* Working Hours */}
+              <div className="grid gap-4 md:grid-cols-2">
+                <div className="space-y-2">
+                  <Label htmlFor="working_hours_sat_wed" className="text-right block">ساعات کاری (شنبه تا چهارشنبه)</Label>
+                  <Input
+                    id="working_hours_sat_wed"
+                    value={settings.working_hours_sat_wed}
+                    onChange={(e) =>
+                      setSettings({ ...settings, working_hours_sat_wed: e.target.value })
+                    }
+                    className="text-right"
+                    placeholder="مثال: ۱۰:۰۰ - ۲۳:۰۰"
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="working_hours_thu_fri" className="text-right block">ساعات کاری (پنجشنبه و جمعه)</Label>
+                  <Input
+                    id="working_hours_thu_fri"
+                    value={settings.working_hours_thu_fri}
+                    onChange={(e) =>
+                      setSettings({ ...settings, working_hours_thu_fri: e.target.value })
+                    }
+                    className="text-right"
+                    placeholder="مثال: ۱۰:۰۰ - ۲۴:۰۰"
+                  />
+                </div>
+              </div>
+
               {/* Description */}
               <div className="space-y-2">
-                <Label htmlFor="description" className="text-right block">توضیحات</Label>
+                <Label htmlFor="description" className="text-right block">توضیحات کوتاه</Label>
                 <Textarea
                   id="description"
                   value={settings.description}
                   onChange={(e) =>
                     setSettings({ ...settings, description: e.target.value })
                   }
-                  rows={3}
+                  rows={2}
+                  className="text-right"
+                />
+              </div>
+
+              {/* Our Story */}
+              <div className="space-y-2">
+                <Label htmlFor="our_story" className="text-right block">داستان ما (بخش درباره ما)</Label>
+                <Textarea
+                  id="our_story"
+                  value={settings.our_story}
+                  onChange={(e) =>
+                    setSettings({ ...settings, our_story: e.target.value })
+                  }
+                  rows={5}
                   className="text-right"
                 />
               </div>

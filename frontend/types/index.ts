@@ -57,6 +57,10 @@ export interface RestaurantSettings {
   currencySymbol: string
   isPublished: boolean
   customDomain?: string
+  our_story?: string
+  working_hours_sat_wed?: string
+  working_hours_thu_fri?: string
+  address_line?: string
 }
 
 // Subscription & Plans

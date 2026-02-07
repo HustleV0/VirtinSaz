@@ -48,7 +48,7 @@ export default function BlogPage() {
       <main className="flex-1 pt-24 pb-12">
         <div className="container mx-auto px-4">
           <div className="text-center mb-12">
-            <h1 className="text-4xl font-bold mb-4">وبلاگ منوساز</h1>
+            <h1 className="text-4xl font-bold mb-4">وبلاگ ویترین ساز</h1>
             <p className="text-muted-foreground text-lg">آخرین مقالات، اخبار و آموزش‌های دنیای رستوران‌داری</p>
           </div>
 

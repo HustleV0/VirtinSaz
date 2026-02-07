@@ -60,7 +60,7 @@ export default function Loading() {
             className="flex items-center gap-2"
           >
             <span className="text-3xl font-black uppercase tracking-[0.2em] text-primary">
-              Meno<span className="text-muted-foreground opacity-50">Saz</span>
+              Vitrin<span className="text-muted-foreground opacity-50">Saz</span>
             </span>
           </motion.div>
           

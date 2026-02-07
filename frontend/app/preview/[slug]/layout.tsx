@@ -14,7 +14,7 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
         : "/favicon.ico"
         
       return {
-        title: `${site.name} | منوساز`,
+        title: `${site.name} | ویترین ساز`,
         description: site.settings?.description || "",
         icons: {
           icon: logoUrl,
@@ -27,7 +27,7 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
 
   const restaurant = mockRestaurants.find(r => r.slug === slug) || mockRestaurants[0]
   return {
-    title: `${restaurant.name} | منوساز`,
+    title: `${restaurant.name} | ویترین ساز`,
     description: restaurant.description,
   }
 }

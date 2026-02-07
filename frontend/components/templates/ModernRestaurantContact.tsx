@@ -159,7 +159,7 @@ export function ModernRestaurantContact({ restaurant }: { restaurant: Restaurant
       <footer className="bg-black text-white py-20 px-6 mt-20">
         <div className="container mx-auto text-center">
            <p className="text-xs font-bold uppercase tracking-[0.2em] opacity-30">
-              © 2024 Powered by MenuSaz
+              © 2024 Powered by VitrinSaz
             </p>
         </div>
       </footer>

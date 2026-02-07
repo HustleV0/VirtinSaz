@@ -168,7 +168,7 @@ export function ModernRestaurantAbout({ restaurant }: { restaurant: Restaurant }
               )}
             </div>
             <p className="text-xs font-bold uppercase tracking-[0.2em] opacity-30">
-              © 2024 Powered by MenuSaz
+              © 2024 Powered by VitrinSaz
             </p>
           </div>
         </div>

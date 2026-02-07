@@ -93,15 +93,11 @@ export function MinimalCafeAbout({ restaurant }: { restaurant: Restaurant }) {
               viewport={{ once: true }}
               className="space-y-4"
             >
-              <h2 className="text-2xl font-bold">داستان ما</h2>
-              <p className="leading-relaxed text-muted-foreground">
-                ما در {restaurant.name} با عشق و علاقه به هنر آشپزی، تلاش می‌کنیم تا بهترین لحظات را برای شما رقم بزنیم. 
-                استفاده از مواد اولیه تازه و با کیفیت، اولویت اصلی ما در تهیه غذاهاست.
-              </p>
-              <p className="leading-relaxed text-muted-foreground">
-                هدف ما فراتر از سرو یک وعده غذایی است؛ ما می‌خواهیم تجربه‌ای ماندگار از طعم و آرامش را به شما هدیه دهیم.
-              </p>
-            </motion.div>
+            <h2 className="text-2xl font-bold">داستان ما</h2>
+            <div className="leading-relaxed text-muted-foreground whitespace-pre-wrap">
+              {restaurant.settings.our_story || `ما در ${restaurant.name} با عشق و علاقه به هنر آشپزی، تلاش می‌کنیم تا بهترین لحظات را برای شما رقم بزنیم. استفاده از مواد اولیه تازه و با کیفیت، اولویت اصلی ما در تهیه غذاهاست.`}
+            </div>
+          </motion.div>
 
             <motion.div
               initial={{ opacity: 0, x: 20 }}
@@ -109,26 +105,32 @@ export function MinimalCafeAbout({ restaurant }: { restaurant: Restaurant }) {
               viewport={{ once: true }}
               className="space-y-8"
             >
+            {(restaurant.settings.working_hours_sat_wed || restaurant.settings.working_hours_thu_fri) && (
               <div className="flex gap-4">
                 <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-primary/10 text-primary">
                   <Clock className="h-6 w-6" />
                 </div>
                 <div>
                   <h3 className="font-bold">ساعات کاری</h3>
-                  <p className="mt-1 text-muted-foreground">شنبه تا چهارشنبه: ۱۰:۰۰ - ۲۳:۰۰</p>
-                  <p className="text-muted-foreground">پنج‌شنبه و جمعه: ۱۰:۰۰ - ۲۴:۰۰</p>
+                  {restaurant.settings.working_hours_sat_wed && (
+                    <p className="mt-1 text-muted-foreground">شنبه تا چهارشنبه: {restaurant.settings.working_hours_sat_wed}</p>
+                  )}
+                  {restaurant.settings.working_hours_thu_fri && (
+                    <p className="text-muted-foreground">پنج‌شنبه و جمعه: {restaurant.settings.working_hours_thu_fri}</p>
+                  )}
                 </div>
               </div>
+            )}
 
-              <div className="flex gap-4">
-                <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-primary/10 text-primary">
-                  <MapPin className="h-6 w-6" />
-                </div>
-                <div>
-                  <h3 className="font-bold">آدرس</h3>
-                  <p className="mt-1 text-muted-foreground">{restaurant.address || "تهران، خیابان ولیعصر"}</p>
-                </div>
+            <div className="flex gap-4">
+              <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-primary/10 text-primary">
+                <MapPin className="h-6 w-6" />
               </div>
+              <div>
+                <h3 className="font-bold">آدرس</h3>
+                <p className="mt-1 text-muted-foreground">{restaurant.settings.address_line || restaurant.address || "تهران، خیابان ولیعصر"}</p>
+              </div>
+            </div>
             </motion.div>
           </div>
 
@@ -140,7 +142,7 @@ export function MinimalCafeAbout({ restaurant }: { restaurant: Restaurant }) {
           >
             <h2 className="text-3xl font-bold">منتظر حضور گرم شما هستیم</h2>
             <p className="mt-4 opacity-90">همین حالا منوی ما را بررسی کنید و سفارش دهید</p>
-            <Link href={`/preview/${restaurant.slug}`}>
+            <Link href={restaurant.website || `/preview/${restaurant.slug}`}>
               <Button size="lg" variant="secondary" className="mt-8 rounded-full px-8">
                 مشاهده منو
               </Button>
@@ -169,7 +171,7 @@ export function MinimalCafeAbout({ restaurant }: { restaurant: Restaurant }) {
             )}
           </div>
           <p className="text-sm text-muted-foreground">
-            © {new Date().getFullYear()} {restaurant.name}. ساخته شده با منوساز
+            © {new Date().getFullYear()} {restaurant.name}. ساخته شده با ویترین ساز
           </p>
         </div>
       </footer>

@@ -89,7 +89,7 @@ function SidebarContent({ onItemClick, restaurantName, phone, siteSlug, hasSite 
           <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-sidebar-primary">
             <span className="text-sm font-bold text-sidebar-primary-foreground">م</span>
           </div>
-          <span className="text-xl font-bold text-sidebar-foreground">منوساز</span>
+          <span className="text-xl font-bold text-sidebar-foreground">ویترین ساز</span>
         </Link>
       </div>
 
@@ -105,7 +105,7 @@ function SidebarContent({ onItemClick, restaurantName, phone, siteSlug, hasSite 
             </p>
             {hasSite && (
               <p className="truncate text-xs text-sidebar-foreground/60" dir="ltr">
-                {slug}.menusaz.ir
+                {slug}.vitrinsaz.ir
               </p>
             )}
           </div>

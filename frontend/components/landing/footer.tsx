@@ -50,7 +50,7 @@ export function Footer() {
               <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-primary">
                 <span className="text-sm font-bold text-primary-foreground">م</span>
               </div>
-              <span className="text-xl font-bold">منوساز</span>
+              <span className="text-xl font-bold">ویترین ساز</span>
             </Link>
             <p className="mt-4 max-w-sm text-sm text-muted-foreground">
               پلتفرم ساخت وبسایت برای رستوران‌ها و کافه‌ها. به سادگی وبسایت حرفه‌ای
@@ -59,7 +59,7 @@ export function Footer() {
             {/* Social Links */}
             <div className="mt-6 flex gap-4">
               <a
-                href="https://instagram.com/menusaz"
+                href="https://instagram.com/vitrinsaz"
                 target="_blank"
                 rel="noopener noreferrer"
                 className="flex h-10 w-10 items-center justify-center rounded-lg bg-secondary text-muted-foreground transition-colors hover:bg-primary hover:text-primary-foreground"
@@ -68,7 +68,7 @@ export function Footer() {
                 <span className="sr-only">اینستاگرام</span>
               </a>
               <a
-                href="https://t.me/menusaz"
+                href="https://t.me/vitrinsaz"
                 target="_blank"
                 rel="noopener noreferrer"
                 className="flex h-10 w-10 items-center justify-center rounded-lg bg-secondary text-muted-foreground transition-colors hover:bg-primary hover:text-primary-foreground"
@@ -109,7 +109,7 @@ export function Footer() {
         {/* Bottom Bar */}
         <div className="mt-12 flex flex-col items-center justify-between gap-4 border-t border-border pt-8 md:flex-row">
           <p className="text-sm text-muted-foreground">
-            © ۱۴۰۴ منوساز. تمامی حقوق محفوظ است.
+            © ۱۴۰۴ ویترین ساز. تمامی حقوق محفوظ است.
           </p>
           <p className="text-sm text-muted-foreground">
             ساخته شده با عشق در ایران

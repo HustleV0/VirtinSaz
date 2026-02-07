@@ -42,7 +42,7 @@ export function Header() {
           <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-primary">
             <span className="text-sm font-bold text-primary-foreground">م</span>
           </div>
-          <span className="text-xl font-bold">منوساز</span>
+          <span className="text-xl font-bold">ویترین ساز</span>
         </Link>
 
         {/* Desktop Navigation */}
@@ -101,7 +101,7 @@ export function Header() {
                   <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-primary">
                     <span className="text-sm font-bold text-primary-foreground">م</span>
                   </div>
-                  <span className="text-xl font-bold">منوساز</span>
+                  <span className="text-xl font-bold">ویترین ساز</span>
                 </Link>
                 <nav className="flex flex-col gap-4">
                   {navItems.map((item) => (
