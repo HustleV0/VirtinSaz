@@ -30,8 +30,6 @@ ALLOWED_HOSTS = []
 
 # Application definition
 
-import os
-
 INSTALLED_APPS = [
     'django.contrib.admin',
     'django.contrib.auth',
@@ -44,24 +42,7 @@ INSTALLED_APPS = [
     'accounts',
     'sites',
     'menu',
-    'plugin_engine',
 ]
-
-# Dynamic Plugin Discovery
-PLUGINS_DIR = os.path.join(BASE_DIR, 'plugins')
-if os.path.exists(PLUGINS_DIR):
-    for plugin_slug in os.listdir(PLUGINS_DIR):
-        plugin_path = os.path.join(PLUGINS_DIR, plugin_slug)
-        if os.path.isdir(plugin_path) and os.path.exists(os.path.join(plugin_path, 'models.py')):
-            INSTALLED_APPS.append(f'plugins.{plugin_slug}')
-
-# Dynamic Template Discovery (for models)
-TEMPLATES_ROOT_DIR = os.path.join(BASE_DIR, 'templates')
-if os.path.exists(TEMPLATES_ROOT_DIR):
-    for template_slug in os.listdir(TEMPLATES_ROOT_DIR):
-        template_path = os.path.join(TEMPLATES_ROOT_DIR, template_slug)
-        if os.path.isdir(template_path) and os.path.exists(os.path.join(template_path, 'models.py')):
-            INSTALLED_APPS.append(f'templates.{template_slug}')
 
 MIDDLEWARE = [
     'corsheaders.middleware.CorsMiddleware',
@@ -121,10 +102,6 @@ WSGI_APPLICATION = 'core.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/6.0/ref/settings/#databases
 
-
-# settings.py
-
-# settings.py
 
 DATABASES = {
     'default': {

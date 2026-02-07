@@ -74,13 +74,23 @@ class SiteCreateView(generics.CreateAPIView):
             name = validated_data.get('name', self.request.data.get('name'))
             slug = slugify(name, allow_unicode=True)
             
-        # Get theme default settings
+        # Get theme default settings and merge with provided settings
         theme = validated_data.get('theme')
-        default_settings = {}
+        settings = {}
         if theme:
-            default_settings = theme.default_settings
+            settings = theme.default_settings.copy()
+        
+        # Update with any settings provided in the request
+        request_settings = validated_data.get('settings', {})
+        if isinstance(request_settings, dict):
+            settings.update(request_settings)
 
-        serializer.save(owner=self.request.user, slug=slug, settings=default_settings)
+        serializer.save(
+            owner=self.request.user, 
+            slug=slug, 
+            settings=settings,
+            theme=theme
+        )
 
 class SitePublicView(generics.RetrieveAPIView):
     queryset = Site.objects.all()
