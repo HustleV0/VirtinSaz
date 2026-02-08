@@ -119,15 +119,11 @@ WSGI_APPLICATION = 'core.wsgi.application'
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql',
-        'NAME': 'neondb',  # نام دیتابیس
-        'USER': 'neondb_owner',  # یوزر NeonDB
-        'PASSWORD': 'npg_yVB8utiAocG0',  # پسورد واقعی
-        'HOST': 'ep-silent-breeze-ai9b3ne9-pooler.c-4.us-east-1.aws.neon.tech',  # هاست NeonDB
+        'NAME': 'postgres',
+        'USER': 'root',
+        'PASSWORD': '8ie6vbEJtNQZGxW8rgw723eI',
+        'HOST': '46.38.150.240',
         'PORT': '5432',
-        'OPTIONS': {
-            'sslmode': 'require',          # SSL لازم
-            'channel_binding': 'require',  # همونه که تو URL هست
-        },
     }
 }
 
