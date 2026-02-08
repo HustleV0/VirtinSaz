@@ -10,7 +10,18 @@ For the full list of settings and their values, see
 https://docs.djangoproject.com/en/6.0/ref/settings/
 """
 
+import os
+import sentry_sdk
+from sentry_sdk.integrations.django import DjangoIntegration
+from sentry_sdk.integrations.celery import CeleryIntegration
 from pathlib import Path
+
+sentry_sdk.init(
+    dsn=os.environ.get('SENTRY_DSN', ""),
+    integrations=[DjangoIntegration(), CeleryIntegration()],
+    traces_sample_rate=1.0,
+    send_default_pii=True
+)
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -43,6 +54,7 @@ INSTALLED_APPS = [
     'sites',
     'menu',
     'orders',
+    'subscription',
 ]
 
 MIDDLEWARE = [
@@ -156,3 +168,15 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/6.0/howto/static-files/
 
 STATIC_URL = 'static/'
+
+# Celery Configuration Options
+CELERY_BROKER_URL = 'redis://localhost:6379/0'
+CELERY_RESULT_BACKEND = 'redis://localhost:6379/0'
+CELERY_ACCEPT_CONTENT = ['json']
+CELERY_TASK_SERIALIZER = 'json'
+CELERY_RESULT_SERIALIZER = 'json'
+CELERY_TIMEZONE = TIME_ZONE
+
+# Payment Gateways
+ZARINPAL_MERCHANT_ID = os.environ.get('ZARINPAL_MERCHANT_ID', 'placeholder-uuid')
+ZARINPAL_SANDBOX = True # Set to False in production

@@ -34,5 +34,6 @@ class UserAdmin(BaseUserAdmin):
         }),
     )
     search_fields = ('phone_number', 'full_name', 'email')
+    readonly_fields = ('date_joined', 'last_login')
     ordering = ('phone_number',)
     inlines = [SiteInline]

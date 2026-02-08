@@ -1,11 +1,14 @@
 const BASE_URL = "http://localhost:8000/api"
 
 async function getAuthHeaders() {
-  const token = localStorage.getItem("access_token")
-  return {
-    "Authorization": token ? `Bearer ${token}` : "",
+  const token = typeof window !== 'undefined' ? localStorage.getItem("access_token") : null
+  const headers: Record<string, string> = {
     "Content-Type": "application/json",
   }
+  if (token) {
+    headers["Authorization"] = `Bearer ${token}`
+  }
+  return headers
 }
 
 export const api = {
