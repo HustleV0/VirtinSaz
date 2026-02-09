@@ -1,7 +1,11 @@
 from django.contrib import admin
 from django.utils.html import format_html
-from .models import SiteCategory, Theme, Site
+from .models import SiteCategory, Theme, Site, Plugin, SitePlugin
 from menu.models import Product
+
+class SitePluginInline(admin.TabularInline):
+    model = SitePlugin
+    extra = 1
 
 class ProductInline(admin.TabularInline):
     model = Product
@@ -16,15 +20,21 @@ class SiteCategoryAdmin(admin.ModelAdmin):
     list_filter = ('is_active',)
     search_fields = ('name',)
 
+@admin.register(Plugin)
+class PluginAdmin(admin.ModelAdmin):
+    list_display = ('name', 'key', 'is_core')
+    search_fields = ('name', 'key')
+
 @admin.register(Theme)
 class ThemeAdmin(admin.ModelAdmin):
     list_display = ('name', 'category', 'slug', 'is_active', 'created_at')
     prepopulated_fields = {'slug': ('name',)}
     list_filter = ('is_active', 'category')
     search_fields = ('name', 'source_identifier')
+    filter_horizontal = ('required_plugins',)
     fieldsets = (
         (None, {
-            'fields': ('name', 'slug', 'category', 'site_types', 'tag', 'description', 'is_active')
+            'fields': ('name', 'slug', 'category', 'required_plugins', 'site_types', 'tag', 'description', 'is_active')
         }),
         ('Assets', {
             'fields': ('preview_image', 'preview_url', 'source_identifier')
@@ -41,7 +51,12 @@ class SiteAdmin(admin.ModelAdmin):
     list_filter = ('category', 'theme')
     search_fields = ('name', 'owner__phone_number')
     readonly_fields = ('created_at', 'view_site_link')
-    inlines = [ProductInline]
+    
+    def get_inlines(self, request, obj=None):
+        inlines = [SitePluginInline]
+        if obj and obj.is_plugin_active('menu'):
+            inlines.append(ProductInline)
+        return inlines
 
     def view_site_link(self, obj):
         if obj.slug:

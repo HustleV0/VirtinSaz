@@ -1,7 +1,16 @@
 from rest_framework import generics, status, permissions
 from rest_framework.response import Response
-from .models import SiteCategory, Theme, Site
-from .serializers import SiteCategorySerializer, ThemeSerializer, SiteSerializer, SignupSerializer
+from .models import SiteCategory, Theme, Site, Plugin, SitePlugin
+from .serializers import (
+    SiteCategorySerializer, ThemeSerializer, SiteSerializer, 
+    SignupSerializer, PluginSerializer, SitePluginSerializer
+)
+from .services import ThemeService
+
+class PluginListView(generics.ListAPIView):
+    queryset = Plugin.objects.all()
+    serializer_class = PluginSerializer
+    permission_classes = [permissions.AllowAny]
 
 class SiteCategoryListView(generics.ListAPIView):
     queryset = SiteCategory.objects.filter(is_active=True)
@@ -18,12 +27,17 @@ class ThemeListView(generics.ListAPIView):
         if category_id:
             try:
                 category = SiteCategory.objects.get(id=category_id)
-                from django.db.models import Q
-                queryset = queryset.filter(
-                    Q(category_id=category_id) | Q(site_types__contains=category.slug)
-                )
+                # Filter in Python to avoid "contains lookup is not supported" on SQLite
+                all_themes = list(queryset)
+                filtered_ids = [
+                    theme.id for theme in all_themes 
+                    if theme.category_id == int(category_id) or category.slug in (theme.site_types or [])
+                ]
+                queryset = Theme.objects.filter(id__in=filtered_ids)
             except SiteCategory.DoesNotExist:
                 queryset = queryset.filter(category_id=category_id)
+            except (ValueError, TypeError):
+                pass
         return queryset
 
 class ThemeDetailView(generics.RetrieveAPIView):
@@ -98,6 +112,48 @@ class SitePublicView(generics.RetrieveAPIView):
     permission_classes = [permissions.AllowAny]
     lookup_field = 'slug'
 
+class SiteActivePluginsView(generics.RetrieveAPIView):
+    permission_classes = [permissions.IsAuthenticated]
+
+    def get(self, request, *args, **kwargs):
+        site = request.user.sites.first()
+        if not site:
+            return Response({"detail": "No site found."}, status=404)
+        return Response(site.get_active_plugins())
+
+class SitePluginToggleView(generics.GenericAPIView):
+    permission_classes = [permissions.IsAuthenticated]
+    serializer_class = SitePluginSerializer
+
+    def post(self, request, *args, **kwargs):
+        site = request.user.sites.first()
+        if not site:
+            return Response({"detail": "No site found."}, status=404)
+        
+        plugin_key = request.data.get('plugin_key')
+        is_active = request.data.get('is_active', True)
+
+        try:
+            plugin = Plugin.objects.get(key=plugin_key)
+        except Plugin.DoesNotExist:
+            return Response({"detail": "Plugin not found."}, status=404)
+
+        # Check if plugin is required by theme
+        if not is_active and site.theme and site.theme.required_plugins.filter(key=plugin_key).exists():
+            return Response(
+                {"detail": "This plugin is required by your current theme and cannot be disabled."},
+                status=400
+            )
+
+        site_plugin, created = SitePlugin.objects.get_or_create(
+            site=site,
+            plugin=plugin
+        )
+        site_plugin.is_active = is_active
+        site_plugin.save()
+
+        return Response(SitePluginSerializer(site_plugin).data)
+
 class DebugSlugsView(generics.GenericAPIView):
     permission_classes = [permissions.AllowAny]
     def get(self, request):
@@ -127,7 +183,10 @@ class SiteSettingsUpdateView(generics.UpdateAPIView):
                         {"detail": "This theme does not support your site type."}, 
                         status=status.HTTP_400_BAD_REQUEST
                     )
-                instance.theme = new_theme
+                
+                # Use ThemeService to activate theme and plugins
+                ThemeService.activate_theme(instance, new_theme)
+                
                 # Merge new theme default settings with existing settings
                 if isinstance(new_theme.default_settings, dict) and isinstance(instance.settings, dict):
                     merged_settings = new_theme.default_settings.copy()

@@ -1,10 +1,23 @@
 from rest_framework import serializers
 from django.db import transaction
 from django.contrib.auth import get_user_model
-from .models import SiteCategory, Theme, Site
+from .models import SiteCategory, Theme, Site, Plugin, SitePlugin
 from rest_framework_simplejwt.tokens import RefreshToken
 
 User = get_user_model()
+
+class PluginSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Plugin
+        fields = ['key', 'name', 'description', 'is_core']
+
+class SitePluginSerializer(serializers.ModelSerializer):
+    plugin_key = serializers.CharField(source='plugin.key', read_only=True)
+    plugin_name = serializers.CharField(source='plugin.name', read_only=True)
+
+    class Meta:
+        model = SitePlugin
+        fields = ['plugin_key', 'plugin_name', 'is_active']
 
 class SiteCategorySerializer(serializers.ModelSerializer):
     class Meta:
@@ -29,11 +42,26 @@ class SiteSerializer(serializers.ModelSerializer):
     source_identifier = serializers.CharField(source='theme.source_identifier', read_only=True)
     owner_phone = serializers.CharField(source='owner.phone_number', read_only=True)
     owner_id = serializers.IntegerField(source='owner.id', read_only=True)
+    active_plugins = serializers.SerializerMethodField()
+    required_plugins = serializers.SerializerMethodField()
 
     class Meta:
         model = Site
-        fields = ['id', 'name', 'slug', 'logo', 'cover_image', 'category', 'category_name', 'theme', 'theme_name', 'source_identifier', 'owner_phone', 'owner_id', 'settings', 'created_at']
+        fields = [
+            'id', 'name', 'slug', 'logo', 'cover_image', 
+            'category', 'category_name', 'theme', 'theme_name', 
+            'source_identifier', 'owner_phone', 'owner_id', 
+            'settings', 'active_plugins', 'required_plugins', 'created_at'
+        ]
         read_only_fields = ['owner']
+
+    def get_active_plugins(self, obj):
+        return obj.get_active_plugins()
+    
+    def get_required_plugins(self, obj):
+        if obj.theme:
+            return [p.key for p in obj.theme.required_plugins.all()]
+        return []
 
 class SignupSerializer(serializers.Serializer):
     phone_number = serializers.CharField(max_length=15)
@@ -70,6 +98,7 @@ class SignupSerializer(serializers.Serializer):
         )
         
         from django.utils.text import slugify
+        from .services import ThemeService
         site = Site.objects.create(
             owner=user,
             name=validated_data['site_name'],
@@ -78,6 +107,9 @@ class SignupSerializer(serializers.Serializer):
             theme=validated_data['theme'],
             settings=validated_data['theme'].default_settings
         )
+        
+        # Activate theme plugins
+        ThemeService.activate_theme(site, validated_data['theme'])
         
         self.user = user
         return site

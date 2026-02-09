@@ -10,6 +10,14 @@ class PublicMenuDataView(generics.RetrieveAPIView):
     def get(self, request, slug):
         try:
             site = Site.objects.get(slug=slug)
+            
+            if not site.is_plugin_active('menu'):
+                return Response({
+                    "categories": [],
+                    "products": [],
+                    "plugin_inactive": True
+                })
+
             categories = ProductCategory.objects.filter(site=site, is_active=True).order_by('order')
             products = Product.objects.filter(site=site, is_available=True).order_by('order')
             
@@ -29,12 +37,20 @@ class SiteSpecificMixin:
         site = Site.get_or_create_for_user(self.request.user)
         if not site:
             return self.queryset.none()
+        
+        if not site.is_plugin_active('menu'):
+            return self.queryset.none()
+            
         return self.queryset.filter(site=site)
 
     def perform_create(self, serializer):
         site = Site.get_or_create_for_user(self.request.user)
         if not site:
             raise exceptions.PermissionDenied("User has no associated site.")
+        
+        if not site.is_plugin_active('menu'):
+            raise exceptions.PermissionDenied("Menu plugin is not active for this site.")
+            
         serializer.save(site=site)
 
 class ProductTagViewSet(SiteSpecificMixin, viewsets.ModelViewSet):

@@ -113,22 +113,55 @@ class OrderViewSet(viewsets.ModelViewSet):
         site_slug = request.data.get('site_slug')
         site = get_object_or_404(Site, slug=site_slug)
         
-        # Get cart
+        # Get cart items either from server-side Cart or from request body
         user = request.user if request.user.is_authenticated else None
-        if user:
-            cart = Cart.objects.filter(site=site, user=user).first()
+        items_data = request.data.get('items') # Optional: passed from frontend Zustand
+        
+        order_items = []
+        total_amount = 0
+
+        if items_data:
+            # Create order from items passed in request (Zustand sync)
+            for item in items_data:
+                product = get_object_or_404(Product, id=item['id'], site=site)
+                order_items.append({
+                    'product': product,
+                    'quantity': item['quantity'],
+                    'price_snapshot': product.price,
+                    'product_name_snapshot': product.title
+                })
+                total_amount += product.price * item['quantity']
         else:
-            session_key = request.session.session_key
-            cart = Cart.objects.filter(site=site, session_key=session_key).first()
+            # Fallback to server-side Cart
+            if user:
+                cart = Cart.objects.filter(site=site, user=user).first()
+            else:
+                session_key = request.session.session_key
+                cart = Cart.objects.filter(site=site, session_key=session_key).first()
+                
+            if not cart or not cart.items.exists():
+                return Response({"detail": "Cart is empty"}, status=status.HTTP_400_BAD_REQUEST)
             
-        if not cart or not cart.items.exists():
-            return Response({"detail": "Cart is empty"}, status=status.HTTP_400_BAD_REQUEST)
+            for item in cart.items.all():
+                order_items.append({
+                    'product': item.product,
+                    'quantity': item.quantity,
+                    'price_snapshot': item.price_snapshot,
+                    'product_name_snapshot': item.product_name_snapshot
+                })
+                total_amount += item.total_price
+            
+            # Clear Cart
+            cart.items.all().delete()
+
+        if not order_items:
+             return Response({"detail": "No items to order"}, status=status.HTTP_400_BAD_REQUEST)
 
         # Create Order
         order = Order.objects.create(
             site=site,
             user=user,
-            total_amount=sum(item.total_price for item in cart.items.all()),
+            total_amount=total_amount,
             first_name=request.data.get('first_name'),
             last_name=request.data.get('last_name'),
             phone_number=request.data.get('phone_number'),
@@ -136,13 +169,13 @@ class OrderViewSet(viewsets.ModelViewSet):
         )
 
         # Create Order Items
-        for item in cart.items.all():
+        for item in order_items:
             OrderItem.objects.create(
                 order=order,
-                product=item.product,
-                quantity=item.quantity,
-                price_snapshot=item.price_snapshot,
-                product_name_snapshot=item.product_name_snapshot
+                product=item['product'],
+                quantity=item['quantity'],
+                price_snapshot=item['price_snapshot'],
+                product_name_snapshot=item['product_name_snapshot']
             )
 
         # Create Payment placeholder
@@ -153,9 +186,6 @@ class OrderViewSet(viewsets.ModelViewSet):
             status='pending'
         )
 
-        # Clear Cart
-        cart.items.all().delete()
-        
         serializer = self.get_serializer(order)
         return Response(serializer.data, status=status.HTTP_201_CREATED)
 
