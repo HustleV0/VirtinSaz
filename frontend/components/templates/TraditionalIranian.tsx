@@ -15,8 +15,6 @@ import {
   SheetFooter,
 } from "@/components/ui/sheet"
 import {
-  mockCategories,
-  mockProducts,
   formatPrice,
 } from "@/lib/mock-data"
 import type { Restaurant } from "@/types"
@@ -425,17 +423,17 @@ export function TraditionalIranian({
             >
               همه دسته‌ها
             </Button>
-            {mockCategories.map((category) => (
+            {categories.map((category) => (
               <Button
                 key={category.id}
-                variant={activeCategory === category.id ? "default" : "outline"}
+                variant={activeCategory === category.id.toString() ? "default" : "outline"}
                 className="rounded-full px-6 border-2"
                 style={{ 
-                  backgroundColor: activeCategory === category.id ? themeColors.primary : 'transparent',
-                  color: activeCategory === category.id ? themeColors.secondary : themeColors.primary,
+                  backgroundColor: activeCategory === category.id.toString() ? themeColors.primary : 'transparent',
+                  color: activeCategory === category.id.toString() ? themeColors.secondary : themeColors.primary,
                   borderColor: themeColors.primary
                 }}
-                onClick={() => setActiveCategory(category.id)}
+                onClick={() => setActiveCategory(category.id.toString())}
               >
                 {category.name}
               </Button>
@@ -452,10 +450,13 @@ export function TraditionalIranian({
             transition={{ duration: 0.3 }}
             className="grid gap-8"
           >
-            {mockCategories.map((category) => {
-              const categoryProducts = filteredProducts.filter((p) => p.categoryId === category.id)
+            {categories.map((category) => {
+              const categoryProducts = filteredProducts.filter((p) => 
+                p.category?.toString() === category.id.toString() || 
+                p.categoryId?.toString() === category.id.toString()
+              )
               if (categoryProducts.length === 0) return null
-              if (activeCategory && activeCategory !== category.id) return null
+              if (activeCategory && activeCategory !== category.id.toString()) return null
 
               return (
                 <section key={category.id}>
@@ -480,7 +481,7 @@ export function TraditionalIranian({
       <footer className="mt-20 py-12 text-center border-t-2" style={{ backgroundColor: themeColors.secondary, borderColor: themeColors.accent }}>
         <div className="container mx-auto px-4">
           <h3 className="mb-4 text-2xl font-bold" style={{ color: themeColors.primary }}>{restaurant.name}</h3>
-          <p className="mb-6 opacity-80">{restaurant.address}</p>
+          <p className="mb-6 opacity-80">{restaurant.settings.address_line || restaurant.address}</p>
           <div className="flex justify-center gap-6 mb-8">
             {restaurant.socialLinks?.instagram && (
               <a href={`https://instagram.com/${restaurant.socialLinks.instagram}`} className="hover:opacity-70 transition-opacity">
@@ -500,7 +501,14 @@ export function TraditionalIranian({
   )
 }
 
-function ProductCard({ product, restaurant, onAddToCart }: { product: typeof mockProducts[0], restaurant: Restaurant, onAddToCart: () => void }) {
+function ProductCard({ product, restaurant, onAddToCart }: { product: any, restaurant: Restaurant, onAddToCart: () => void }) {
+  const title = product.title || product.name
+  const description = product.description
+  const price = product.price
+  const isAvailable = product.is_available ?? product.isAvailable ?? true
+  const isPopular = product.is_popular ?? product.isPopular
+  const discountPrice = product.discount_price ?? product.discountPrice
+
   return (
     <motion.div 
       initial={{ opacity: 0, scale: 0.95 }}
@@ -512,13 +520,13 @@ function ProductCard({ product, restaurant, onAddToCart }: { product: typeof moc
     >
       <div className="w-1/3 relative aspect-square">
         {product.image ? (
-          <img src={product.image} alt={product.name} className="h-full w-full object-cover" />
+          <img src={product.image} alt={title} className="h-full w-full object-cover" />
         ) : (
           <div className="h-full w-full flex items-center justify-center" style={{ backgroundColor: themeColors.secondary }}>
             <span className="opacity-20 font-bold text-xs">بدون تصویر</span>
           </div>
         )}
-        {product.isPopular && (
+        {isPopular && (
           <div className="absolute top-0 right-0 rounded-bl-xl px-2 py-1 text-[10px] font-bold" style={{ backgroundColor: themeColors.accent, color: themeColors.primary }}>
             محبوب
           </div>
@@ -526,26 +534,26 @@ function ProductCard({ product, restaurant, onAddToCart }: { product: typeof moc
       </div>
       <div className="flex flex-1 flex-col p-4 justify-between">
         <div>
-          <h3 className="text-lg font-bold" style={{ color: themeColors.primary }}>{product.name}</h3>
-          <p className="mt-1 line-clamp-2 text-xs opacity-70 leading-relaxed">{product.description}</p>
+          <h3 className="text-lg font-bold" style={{ color: themeColors.primary }}>{title}</h3>
+          <p className="mt-1 line-clamp-2 text-xs opacity-70 leading-relaxed">{description}</p>
         </div>
         <div className="mt-4 flex items-center justify-between">
           {restaurant.settings.showPrices && (
             <div className="flex flex-col">
-              {product.discountPrice ? (
+              {discountPrice ? (
                 <>
-                  <span className="font-bold" style={{ color: themeColors.primary }}>{formatPrice(product.discountPrice)} {restaurant.settings.currency}</span>
-                  <span className="text-[10px] line-through opacity-50">{formatPrice(product.price)}</span>
+                  <span className="font-bold" style={{ color: themeColors.primary }}>{formatPrice(discountPrice)} {restaurant.settings.currency}</span>
+                  <span className="text-[10px] line-through opacity-50">{formatPrice(price)}</span>
                 </>
               ) : (
-                <span className="font-bold" style={{ color: themeColors.primary }}>{formatPrice(product.price)} {restaurant.settings.currency}</span>
+                <span className="font-bold" style={{ color: themeColors.primary }}>{formatPrice(price)} {restaurant.settings.currency}</span>
               )}
             </div>
           )}
           <Button 
             size="sm" 
             className="h-8 w-8 rounded-full p-0" 
-            disabled={!product.isAvailable} 
+            disabled={!isAvailable} 
             onClick={onAddToCart}
             style={{ backgroundColor: themeColors.primary, color: themeColors.secondary }}
           >

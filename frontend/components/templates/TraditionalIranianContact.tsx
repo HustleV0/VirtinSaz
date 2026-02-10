@@ -98,7 +98,7 @@ export function TraditionalIranianContact({ restaurant }: { restaurant: Restaura
                     </div>
                     <div>
                       <p className="text-sm opacity-50 mb-1">نشانی رستوران</p>
-                      <p className="font-bold leading-relaxed">{restaurant.address || "تهران، خیابان شریعتی، بالاتر از پل رومی"}</p>
+                      <p className="font-bold leading-relaxed">{restaurant.settings.address_line || restaurant.address || "تهران، خیابان شریعتی، بالاتر از پل رومی"}</p>
                     </div>
                   </div>
                   <div className="flex gap-4">

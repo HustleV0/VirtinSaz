@@ -69,7 +69,7 @@ export function TraditionalIranianAbout({ restaurant }: { restaurant: Restaurant
           </motion.h1>
           <div className="w-48 h-1 bg-gradient-to-r from-transparent via-[#c9a959] to-transparent mx-auto mb-8"></div>
           <p className="text-xl max-w-2xl mx-auto opacity-80 leading-loose">
-            سفری به اعماق فرهنگ و تمدن ایران با طعم‌هایی که از نسل‌های پیشین به یادگار مانده است.
+            {restaurant.description || "سفری به اعماق فرهنگ و تمدن ایران با طعم‌هایی که از نسل‌های پیشین به یادگار مانده است."}
           </p>
         </div>
       </section>
@@ -85,17 +85,15 @@ export function TraditionalIranianAbout({ restaurant }: { restaurant: Restaurant
               className="space-y-8"
             >
               <h2 className="text-4xl font-bold" style={{ fontFamily: 'var(--font-serif)' }}>داستان ما</h2>
-              <p className="text-lg leading-loose opacity-80">
-                در {restaurant.name}، ما نه تنها غذا سرو می‌کنیم، بلکه روایتی از میهمان‌نوازی اصیل ایرانی را بازگو می‌کنیم. 
-                هر بشقاب غذا با دقت و وسواسی مثال‌زدنی، با استفاده از مرغوب‌ترین برنج ایرانی و گوشت تازه تهیه می‌شود.
-              </p>
-              <p className="text-lg leading-loose opacity-80">
-                افتخار ما این است که لبخند رضایت را بر لبان میهمانانمان بنشانیم و لحظاتی خوش در محیطی سنتی و دلنشین برایشان فراهم آوریم.
-              </p>
+              <div className="leading-relaxed opacity-80 whitespace-pre-wrap">
+                {restaurant.settings.our_story || `در ${restaurant.name}، ما نه تنها غذا سرو می‌کنیم، بلکه روایتی از میهمان‌نوازی اصیل ایرانی را بازگو می‌کنیم. هر بشقاب غذا با دقت و وسواسی مثال‌زدنی، با استفاده از مرغوب‌ترین برنج ایرانی و گوشت تازه تهیه می‌شود. افتخار ما این است که لبخند رضایت را بر لبان میهمانانمان بنشانیم و لحظاتی خوش در محیطی سنتی و دلنشین برایشان فراهم آوریم.`}
+              </div>
               <div className="flex gap-4 pt-4">
-                <Button className="rounded-full px-8 h-12" style={{ backgroundColor: themeColors.primary, color: themeColors.secondary }}>
-                  مشاهده منو
-                </Button>
+                <Link href={`/preview/${restaurant.slug}`}>
+                  <Button className="rounded-full px-8 h-12" style={{ backgroundColor: themeColors.primary, color: themeColors.secondary }}>
+                    مشاهده منو
+                  </Button>
+                </Link>
               </div>
             </motion.div>
             <motion.div 
@@ -131,14 +129,18 @@ export function TraditionalIranianAbout({ restaurant }: { restaurant: Restaurant
                 <Clock className="h-8 w-8" style={{ color: themeColors.primary }} />
               </div>
               <h3 className="text-xl font-bold">میزبانی ما</h3>
-              <p className="opacity-70">همه روزه از ساعت ۱۰ صبح تا ۱۱ شب پذیرای شما هستیم.</p>
+              <div className="opacity-70">
+                {restaurant.settings.working_hours_sat_wed && <p>شنبه تا چهارشنبه: {restaurant.settings.working_hours_sat_wed}</p>}
+                {restaurant.settings.working_hours_thu_fri && <p>پنج‌شنبه و جمعه: {restaurant.settings.working_hours_thu_fri}</p>}
+                {!restaurant.settings.working_hours_sat_wed && !restaurant.settings.working_hours_thu_fri && <p>همه روزه از ساعت ۱۰ صبح تا ۱۱ شب پذیرای شما هستیم.</p>}
+              </div>
             </div>
             <div className="space-y-4">
               <div className="h-20 w-20 bg-white rounded-full flex items-center justify-center mx-auto shadow-lg border-2" style={{ borderColor: themeColors.accent }}>
                 <MapPin className="h-8 w-8" style={{ color: themeColors.primary }} />
               </div>
               <h3 className="text-xl font-bold">نشانی ما</h3>
-              <p className="opacity-70">{restaurant.address || "تهران، خیابان شریعتی، بالاتر از پل رومی"}</p>
+              <p className="opacity-70">{restaurant.settings.address_line || restaurant.address || "تهران، خیابان شریعتی، بالاتر از پل رومی"}</p>
             </div>
             <div className="space-y-4">
               <div className="h-20 w-20 bg-white rounded-full flex items-center justify-center mx-auto shadow-lg border-2" style={{ borderColor: themeColors.accent }}>
