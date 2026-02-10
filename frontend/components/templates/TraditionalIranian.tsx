@@ -53,7 +53,15 @@ const themeColors = {
   text: '#1e3a5f',
 }
 
-export function TraditionalIranian({ restaurant }: { restaurant: Restaurant }) {
+export function TraditionalIranian({ 
+  restaurant, 
+  categories = [], 
+  products = [] 
+}: { 
+  restaurant: any, 
+  categories?: any[], 
+  products?: any[] 
+}) {
   const [activeCategory, setActiveCategory] = useState<string | null>(null)
   const [searchQuery, setSearchQuery] = useState("")
   const [isMenuOpen, setIsMenuOpen] = useState(false)
@@ -61,9 +69,7 @@ export function TraditionalIranian({ restaurant }: { restaurant: Restaurant }) {
   const [isCartOpen, setIsCartOpen] = useState(false)
   const router = useRouter()
 
-  const { categories = [], products = [] } = restaurant
-
-  const addToCart = (product: typeof products[0]) => {
+  const addToCart = (product: any) => {
     setCart((prev) => {
       const existing = prev.find((item) => item.id === product.id)
       if (existing) {
@@ -77,7 +83,7 @@ export function TraditionalIranian({ restaurant }: { restaurant: Restaurant }) {
         ...prev,
         {
           id: product.id,
-          name: product.name,
+          name: product.title || product.name,
           price: product.price,
           image: product.image,
           quantity: 1,
@@ -121,9 +127,10 @@ export function TraditionalIranian({ restaurant }: { restaurant: Restaurant }) {
   const filteredProducts = products.filter((product) => {
     const matchesCategory =
       !activeCategory || 
-      product.category === Number.parseInt(activeCategory) || 
-      product.categoryId === activeCategory
-    const matchesSearch = product.name
+      product.category?.toString() === activeCategory || 
+      product.categoryId?.toString() === activeCategory
+    const title = product.title || product.name || ""
+    const matchesSearch = title
       .toLowerCase()
       .includes(searchQuery.toLowerCase())
     return matchesCategory && matchesSearch

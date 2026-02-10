@@ -20,7 +20,7 @@ export default function ContactPage() {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const site = await api.get(`/site/public/${siteId}/`)
+        const site = await api.get(`/sites/site/public/${siteId}/`)
         setSiteData(site)
         setLoadingStage("skeleton")
       } catch (error) {

@@ -28,6 +28,11 @@ class OrderAdmin(admin.ModelAdmin):
     inlines = [OrderItemInline, PaymentInline]
     readonly_fields = ('total_amount',)
 
+    def save_related(self, request, form, formsets, change):
+        super().save_related(request, form, formsets, change)
+        # Recalculate total amount after inlines (OrderItem) are saved
+        form.instance.update_total_amount()
+
 @admin.register(Payment)
 class PaymentAdmin(admin.ModelAdmin):
     list_display = ('id', 'order', 'status', 'provider', 'amount', 'created_at')

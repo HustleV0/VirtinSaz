@@ -138,12 +138,18 @@ class SitePluginToggleView(generics.GenericAPIView):
         except Plugin.DoesNotExist:
             return Response({"detail": "Plugin not found."}, status=404)
 
-        # Check if plugin is required by theme
-        if not is_active and site.theme and site.theme.required_plugins.filter(key=plugin_key).exists():
-            return Response(
-                {"detail": "This plugin is required by your current theme and cannot be disabled."},
-                status=400
-            )
+        # Check if plugin is required by theme or is core
+        if not is_active:
+            if plugin.is_core:
+                return Response(
+                    {"detail": "This is a core plugin and cannot be disabled."},
+                    status=400
+                )
+            if site.theme and site.theme.required_plugins.filter(key=plugin_key).exists():
+                return Response(
+                    {"detail": "This plugin is required by your current theme and cannot be disabled."},
+                    status=400
+                )
 
         site_plugin, created = SitePlugin.objects.get_or_create(
             site=site,

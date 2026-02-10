@@ -22,7 +22,7 @@ export default function PreviewPage() {
     const fetchData = async () => {
       try {
         const [site, menu] = await Promise.all([
-          api.get(`/site/public/${siteId}/`),
+          api.get(`/sites/site/public/${siteId}/`),
           api.get(`/menu/public-data/${siteId}/`)
         ])
         setSiteData(site)

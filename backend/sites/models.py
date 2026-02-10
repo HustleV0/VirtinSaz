@@ -76,7 +76,7 @@ class Site(models.Model):
         )
         from django.utils.text import slugify
         
-        site, _ = Site.objects.get_or_create(
+        site, created = Site.objects.get_or_create(
             owner=user,
             defaults={
                 'name': getattr(user, 'restaurant_name', '') or f"Site for {user.phone_number}",
@@ -86,6 +86,11 @@ class Site(models.Model):
                 'settings': theme.default_settings
             }
         )
+        
+        if created:
+            from .services import ThemeService
+            ThemeService.activate_theme(site, theme)
+            
         return site
 
     def is_plugin_active(self, plugin_key):

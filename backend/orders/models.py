@@ -49,7 +49,7 @@ class Order(models.Model):
     site = models.ForeignKey(Site, on_delete=models.CASCADE, related_name='orders')
     user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, null=True, blank=True, related_name='orders')
     status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='pending', db_index=True)
-    total_amount = models.BigIntegerField()
+    total_amount = models.BigIntegerField(default=0)
     
     # Customer Info (Captured at checkout)
     first_name = models.CharField(max_length=100)
@@ -70,12 +70,24 @@ class Order(models.Model):
     def __str__(self):
         return f"Order {self.id} - {self.site.name} ({self.status})"
 
+    def update_total_amount(self):
+        self.total_amount = sum(item.price_snapshot * item.quantity for item in self.items.all())
+        self.save(update_fields=['total_amount'])
+
 class OrderItem(models.Model):
     order = models.ForeignKey(Order, on_delete=models.CASCADE, related_name='items')
     product = models.ForeignKey(Product, on_delete=models.SET_NULL, null=True, blank=True)
     quantity = models.PositiveIntegerField()
     price_snapshot = models.BigIntegerField()
     product_name_snapshot = models.CharField(max_length=255)
+
+    def save(self, *args, **kwargs):
+        if self.product:
+            if not self.price_snapshot:
+                self.price_snapshot = self.product.price
+            if not self.product_name_snapshot:
+                self.product_name_snapshot = self.product.title
+        super().save(*args, **kwargs)
 
     def __str__(self):
         return f"{self.product_name_snapshot} x {self.quantity}"

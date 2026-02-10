@@ -6,7 +6,7 @@ import { ThemeProvider } from "@/components/theme-provider"
 export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }): Promise<Metadata> {
   const { slug } = await params
   try {
-    const response = await fetch(`http://localhost:8000/api/site/public/${slug}/`)
+    const response = await fetch(`http://localhost:8000/api/sites/site/public/${slug}/`)
     if (response.ok) {
       const site = await response.json()
       const logoUrl = site.logo 
@@ -35,7 +35,7 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
 export async function generateViewport({ params }: { params: Promise<{ slug: string }> }): Promise<Viewport> {
   const { slug } = await params
   try {
-    const response = await fetch(`http://localhost:8000/api/site/public/${slug}/`)
+    const response = await fetch(`http://localhost:8000/api/sites/site/public/${slug}/`)
     if (response.ok) {
       const site = await response.json()
       return {
