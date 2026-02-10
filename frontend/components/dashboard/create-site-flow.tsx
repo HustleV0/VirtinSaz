@@ -53,7 +53,7 @@ export function CreateSiteFlow() {
 
   const fetchCategories = async () => {
     try {
-      const res = await fetch("http://localhost:8000/api/site-categories/")
+      const res = await fetch("http://localhost:8000/api/sites/site-categories/")
       const data = await res.json()
       setCategories(data)
     } catch (error) {
@@ -63,7 +63,7 @@ export function CreateSiteFlow() {
 
   const fetchThemes = async (categoryId: string) => {
     try {
-      const res = await fetch(`http://localhost:8000/api/themes/?category_id=${categoryId}`)
+      const res = await fetch(`http://localhost:8000/api/sites/themes/?category_id=${categoryId}`)
       const data = await res.json()
       setThemes(data)
     } catch (error) {
@@ -91,7 +91,7 @@ export function CreateSiteFlow() {
     
     setIsLoading(true)
     try {
-      const res = await fetch("http://localhost:8000/api/site/create/", {
+      const res = await fetch("http://localhost:8000/api/sites/site/create/", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",

@@ -45,7 +45,7 @@ export default function SettingsPage() {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const siteData = await api.get("/site/me/")
+        const siteData = await api.get("/sites/site/me/")
         setSite(siteData)
         if (siteData.logo) {
           setLogoPreview(siteData.logo)
@@ -72,7 +72,7 @@ export default function SettingsPage() {
         })
 
         if (siteData.category) {
-          const themesData = await api.get(`/themes/?category_id=${siteData.category}`)
+          const themesData = await api.get(`/sites/themes/?category_id=${siteData.category}`)
           setThemes(themesData)
         }
       } catch (error) {
@@ -109,7 +109,7 @@ export default function SettingsPage() {
         formData.append("theme_id", data.theme_id.toString())
       }
 
-      const updatedSite = await api.patch("/site/settings/", formData)
+      const updatedSite = await api.patch("/sites/site/settings/", formData)
       setSite(updatedSite)
       if (updatedSite.logo) {
         setLogoPreview(updatedSite.logo)

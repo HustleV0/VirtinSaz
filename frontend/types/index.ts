@@ -2,6 +2,38 @@
 // Core Types for the Restaurant/Cafe SaaS Platform
 // ============================================
 
+export interface Plugin {
+  key: string
+  name: string
+  description: string
+  is_core: boolean
+}
+
+export interface SitePlugin {
+  id: number
+  plugin: Plugin
+  is_active: boolean
+}
+
+export interface Site {
+  id: number
+  name: string
+  slug: string
+  logo: string | null
+  cover_image: string | null
+  category: number
+  category_name: string
+  theme: number
+  theme_name: string
+  source_identifier: string
+  owner_phone: string
+  owner_id: number
+  settings: Record<string, any>
+  active_plugins: string[] // Array of plugin keys
+  required_plugins: string[] // Array of plugin keys required by theme
+  created_at: string
+}
+
 // User & Authentication
 export interface User {
   id: string

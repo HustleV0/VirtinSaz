@@ -97,7 +97,7 @@ export default function NewProductPage() {
 
       await api.post("/menu/products/", data)
       toast.success("محصول جدید با موفقیت اضافه شد")
-      router.push("/dashboard/products")
+      router.push("/dashboard/cafe/menu")
     } catch (error) {
       toast.error("خطا در ذخیره محصول")
     } finally {
@@ -115,7 +115,7 @@ export default function NewProductPage() {
     <div className="space-y-6">
       {/* Page Header */}
       <div className="flex items-center gap-4">
-        <Link href="/dashboard/products">
+        <Link href="/dashboard/cafe/menu">
           <Button variant="ghost" size="icon">
             <ArrowRight className="h-5 w-5" />
           </Button>
@@ -375,7 +375,7 @@ export default function NewProductPage() {
               <Button type="submit" disabled={isLoading}>
                 {isLoading ? "در حال ذخیره..." : "ذخیره محصول"}
               </Button>
-              <Link href="/dashboard/products">
+              <Link href="/dashboard/cafe/menu">
                 <Button type="button" variant="outline" className="w-full bg-transparent">
                   انصراف
                 </Button>

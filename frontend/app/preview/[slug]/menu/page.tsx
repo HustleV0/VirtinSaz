@@ -26,22 +26,34 @@ import {
   Minus,
   ShoppingBag,
   X,
-  Loader2
+  Loader2,
+  CheckCircle2
 } from "lucide-react"
 import { api } from "@/lib/api"
+import { useCartStore } from "@/lib/store/use-cart-store"
+import { toast } from "sonner"
 
 export default function MenuPage({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = use(params)
   const [loading, setLoading] = useState(true)
+  const [isSubmitting, setIsSubmitting] = useState(false)
   const [searchQuery, setSearchQuery] = useState("")
   const [selectedCategory, setSelectedCategory] = useState("all")
   const [categories, setCategories] = useState<any[]>([])
   const [products, setProducts] = useState<any[]>([])
-  const [cartData, setCartData] = useState<any>(null)
+  const [isOrderSuccess, setIsOrderSuccess] = useState(false)
+
+  const { 
+    items: cartItems, 
+    addItem, 
+    updateQuantity, 
+    clearCart, 
+    getTotalPrice, 
+    getItemCount 
+  } = useCartStore()
 
   useEffect(() => {
     fetchMenuData()
-    fetchCart()
   }, [slug])
 
   const fetchMenuData = async () => {
@@ -56,38 +68,29 @@ export default function MenuPage({ params }: { params: Promise<{ slug: string }>
     }
   }
 
-  const fetchCart = async () => {
+  const handleCheckout = async () => {
+    if (getItemCount() === 0) return
+    
+    setIsSubmitting(true)
     try {
-      const data = await api.get(`/orders/cart/?site_slug=${slug}`)
-      setCartData(data)
-    } catch (error) {
-      console.error("Failed to fetch cart:", error)
-    }
-  }
-
-  const addToCart = async (productId: number) => {
-    try {
-      await api.post(`/orders/cart/add_item/`, {
+      await api.post('/orders/', {
         site_slug: slug,
-        product_id: productId,
-        quantity: 1
+        items: cartItems,
+        // For preview, we use dummy data for contact info
+        first_name: "مشتری",
+        last_name: "تستی",
+        phone_number: "09120000000",
+        address: "ثبت شده از پیش‌نمایش"
       })
-      fetchCart()
+      
+      clearCart()
+      setIsOrderSuccess(true)
+      toast.success("سفارش شما با موفقیت ثبت شد")
     } catch (error) {
-      console.error("Failed to add to cart:", error)
-    }
-  }
-
-  const updateQuantity = async (itemId: number, quantity: number) => {
-    try {
-      await api.post(`/orders/cart/update_quantity/`, {
-        site_slug: slug,
-        item_id: itemId,
-        quantity: quantity
-      })
-      fetchCart()
-    } catch (error) {
-      console.error("Failed to update quantity:", error)
+      toast.error("خطا در ثبت سفارش")
+      console.error(error)
+    } finally {
+      setIsSubmitting(false)
     }
   }
 
@@ -100,16 +103,33 @@ export default function MenuPage({ params }: { params: Promise<{ slug: string }>
   })
 
   const getCartItem = (productId: number) => {
-    return cartData?.items.find((item: any) => item.product === productId)
+    return cartItems.find((item: any) => item.id === productId)
   }
 
-  const cartItemCount = cartData?.items.reduce((total: number, item: any) => total + item.quantity, 0) || 0
-  const cartTotal = cartData?.total_amount || 0
+  const cartItemCount = getItemCount()
+  const cartTotal = getTotalPrice()
 
   if (loading) {
     return (
       <div className="min-h-screen flex items-center justify-center">
         <Loader2 className="h-8 w-8 animate-spin text-primary" />
+      </div>
+    )
+  }
+
+  if (isOrderSuccess) {
+    return (
+      <div className="min-h-screen flex flex-col items-center justify-center p-6 text-center">
+        <div className="w-20 h-20 bg-green-100 rounded-full flex items-center justify-center mb-6">
+          <CheckCircle2 className="h-10 w-10 text-green-600" />
+        </div>
+        <h2 className="text-2xl font-bold mb-2">سفارش با موفقیت ثبت شد!</h2>
+        <p className="text-muted-foreground mb-8">
+          ممنون از اعتماد شما. سفارش شما در حال بررسی است.
+        </p>
+        <Button onClick={() => setIsOrderSuccess(false)}>
+          بازگشت به منو
+        </Button>
       </div>
     )
   }
@@ -149,19 +169,19 @@ export default function MenuPage({ params }: { params: Promise<{ slug: string }>
                   </SheetDescription>
                 </SheetHeader>
                 <div className="mt-6 flex-1 overflow-auto">
-                  {!cartData || cartData.items.length === 0 ? (
+                  {cartItems.length === 0 ? (
                     <div className="flex flex-col items-center justify-center h-64 text-center">
                       <ShoppingBag className="h-12 w-12 text-muted-foreground mb-4" />
                       <p className="text-muted-foreground">سبد خرید شما خالی است</p>
                     </div>
                   ) : (
                     <div className="space-y-4">
-                      {cartData.items.map((item: any) => (
+                      {cartItems.map((item: any) => (
                         <div key={item.id} className="flex items-center gap-3 p-3 rounded-lg border">
                           <div className="flex-1 min-w-0">
-                            <h4 className="font-medium truncate">{item.product_name_snapshot}</h4>
+                            <h4 className="font-medium truncate">{item.title}</h4>
                             <p className="text-sm text-muted-foreground">
-                              {item.price_snapshot.toLocaleString("fa-IR")} تومان
+                              {item.price.toLocaleString("fa-IR")} تومان
                             </p>
                           </div>
                           <div className="flex items-center gap-2">
@@ -188,14 +208,19 @@ export default function MenuPage({ params }: { params: Promise<{ slug: string }>
                     </div>
                   )}
                 </div>
-                {cartData && cartData.items.length > 0 && (
+                {cartItems.length > 0 && (
                   <div className="border-t pt-4 mt-4 space-y-4">
                     <div className="flex items-center justify-between text-lg font-bold">
                       <span>جمع کل:</span>
                       <span>{cartTotal.toLocaleString("fa-IR")} تومان</span>
                     </div>
-                    <Button className="w-full" size="lg">
-                      ثبت سفارش
+                    <Button 
+                      className="w-full" 
+                      size="lg" 
+                      onClick={handleCheckout}
+                      disabled={isSubmitting}
+                    >
+                      {isSubmitting ? "در حال ثبت..." : "ثبت سفارش"}
                     </Button>
                   </div>
                 )}
@@ -297,7 +322,7 @@ export default function MenuPage({ params }: { params: Promise<{ slug: string }>
                                     {quantity === 0 ? (
                                       <Button 
                                         size="sm" 
-                                        onClick={() => addToCart(product.id)}
+                                        onClick={() => addItem(product)}
                                         className="gap-1"
                                       >
                                         <Plus className="h-4 w-4" />
@@ -309,7 +334,7 @@ export default function MenuPage({ params }: { params: Promise<{ slug: string }>
                                           variant="outline" 
                                           size="icon" 
                                           className="h-8 w-8 bg-transparent"
-                                          onClick={() => updateQuantity(cartItem.id, quantity - 1)}
+                                          onClick={() => updateQuantity(product.id, quantity - 1)}
                                         >
                                           <Minus className="h-4 w-4" />
                                         </Button>
@@ -320,7 +345,7 @@ export default function MenuPage({ params }: { params: Promise<{ slug: string }>
                                           variant="outline" 
                                           size="icon" 
                                           className="h-8 w-8 bg-transparent"
-                                          onClick={() => updateQuantity(cartItem.id, quantity + 1)}
+                                          onClick={() => updateQuantity(product.id, quantity + 1)}
                                         >
                                           <Plus className="h-4 w-4" />
                                         </Button>

@@ -29,10 +29,14 @@ import {
   User,
   ChevronLeft,
   ExternalLink,
+  ShoppingCart,
+  Puzzle,
   TrendingUp,
 } from "lucide-react"
 import { useAuth } from "@/hooks/use-auth"
 import { cn } from "@/lib/utils"
+import { useSiteStore } from "@/lib/store/use-site-store"
+import { useEffect } from "react"
 
 const sidebarItems = [
   {
@@ -44,6 +48,12 @@ const sidebarItems = [
     title: "آنالیز و آمار",
     href: "/dashboard/analytics",
     icon: TrendingUp,
+    plugin: "analytics"
+  },
+  {
+    title: "مدیریت پلاگین‌ها",
+    href: "/dashboard/plugins",
+    icon: Puzzle,
   },
   {
     title: "تنظیمات وبسایت",
@@ -57,13 +67,21 @@ const sidebarItems = [
   },
   {
     title: "محصولات",
-    href: "/dashboard/products",
+    href: "/dashboard/cafe/menu",
     icon: UtensilsCrossed,
+    plugin: "menu"
   },
   {
     title: "دسته‌بندی‌ها",
-    href: "/dashboard/categories",
+    href: "/dashboard/cafe/categories",
     icon: FolderTree,
+    plugin: "menu"
+  },
+  {
+    title: "سفارشات",
+    href: "/dashboard/cafe/orders",
+    icon: ShoppingCart,
+    plugin: "order"
   },
   {
     title: "درگاه پرداخت",
@@ -80,9 +98,11 @@ const sidebarItems = [
 function SidebarContent({ onItemClick, restaurantName, phone, siteSlug, hasSite }: { onItemClick?: () => void, restaurantName?: string, phone?: string, siteSlug?: string | null, hasSite?: boolean }) {
   const pathname = usePathname()
   const slug = siteSlug || "your-restaurant"
+  const { isPluginActive } = useSiteStore()
 
   return (
     <div className="flex h-full flex-col">
+      {/* ... (بقیه کدها ثابت می‌ماند) */}
       {/* Logo */}
       <div className="flex h-16 items-center border-b border-sidebar-border px-6">
         <Link href="/" className="flex items-center gap-2">
@@ -116,8 +136,14 @@ function SidebarContent({ onItemClick, restaurantName, phone, siteSlug, hasSite 
       <nav className="flex-1 space-y-1 p-4">
         {sidebarItems.map((item) => {
           const isActive = pathname === item.href
+          
           // Hide most items if no site
           if (!hasSite && item.href !== "/dashboard" && item.href !== "/dashboard/subscription") {
+            return null
+          }
+
+          // Check for plugin activity if item is plugin-dependent
+          if (item.plugin && !isPluginActive(item.plugin)) {
             return null
           }
           
@@ -162,9 +188,16 @@ export default function DashboardLayout({
   children: React.ReactNode
 }) {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false)
-  const { user, logout, isLoading } = useAuth()
+  const { user, logout, isLoading: isAuthLoading } = useAuth()
+  const { fetchSite, isLoading: isSiteLoading } = useSiteStore()
 
-  if (isLoading) {
+  useEffect(() => {
+    if (user?.has_site) {
+      fetchSite()
+    }
+  }, [user, fetchSite])
+
+  if (isAuthLoading || (user?.has_site && isSiteLoading)) {
     return <div className="flex min-h-screen items-center justify-center">در حال بارگذاری...</div>
   }
 

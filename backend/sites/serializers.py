@@ -26,6 +26,11 @@ class SiteCategorySerializer(serializers.ModelSerializer):
 
 class ThemeSerializer(serializers.ModelSerializer):
     category_name = serializers.CharField(source='category.name', read_only=True)
+    required_plugins = serializers.SlugRelatedField(
+        many=True,
+        read_only=True,
+        slug_field='key'
+    )
 
     class Meta:
         model = Theme
@@ -33,7 +38,7 @@ class ThemeSerializer(serializers.ModelSerializer):
             'id', 'name', 'slug', 'category', 'category_name', 
             'site_types', 'preview_image', 'preview_url', 'tag', 
             'description', 'source_identifier', 'config', 
-            'default_settings', 'is_active', 'created_at'
+            'default_settings', 'required_plugins', 'is_active', 'created_at'
         ]
 
 class SiteSerializer(serializers.ModelSerializer):

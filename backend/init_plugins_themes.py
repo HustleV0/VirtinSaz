@@ -44,10 +44,20 @@ def run():
         }
     )
 
+    analytics_plugin, _ = Plugin.objects.get_or_create(
+        key='analytics',
+        defaults={
+            'name': 'Analytics',
+            'description': 'Track your site performance.',
+            'is_core': True
+        }
+    )
+
     # 2. Update minimal-cafe Theme
     theme = Theme.objects.filter(slug='minimal-cafe').first()
     if theme:
-        theme.required_plugins.add(menu_plugin, order_plugin)
+        theme.required_plugins.clear()
+        theme.required_plugins.add(menu_plugin, order_plugin, analytics_plugin)
         print(f"Updated {theme.name} with required plugins.")
     else:
         print("Theme minimal-cafe not found. Creating it...")
@@ -57,7 +67,7 @@ def run():
             slug='minimal-cafe',
             source_identifier='minimal-cafe'
         )
-        theme.required_plugins.add(menu_plugin, order_plugin)
+        theme.required_plugins.add(menu_plugin, order_plugin, analytics_plugin)
 
     print("Plugin and Theme initialization complete.")
 

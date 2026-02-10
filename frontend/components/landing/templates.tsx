@@ -14,7 +14,7 @@ export function Templates() {
   const [activeTheme, setActiveTheme] = useState<Theme | null>(null)
   const [isLoading, setIsLoading] = useState(true)
 
-  const API_BASE_URL = "http://localhost:8000/api"
+  const API_BASE_URL = "http://localhost:8000/api/sites"
 
   useEffect(() => {
     const fetchData = async () => {

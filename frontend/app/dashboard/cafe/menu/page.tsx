@@ -127,7 +127,7 @@ export default function ProductsPage() {
             {products.length} محصول در منو
           </p>
         </div>
-        <Link href="/dashboard/products/new">
+        <Link href="/dashboard/cafe/menu/new">
           <Button className="gap-2">
             <Plus className="h-4 w-4" />
             افزودن محصول
@@ -223,7 +223,7 @@ export default function ProductsPage() {
                     </DropdownMenuTrigger>
                     <DropdownMenuContent align="end">
                       <DropdownMenuItem asChild>
-                        <Link href={`/dashboard/products/${product.id}`}>
+                        <Link href={`/dashboard/cafe/menu/${product.id}`}>
                           <Pencil className="ml-2 h-4 w-4" />
                           ویرایش
                         </Link>
@@ -368,7 +368,7 @@ export default function ProductsPage() {
                         </DropdownMenuTrigger>
                         <DropdownMenuContent align="end">
                           <DropdownMenuItem asChild>
-                            <Link href={`/dashboard/products/${product.id}`}>
+                            <Link href={`/dashboard/cafe/menu/${product.id}`}>
                               <Pencil className="ml-2 h-4 w-4" />
                               ویرایش
                             </Link>

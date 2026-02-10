@@ -31,8 +31,8 @@ export default function ThemesPage() {
     const fetchData = async () => {
       try {
         const [siteData, themesData] = await Promise.all([
-          api.get("/site/me/"),
-          api.get("/themes/")
+          api.get("/sites/site/me/"),
+          api.get("/sites/themes/")
         ])
         setSite(siteData)
         setThemes(themesData)
@@ -55,7 +55,7 @@ export default function ThemesPage() {
       const formData = new FormData()
       formData.append("theme_id", selectedThemeId.toString())
       
-      const updatedSite = await api.patch("/site/settings/", formData)
+      const updatedSite = await api.patch("/sites/site/settings/", formData)
       setSite(updatedSite)
       toast.success("قالب با موفقیت تغییر یافت")
     } catch (error: any) {
@@ -98,6 +98,7 @@ export default function ThemesPage() {
         {themes.map((theme) => {
           const isSelected = selectedThemeId === theme.id
           const isCurrent = site?.theme === theme.id
+          const isLocked = !theme.required_plugins || theme.required_plugins.length === 0
 
           return (
             <Card
@@ -105,9 +106,11 @@ export default function ThemesPage() {
               className={`cursor-pointer overflow-hidden transition-all flex flex-col ${
                 isSelected
                   ? "ring-2 ring-primary"
+                  : isLocked 
+                  ? "opacity-60 grayscale cursor-not-allowed"
                   : "hover:border-primary/50"
               }`}
-              onClick={() => setSelectedThemeId(theme.id)}
+              onClick={() => !isLocked && setSelectedThemeId(theme.id)}
             >
               {/* Theme Preview */}
               <div className="relative aspect-[4/3] bg-muted">
@@ -129,6 +132,12 @@ export default function ThemesPage() {
                   {theme.tag && (
                     <Badge variant="default" className="text-xs">
                       {theme.tag === "New" ? "جدید" : theme.tag}
+                    </Badge>
+                  )}
+                  {isLocked && (
+                    <Badge variant="secondary" className="text-xs gap-1">
+                      <Lock className="h-3 w-3" />
+                      بزودی
                     </Badge>
                   )}
                 </div>
@@ -228,12 +237,13 @@ export default function ThemesPage() {
                     size="sm"
                     className="flex-1"
                     variant={isSelected ? "default" : "outline"}
+                    disabled={isLocked}
                     onClick={(e) => {
                       e.stopPropagation()
-                      setSelectedThemeId(theme.id)
+                      if (!isLocked) setSelectedThemeId(theme.id)
                     }}
                   >
-                    {isSelected ? "انتخاب شده" : "انتخاب"}
+                    {isLocked ? "غیرقابل انتخاب" : isSelected ? "انتخاب شده" : "انتخاب"}
                   </Button>
                 </div>
               </CardContent>
