@@ -5,18 +5,36 @@ async function getAuthHeaders() {
   const headers: Record<string, string> = {
     "Content-Type": "application/json",
   }
-  if (token) {
+  if (token && token !== "undefined" && token !== "null") {
     headers["Authorization"] = `Bearer ${token}`
   }
   return headers
+}
+
+async function handleResponse(response: Response, endpoint: string) {
+  if (response.status === 401) {
+    if (typeof window !== 'undefined') {
+      localStorage.removeItem("access_token")
+      localStorage.removeItem("refresh_token")
+      localStorage.removeItem("user")
+      window.location.href = "/login"
+    }
+    throw new Error("نشست شما منقضی شده است. لطفا دوباره وارد شوید.")
+  }
+
+  if (!response.ok) {
+    const errorData = await response.json().catch(() => ({}))
+    throw new Error(errorData.detail || errorData.error || `${response.status} ${endpoint} failed`)
+  }
+
+  return response.status === 204 ? null : response.json()
 }
 
 export const api = {
   async get(endpoint: string) {
     const headers = await getAuthHeaders()
     const response = await fetch(`${BASE_URL}${endpoint}`, { headers })
-    if (!response.ok) throw new Error(`GET ${endpoint} failed`)
-    return response.json()
+    return handleResponse(response, endpoint)
   },
 
   async post(endpoint: string, data: any) {
@@ -30,11 +48,7 @@ export const api = {
     }
 
     const response = await fetch(`${BASE_URL}${endpoint}`, { ...fetchOptions })
-    if (!response.ok) {
-      const errorData = await response.json().catch(() => ({}))
-      throw new Error(errorData.detail || `POST ${endpoint} failed`)
-    }
-    return response.json()
+    return handleResponse(response, endpoint)
   },
 
   async patch(endpoint: string, data: any) {
@@ -48,11 +62,7 @@ export const api = {
     }
 
     const response = await fetch(`${BASE_URL}${endpoint}`, { ...fetchOptions })
-    if (!response.ok) {
-      const errorData = await response.json().catch(() => ({}))
-      throw new Error(errorData.detail || `PATCH ${endpoint} failed`)
-    }
-    return response.json()
+    return handleResponse(response, endpoint)
   },
 
   async delete(endpoint: string) {
@@ -61,7 +71,6 @@ export const api = {
       method: "DELETE",
       headers,
     })
-    if (!response.ok) throw new Error(`DELETE ${endpoint} failed`)
-    return response.status === 204 ? null : response.json()
+    return handleResponse(response, endpoint)
   },
 }

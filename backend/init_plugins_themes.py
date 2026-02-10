@@ -8,47 +8,47 @@ from sites.models import Plugin, Theme
 
 def run():
     # 1. Create Plugins
-    menu_plugin, _ = Plugin.objects.get_or_create(
+    menu_plugin, _ = Plugin.objects.update_or_create(
         key='menu',
         defaults={
-            'name': 'Menu Management',
-            'description': 'Manage categories and products.',
+            'name': 'مدیریت منو',
+            'description': 'مدیریت دسته‌بندی‌ها و محصولات منوی شما.',
             'is_core': True
         }
     )
     
-    order_plugin, _ = Plugin.objects.get_or_create(
+    order_plugin, _ = Plugin.objects.update_or_create(
         key='order',
         defaults={
-            'name': 'Order Management',
-            'description': 'Allow users to place orders.',
+            'name': 'مدیریت سفارشات',
+            'description': 'امکان ثبت سفارش آنلاین توسط مشتریان.',
             'is_core': False
         }
     )
     
-    blog_plugin, _ = Plugin.objects.get_or_create(
+    blog_plugin, _ = Plugin.objects.update_or_create(
         key='blog',
         defaults={
-            'name': 'Blog',
-            'description': 'Post news and articles.',
+            'name': 'بلاگ',
+            'description': 'انتشار اخبار و مقالات مرتبط با کسب و کار.',
             'is_core': False
         }
     )
     
-    ecommerce_plugin, _ = Plugin.objects.get_or_create(
+    ecommerce_plugin, _ = Plugin.objects.update_or_create(
         key='ecommerce',
         defaults={
-            'name': 'E-commerce',
-            'description': 'Advanced store features.',
+            'name': 'تجارت الکترونیک (E-commerce)',
+            'description': 'ویژگی‌های پیشرفته فروشگاه و درگاه پرداخت.',
             'is_core': False
         }
     )
 
-    analytics_plugin, _ = Plugin.objects.get_or_create(
+    analytics_plugin, _ = Plugin.objects.update_or_create(
         key='analytics',
         defaults={
-            'name': 'Analytics',
-            'description': 'Track your site performance.',
+            'name': 'آنالیز و آمار',
+            'description': 'بررسی عملکرد و آمار بازدید وبسایت.',
             'is_core': True
         }
     )

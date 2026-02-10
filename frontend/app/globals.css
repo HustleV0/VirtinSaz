@@ -1,3 +1,5 @@
+@import url('https://cdn.jsdelivr.net/gh/rastikerdar/vazirmatn@v33.003/Vazirmatn-font-face.css');
+@import url('https://cdn.jsdelivr.net/npm/@fontsource/noto-sans-arabic/index.css');
 @import 'tailwindcss';
 @import 'tw-animate-css';
 
@@ -84,7 +86,8 @@
 }
 
 @theme inline {
-  --font-sans: var(--font-vazirmatn), 'Vazirmatn', system-ui, sans-serif;
+  --font-sans: 'Vazirmatn', system-ui, sans-serif;
+  --font-serif: 'Noto Sans Arabic', serif;
   --font-mono: 'Geist Mono', 'Courier New', monospace;
   --color-background: var(--background);
   --color-foreground: var(--foreground);

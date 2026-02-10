@@ -82,10 +82,13 @@ export default function OrdersPage() {
                 <TableRow key={order.id}>
                   <TableCell className="font-medium">#{order.id}</TableCell>
                   <TableCell>{new Date(order.created_at).toLocaleDateString('fa-IR')}</TableCell>
-                  <TableCell>{formatPrice(order.total_price)} تومان</TableCell>
+                  <TableCell>{formatPrice(order.total_amount)} تومان</TableCell>
                   <TableCell>
-                    <Badge variant={order.status === 'completed' ? 'default' : 'secondary'}>
-                      {order.status === 'completed' ? 'تکمیل شده' : 'در حال پردازش'}
+                    <Badge variant={order.status === 'paid' || order.status === 'delivered' ? 'default' : 'secondary'}>
+                      {order.status === 'paid' ? 'پرداخت شده' : 
+                       order.status === 'delivered' ? 'تحویل شده' : 
+                       order.status === 'pending' ? 'در انتظار پرداخت' :
+                       order.status === 'canceled' ? 'لغو شده' : order.status}
                     </Badge>
                   </TableCell>
                 </TableRow>

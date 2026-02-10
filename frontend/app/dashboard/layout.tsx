@@ -87,6 +87,7 @@ const sidebarItems = [
     title: "درگاه پرداخت",
     href: "/dashboard/payments",
     icon: CreditCard,
+    plugin: "ecommerce"
   },
   {
     title: "اشتراک",
