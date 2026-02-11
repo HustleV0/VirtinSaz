@@ -8,7 +8,7 @@ from .serializers import (
 from .services import ThemeService
 
 class PluginListView(generics.ListAPIView):
-    queryset = Plugin.objects.all()
+    queryset = Plugin.objects.filter(is_usable=True)
     serializer_class = PluginSerializer
     permission_classes = [permissions.AllowAny]
 
@@ -58,6 +58,13 @@ class SignupView(generics.CreateAPIView):
             "site_id": site.id,
             "tokens": serializer.data.get("tokens")
         }, status=status.HTTP_201_CREATED)
+
+class UserSiteListView(generics.ListAPIView):
+    serializer_class = SiteSerializer
+    permission_classes = [permissions.IsAuthenticated]
+
+    def get_queryset(self):
+        return self.request.user.sites.all()
 
 class SiteMeView(generics.RetrieveAPIView):
     serializer_class = SiteSerializer

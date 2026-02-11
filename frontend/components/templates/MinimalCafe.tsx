@@ -713,11 +713,11 @@ function ProductCard({
             <div className="mt-3 flex items-center gap-2">
               {product.discount_percentage ? (
                 <>
-                  <span className="font-bold text-primary">
-                    {formatPrice(product.price * (1 - product.discount_percentage / 100))} {restaurant.settings.currency || "تومان"}
-                  </span>
                   <span className="text-sm text-muted-foreground line-through">
                     {formatPrice(product.price)}
+                  </span>
+                  <span className="font-bold text-primary">
+                    {formatPrice(product.price * (1 - product.discount_percentage / 100))} {restaurant.settings.currency || "تومان"}
                   </span>
                 </>
               ) : (

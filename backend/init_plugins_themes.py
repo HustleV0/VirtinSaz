@@ -69,6 +69,16 @@ def run():
         )
         theme.required_plugins.add(menu_plugin, order_plugin, analytics_plugin)
 
+    payment_plugin, _ = Plugin.objects.update_or_create(
+        key='payment',
+        defaults={
+            'name': 'پرداختی‌ها',
+            'description': 'مشاهده تمام تراکنش‌های مالی و مجموع مبالغ پرداخت شده.',
+            'is_core': False,
+            'is_usable': True
+        }
+    )
+
     print("Plugin and Theme initialization complete.")
 
 if __name__ == '__main__':

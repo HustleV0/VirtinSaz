@@ -18,6 +18,7 @@ class Plugin(models.Model):
     name = models.CharField(max_length=255)
     description = models.TextField(null=True, blank=True)
     is_core = models.BooleanField(default=False)
+    is_usable = models.BooleanField(default=True)
 
     def __str__(self):
         return self.name
@@ -51,6 +52,17 @@ class Site(models.Model):
     theme = models.ForeignKey(Theme, on_delete=models.PROTECT, related_name='sites', null=True, blank=True)
     settings = models.JSONField(default=dict, blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
+    trial_ends_at = models.DateTimeField(null=True, blank=True)
+    subscription_ends_at = models.DateTimeField(null=True, blank=True)
+
+    def save(self, *args, **kwargs):
+        is_new = self.pk is None
+        super().save(*args, **kwargs)
+        if is_new and not self.trial_ends_at:
+            from django.utils import timezone
+            from datetime import timedelta
+            self.trial_ends_at = self.created_at + timedelta(hours=24)
+            self.save(update_fields=['trial_ends_at'])
 
     @staticmethod
     def get_or_create_for_user(user):

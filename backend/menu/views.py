@@ -19,7 +19,7 @@ class PublicMenuDataView(generics.RetrieveAPIView):
                 })
 
             categories = ProductCategory.objects.filter(site=site, is_active=True).order_by('order')
-            products = Product.objects.filter(site=site, is_available=True).order_by('order')
+            products = Product.objects.filter(site=site).order_by('order')
             
             return Response({
                 "categories": ProductCategorySerializer(categories, many=True, context={'request': request}).data,

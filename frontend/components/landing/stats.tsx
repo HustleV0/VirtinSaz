@@ -1,15 +1,10 @@
 "use client"
 
 import { motion } from "framer-motion"
-
-const stats = [
-  { value: "۵۰۰+", label: "رستوران فعال" },
-  { value: "۱۰,۰۰۰+", label: "محصول ثبت شده" },
-  { value: "۹۹.۹%", label: "آپتایم سرور" },
-  { value: "۲۴/۷", label: "پشتیبانی" },
-]
+import { useSite } from "@/hooks/site-context"
 
 export function Stats() {
+  const { stats } = useSite()
   return (
     <section className="border-y border-border bg-primary py-16 text-primary-foreground">
       <div className="container mx-auto px-4">

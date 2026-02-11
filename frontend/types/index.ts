@@ -7,6 +7,7 @@ export interface Plugin {
   name: string
   description: string
   is_core: boolean
+  is_usable: boolean
 }
 
 export interface SitePlugin {

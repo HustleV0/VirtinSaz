@@ -320,7 +320,14 @@ export function ModernRestaurant({
                 transition={{ duration: 0.4 }}
                 className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-x-8 gap-y-16"
               >
-                  {filteredProducts.map((product, index) => (
+                  {filteredProducts.map((product, index) => {
+                      const isAvailable = product.is_available ?? product.isAvailable ?? true
+                      const discountPercentage = product.discount_percentage || 0
+                      const discountPrice = discountPercentage > 0 
+                        ? product.price * (1 - discountPercentage / 100) 
+                        : null
+
+                      return (
                       <motion.div 
                         key={product.id}
                         initial={{ opacity: 0, y: 20 }}
@@ -332,33 +339,42 @@ export function ModernRestaurant({
                               {product.image && (
                                   <img 
                                       src={product.image} 
-                                      className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110" 
+                                      className={`w-full h-full object-cover transition-transform duration-700 group-hover:scale-110 ${!isAvailable ? 'grayscale opacity-50' : ''}`} 
                                       alt={product.name} 
                                   />
                               )}
-                              <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
-                                  <Button 
-                                      className="rounded-none h-12 px-8 font-bold bg-[#e17055]"
-                                      onClick={(e) => {
-                                          e.stopPropagation();
-                                          addToCart(product);
-                                      }}
-                                  >
-                                      افزودن به سبد
-                                  </Button>
-                              </div>
+                              {isAvailable ? (
+                                <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
+                                    <Button 
+                                        className="rounded-none h-12 px-8 font-bold bg-[#e17055]"
+                                        onClick={(e) => {
+                                            e.stopPropagation();
+                                            addToCart(product);
+                                        }}
+                                    >
+                                        افزودن به سبد
+                                    </Button>
+                                </div>
+                              ) : (
+                                <div className="absolute inset-0 bg-black/60 flex items-center justify-center">
+                                    <Badge variant="destructive" className="rounded-none h-10 px-6 text-sm font-black uppercase tracking-widest">ناموجود</Badge>
+                                </div>
+                              )}
                               {product.isPopular && (
                                   <Badge className="absolute top-4 right-4 rounded-none bg-black">محبوب</Badge>
+                              )}
+                              {discountPercentage > 0 && isAvailable && (
+                                  <Badge className="absolute top-4 left-4 rounded-none bg-red-600 border-none">{discountPercentage}% تخفیف</Badge>
                               )}
                           </div>
                           <div className="flex justify-between items-start mb-2">
                               <h3 className="text-lg font-bold group-hover:text-[#e17055] transition-colors">{product.name}</h3>
                               {restaurant.settings.showPrices && (
                                   <div className="flex flex-col items-end">
-                                      {product.discountPrice ? (
+                                      {discountPrice ? (
                                           <>
-                                              <span className="font-bold">{formatPrice(product.discountPrice)} {restaurant.settings.currency}</span>
-                                              <span className="text-[10px] line-through opacity-30">{formatPrice(product.price)}</span>
+                                              <span className="text-[10px] line-through opacity-30 mb-0.5">{formatPrice(product.price)}</span>
+                                              <span className="font-bold">{formatPrice(discountPrice)} {restaurant.settings.currency}</span>
                                           </>
                                       ) : (
                                           <span className="font-bold">{formatPrice(product.price)} {restaurant.settings.currency}</span>
@@ -375,7 +391,8 @@ export function ModernRestaurant({
                               سفارش دهید
                           </Button>
                       </motion.div>
-                  ))}
+                      )
+                  })}
               </motion.div>
             </AnimatePresence>
         </div>

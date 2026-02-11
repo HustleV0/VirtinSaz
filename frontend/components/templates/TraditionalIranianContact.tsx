@@ -75,39 +75,30 @@ export function TraditionalIranianContact({ restaurant }: { restaurant: Restaura
             <p className="text-xl opacity-70">مشتاق شنیدن نظرات، پیشنهادات و انتقادات شما عزیزان هستیم.</p>
           </motion.div>
 
-          <div className="grid lg:grid-cols-5 gap-12">
+          <div className="flex justify-center">
             <motion.div 
-              initial={{ opacity: 0, x: 20 }}
-              animate={{ opacity: 1, x: 0 }}
-              className="lg:col-span-2 space-y-8"
+              initial={{ opacity: 0, scale: 0.9 }}
+              animate={{ opacity: 1, scale: 1 }}
+              className="w-full max-w-lg"
             >
-              <div className="bg-white p-8 rounded-2xl shadow-xl border-t-4" style={{ borderColor: themeColors.accent }}>
-                <div className="space-y-8">
-                  <div className="flex gap-4">
-                    <div className="h-12 w-12 rounded-full flex items-center justify-center shrink-0 shadow-inner" style={{ backgroundColor: themeColors.secondary }}>
-                      <Phone className="h-5 w-5" style={{ color: themeColors.primary }} />
+              <div className="bg-white p-10 rounded-2xl shadow-xl border-t-4 text-center" style={{ borderColor: themeColors.accent }}>
+                <div className="space-y-10">
+                  <div className="flex flex-col items-center gap-4">
+                    <div className="h-16 w-16 rounded-full flex items-center justify-center shrink-0 shadow-inner" style={{ backgroundColor: themeColors.secondary }}>
+                      <Phone className="h-7 w-7" style={{ color: themeColors.primary }} />
                     </div>
                     <div>
-                      <p className="text-sm opacity-50 mb-1">شماره تماس</p>
-                      <p className="font-bold text-lg" dir="ltr">{restaurant.phone || "۰۲۱-۲۲۳۳۴۴۵۵"}</p>
+                      <p className="text-sm opacity-50 mb-2">شماره تماس</p>
+                      <p className="font-bold text-2xl" dir="ltr">{restaurant.phone || "۰۲۱-۲۲۳۳۴۴۵۵"}</p>
                     </div>
                   </div>
-                  <div className="flex gap-4">
-                    <div className="h-12 w-12 rounded-full flex items-center justify-center shrink-0 shadow-inner" style={{ backgroundColor: themeColors.secondary }}>
-                      <MapPin className="h-5 w-5" style={{ color: themeColors.primary }} />
+                  <div className="flex flex-col items-center gap-4">
+                    <div className="h-16 w-16 rounded-full flex items-center justify-center shrink-0 shadow-inner" style={{ backgroundColor: themeColors.secondary }}>
+                      <MapPin className="h-7 w-7" style={{ color: themeColors.primary }} />
                     </div>
                     <div>
-                      <p className="text-sm opacity-50 mb-1">نشانی رستوران</p>
-                      <p className="font-bold leading-relaxed">{restaurant.settings.address_line || restaurant.address || "تهران، خیابان شریعتی، بالاتر از پل رومی"}</p>
-                    </div>
-                  </div>
-                  <div className="flex gap-4">
-                    <div className="h-12 w-12 rounded-full flex items-center justify-center shrink-0 shadow-inner" style={{ backgroundColor: themeColors.secondary }}>
-                      <Mail className="h-5 w-5" style={{ color: themeColors.primary }} />
-                    </div>
-                    <div>
-                      <p className="text-sm opacity-50 mb-1">رایانامه</p>
-                      <p className="font-bold">{restaurant.email || `info@${restaurant.slug}.ir`}</p>
+                      <p className="text-sm opacity-50 mb-2">نشانی رستوران</p>
+                      <p className="font-bold text-xl leading-relaxed">{restaurant.settings.address_line || restaurant.address || "تهران، خیابان شریعتی، بالاتر از پل رومی"}</p>
                     </div>
                   </div>
                 </div>
@@ -125,36 +116,6 @@ export function TraditionalIranianContact({ restaurant }: { restaurant: Restaura
                     )}
                 </div>
               </div>
-            </motion.div>
-
-            <motion.div 
-              initial={{ opacity: 0, x: -20 }}
-              animate={{ opacity: 1, x: 0 }}
-              className="lg:col-span-3"
-            >
-              <form onSubmit={handleSubmit} className="bg-white p-10 rounded-2xl shadow-xl border-t-4 space-y-6" style={{ borderColor: themeColors.primary }}>
-                <div className="grid md:grid-cols-2 gap-6">
-                  <div className="space-y-2">
-                    <label className="text-sm font-bold opacity-60">نام و یاد</label>
-                    <Input className="bg-secondary/30 border-none h-12 focus-visible:ring-1 focus-visible:ring-primary/20" placeholder="نام شما" required />
-                  </div>
-                  <div className="space-y-2">
-                    <label className="text-sm font-bold opacity-60">شماره همراه</label>
-                    <Input className="bg-secondary/30 border-none h-12 focus-visible:ring-1 focus-visible:ring-primary/20" placeholder="۰۹۱۲" dir="ltr" required />
-                  </div>
-                </div>
-                <div className="space-y-2">
-                  <label className="text-sm font-bold opacity-60">موضوع پیام</label>
-                  <Input className="bg-secondary/30 border-none h-12 focus-visible:ring-1 focus-visible:ring-primary/20" placeholder="مثلا: رزرو میز" required />
-                </div>
-                <div className="space-y-2">
-                  <label className="text-sm font-bold opacity-60">پیام شما</label>
-                  <Textarea className="bg-secondary/30 border-none min-h-[160px] focus-visible:ring-1 focus-visible:ring-primary/20 resize-none" placeholder="متن پیام را اینجا بنویسید..." required />
-                </div>
-                <Button type="submit" className="w-full h-14 text-lg font-bold rounded-xl shadow-lg transition-transform active:scale-95" style={{ backgroundColor: themeColors.primary, color: themeColors.secondary }}>
-                  ارسال پیام با مهر
-                </Button>
-              </form>
             </motion.div>
           </div>
         </div>

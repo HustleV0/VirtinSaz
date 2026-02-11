@@ -1,12 +1,31 @@
-from rest_framework import viewsets, status, permissions
+from rest_framework import viewsets, status, permissions, generics
 from rest_framework.decorators import action
 from rest_framework.response import Response
 from django.shortcuts import get_object_or_404
 from django.db import transaction
 from .models import Cart, CartItem, Order, OrderItem, Payment
-from .serializers import CartSerializer, CartItemSerializer, OrderSerializer
+from .serializers import CartSerializer, CartItemSerializer, OrderSerializer, PaymentSerializer
 from sites.models import Site
 from menu.models import Product
+
+class PaymentListView(generics.ListAPIView):
+    serializer_class = PaymentSerializer
+    permission_classes = [permissions.IsAuthenticated]
+
+    def get_queryset(self):
+        site = self.request.user.sites.first()
+        if not site:
+            return Payment.objects.none()
+        return Payment.objects.filter(order__site=site).select_related('order').order_by('-created_at')
+
+    def list(self, request, *args, **kwargs):
+        queryset = self.get_queryset()
+        serializer = self.get_serializer(queryset, many=True)
+        total_sum = sum(p.amount for p in queryset if p.status == 'completed')
+        return Response({
+            'payments': serializer.data,
+            'total_sum': total_sum
+        })
 
 class CartViewSet(viewsets.ModelViewSet):
     serializer_class = CartSerializer

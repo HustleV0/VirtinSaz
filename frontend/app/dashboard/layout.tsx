@@ -90,6 +90,12 @@ const sidebarItems = [
     plugin: "ecommerce"
   },
   {
+    title: "پرداختی‌ها",
+    href: "/dashboard/payment-list",
+    icon: CreditCard,
+    plugin: "payment"
+  },
+  {
     title: "اشتراک",
     href: "/dashboard/subscription",
     icon: Crown,

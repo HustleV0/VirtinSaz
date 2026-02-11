@@ -507,7 +507,11 @@ function ProductCard({ product, restaurant, onAddToCart }: { product: any, resta
   const price = product.price
   const isAvailable = product.is_available ?? product.isAvailable ?? true
   const isPopular = product.is_popular ?? product.isPopular
-  const discountPrice = product.discount_price ?? product.discountPrice
+  const discountPercentage = product.discount_percentage || 0
+  
+  const discountPrice = discountPercentage > 0 
+    ? price * (1 - discountPercentage / 100) 
+    : null
 
   return (
     <motion.div 
@@ -515,7 +519,7 @@ function ProductCard({ product, restaurant, onAddToCart }: { product: any, resta
       whileInView={{ opacity: 1, scale: 1 }}
       viewport={{ once: true }}
       whileHover={{ y: -5 }}
-      className="flex overflow-hidden rounded-2xl border-2 bg-white transition-all hover:shadow-xl" 
+      className={`flex overflow-hidden rounded-2xl border-2 bg-white transition-all hover:shadow-xl ${!isAvailable ? 'opacity-70 grayscale-[0.5]' : ''}`} 
       style={{ borderColor: themeColors.accent }}
     >
       <div className="w-1/3 relative aspect-square">
@@ -531,33 +535,43 @@ function ProductCard({ product, restaurant, onAddToCart }: { product: any, resta
             محبوب
           </div>
         )}
+        {!isAvailable && (
+          <div className="absolute inset-0 flex items-center justify-center bg-black/40">
+            <span className="bg-destructive text-white px-3 py-1 rounded-full text-sm font-bold">ناموجود</span>
+          </div>
+        )}
       </div>
       <div className="flex flex-1 flex-col p-4 justify-between">
         <div>
-          <h3 className="text-lg font-bold" style={{ color: themeColors.primary }}>{title}</h3>
+          <div className="flex items-start justify-between gap-2">
+            <h3 className="text-lg font-bold leading-tight" style={{ color: themeColors.primary }}>{title}</h3>
+            {discountPercentage > 0 && isAvailable && (
+              <Badge className="bg-red-500 hover:bg-red-600 text-[10px] px-1.5 h-5">{discountPercentage}%</Badge>
+            )}
+          </div>
           <p className="mt-1 line-clamp-2 text-xs opacity-70 leading-relaxed">{description}</p>
         </div>
-        <div className="mt-4 flex items-center justify-between">
+        <div className="mt-4 flex items-end justify-between">
           {restaurant.settings.showPrices && (
             <div className="flex flex-col">
               {discountPrice ? (
                 <>
-                  <span className="font-bold" style={{ color: themeColors.primary }}>{formatPrice(discountPrice)} {restaurant.settings.currency}</span>
-                  <span className="text-[10px] line-through opacity-50">{formatPrice(price)}</span>
+                  <span className="text-[10px] line-through opacity-50 mb-0.5">{formatPrice(price)}</span>
+                  <span className="font-bold text-lg leading-none" style={{ color: themeColors.primary }}>{formatPrice(discountPrice)} <span className="text-[10px] font-normal">{restaurant.settings.currency}</span></span>
                 </>
               ) : (
-                <span className="font-bold" style={{ color: themeColors.primary }}>{formatPrice(price)} {restaurant.settings.currency}</span>
+                <span className="font-bold text-lg leading-none" style={{ color: themeColors.primary }}>{formatPrice(price)} <span className="text-[10px] font-normal">{restaurant.settings.currency}</span></span>
               )}
             </div>
           )}
           <Button 
             size="sm" 
-            className="h-8 w-8 rounded-full p-0" 
+            className="h-9 w-9 rounded-full p-0 shadow-lg" 
             disabled={!isAvailable} 
             onClick={onAddToCart}
             style={{ backgroundColor: themeColors.primary, color: themeColors.secondary }}
           >
-            <Plus className="h-4 w-4" />
+            {isAvailable ? <Plus className="h-5 w-5" /> : <X className="h-4 w-4" />}
           </Button>
         </div>
       </div>

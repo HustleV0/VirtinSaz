@@ -9,7 +9,7 @@ User = get_user_model()
 class PluginSerializer(serializers.ModelSerializer):
     class Meta:
         model = Plugin
-        fields = ['key', 'name', 'description', 'is_core']
+        fields = ['key', 'name', 'description', 'is_core', 'is_usable']
 
 class SitePluginSerializer(serializers.ModelSerializer):
     plugin_key = serializers.CharField(source='plugin.key', read_only=True)
@@ -49,6 +49,9 @@ class SiteSerializer(serializers.ModelSerializer):
     owner_id = serializers.IntegerField(source='owner.id', read_only=True)
     active_plugins = serializers.SerializerMethodField()
     required_plugins = serializers.SerializerMethodField()
+    product_count = serializers.SerializerMethodField()
+    subscription_days_left = serializers.SerializerMethodField()
+    is_trial = serializers.SerializerMethodField()
 
     class Meta:
         model = Site
@@ -56,7 +59,9 @@ class SiteSerializer(serializers.ModelSerializer):
             'id', 'name', 'slug', 'logo', 'cover_image', 
             'category', 'category_name', 'theme', 'theme_name', 
             'source_identifier', 'owner_phone', 'owner_id', 
-            'settings', 'active_plugins', 'required_plugins', 'created_at'
+            'settings', 'active_plugins', 'required_plugins', 
+            'product_count', 'subscription_days_left', 'is_trial',
+            'trial_ends_at', 'subscription_ends_at', 'created_at'
         ]
         read_only_fields = ['owner']
 
@@ -67,6 +72,31 @@ class SiteSerializer(serializers.ModelSerializer):
         if obj.theme:
             return [p.key for p in obj.theme.required_plugins.all()]
         return []
+
+    def get_product_count(self, obj):
+        return obj.products.count()
+
+    def get_subscription_days_left(self, obj):
+        from django.utils import timezone
+        now = timezone.now()
+        
+        # Priority: Paid subscription, then Trial
+        if obj.subscription_ends_at and obj.subscription_ends_at > now:
+            delta = obj.subscription_ends_at - now
+            return delta.days
+        
+        if obj.trial_ends_at and obj.trial_ends_at > now:
+            delta = obj.trial_ends_at - now
+            return delta.days
+            
+        return 0
+
+    def get_is_trial(self, obj):
+        from django.utils import timezone
+        now = timezone.now()
+        if obj.subscription_ends_at and obj.subscription_ends_at > now:
+            return False
+        return True
 
 class SignupSerializer(serializers.Serializer):
     phone_number = serializers.CharField(max_length=15)
