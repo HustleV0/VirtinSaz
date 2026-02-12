@@ -1,6 +1,10 @@
-"use client"
-
 import LegalPage from "@/components/legal-layout"
+import { Metadata } from "next"
+
+export const metadata: Metadata = {
+  title: "شرایط استفاده | ویترین ساز",
+  description: "قوانین و مقررات استفاده از خدمات پلتفرم ویترین ساز",
+}
 
 export default function TermsPage() {
   return (

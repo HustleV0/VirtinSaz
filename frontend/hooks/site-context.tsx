@@ -15,9 +15,9 @@ const SiteContext = createContext<SiteContextType | undefined>(undefined)
 
 export function SiteProvider({ children }: { children: ReactNode }) {
   const stats = [
-    { value: "+۵۰۰", label: "رستوران و کافه فعال" },
-    { value: "+۱۰,۰۰۰", label: "سفارش موفق" },
-    { value: "+۵۰", label: "قالب حرفه‌ای" },
+    { value: "+۵۰۰", label: "کسب‌وکار فعال" },
+    { value: "+۱۰۰,۰۰۰", label: "بازدید ماهانه" },
+    { value: "+۵۰", label: "قالب مدرن" },
     { value: "۲۴/۷", label: "پشتیبانی اختصاصی" },
   ]
 

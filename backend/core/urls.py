@@ -18,6 +18,7 @@ from django.contrib import admin
 from django.urls import path, include
 from django.conf import settings
 from django.conf.urls.static import static
+from sites.views import SiteRedirectView
 
 admin.site.site_header = "VitrinSaz Admin"
 admin.site.site_title = "VitrinSaz Admin"
@@ -31,4 +32,5 @@ urlpatterns = [
     path('api/subscription/', include('subscription.urls')),
     path('api/sites/', include('sites.urls')),
     path('', include('plugin_engine.urls')),
+    path('<slug:slug>/', SiteRedirectView.as_view(), name='site-redirect'),
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

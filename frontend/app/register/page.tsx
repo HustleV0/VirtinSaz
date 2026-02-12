@@ -145,7 +145,7 @@ export default function RegisterPage() {
 
           <Link href="/" className="mb-8 flex items-center gap-2">
             <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-primary">
-              <span className="text-lg font-bold text-primary-foreground">م</span>
+              <span className="text-lg font-bold text-primary-foreground">و</span>
             </div>
             <span className="text-2xl font-bold">ویترین ساز</span>
           </Link>
@@ -318,11 +318,11 @@ export default function RegisterPage() {
       <div className="hidden flex-1 bg-primary lg:flex lg:items-center lg:justify-center">
         <div className="max-w-md p-12 text-primary-foreground">
           <h2 className="text-3xl font-bold">
-            وبسایت رستوران خود را در چند دقیقه بسازید
+            وبسایت حرفه‌ای خود را در چند دقیقه بسازید
           </h2>
           <p className="mt-4 text-lg text-primary-foreground/80">
-            با ویترین ساز، به سادگی وبسایت حرفه‌ای برای رستوران یا کافه خود بسازید و
-            مشتریان بیشتری جذب کنید.
+            با ویترین ساز، به سادگی وبسایت مدرن و خاص برای برند خود بسازید و
+            حضور آنلاین قدرتمندی داشته باشید.
           </p>
         </div>
       </div>

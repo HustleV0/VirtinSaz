@@ -1,70 +1,44 @@
-"use client"
-
-import { useEffect, useState } from "react"
-import { useParams } from "next/navigation"
 import { MinimalCafeAbout } from "@/components/templates/MinimalCafeAbout"
 import { ModernRestaurantAbout } from "@/components/templates/ModernRestaurantAbout"
 import { TraditionalIranianAbout } from "@/components/templates/TraditionalIranianAbout"
-import { MinimalCafeAboutSkeleton } from "@/components/templates/MinimalCafeAboutSkeleton"
-import { ModernRestaurantAboutSkeleton } from "@/components/templates/ModernRestaurantAboutSkeleton"
-import { TraditionalIranianAboutSkeleton } from "@/components/templates/TraditionalIranianAboutSkeleton"
 import { api } from "@/lib/api"
-import Loading from "@/app/loading"
+import { notFound } from "next/navigation"
+import { Metadata } from "next"
 
-export default function AboutPage() {
-  const params = useParams()
-  const siteId = params?.slug as string
-  const [loadingStage, setLoadingStage] = useState<"initial" | "skeleton" | "ready">("initial")
-  const [siteData, setSiteData] = useState<any>(null)
+export const revalidate = 3600
 
-  useEffect(() => {
-    const fetchData = async () => {
-      try {
-        const site = await api.get(`/sites/site/public/${siteId}/`)
-        setSiteData(site)
-        setLoadingStage("skeleton")
-      } catch (error) {
-        console.error("Error fetching site data:", error)
-        setLoadingStage("ready")
-      }
-    }
-    
-    if (siteId) {
-      fetchData()
-    }
-  }, [siteId])
+interface PageProps {
+  params: Promise<{ slug: string }>
+}
 
-  useEffect(() => {
-    if (loadingStage === "skeleton") {
-      const timer = setTimeout(() => {
-        setLoadingStage("ready")
-      }, 1000)
-      return () => clearTimeout(timer)
-    }
-  }, [loadingStage])
-
-  if (loadingStage === "initial") {
-    return <Loading />
+async function getSiteData(slug: string) {
+  try {
+    return await api.get(`/sites/site/public/${slug}/`)
+  } catch (error) {
+    console.error("Error fetching site data:", error)
+    return null
   }
+}
+
+export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
+  const { slug } = await params
+  const site = await getSiteData(slug)
+  if (!site) return { title: "درباره ما" }
+  return {
+    title: `درباره ما | ${site.name}`,
+    description: `درباره ${site.name} بیشتر بدانید`,
+  }
+}
+
+export default async function AboutPage({ params }: PageProps) {
+  const { slug } = await params
+  const siteData = await getSiteData(slug)
 
   if (!siteData) {
-    return <div className="flex h-screen items-center justify-center">سایت مورد نظر یافت نشد.</div>
+    notFound()
   }
 
   const themeId = siteData.source_identifier || "minimal-cafe"
-
-  if (loadingStage === "skeleton") {
-    switch (themeId) {
-      case "minimal-cafe":
-        return <MinimalCafeAboutSkeleton />
-      case "modern-restaurant":
-        return <ModernRestaurantAboutSkeleton />
-      case "traditional-persian":
-        return <TraditionalIranianAboutSkeleton />
-      default:
-        return <MinimalCafeAboutSkeleton />
-    }
-  }
 
   const restaurantProps = {
     id: siteData.id,

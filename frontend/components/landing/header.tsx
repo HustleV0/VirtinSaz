@@ -38,9 +38,9 @@ export function Header() {
     }`}>
       <div className="container mx-auto flex h-16 items-center justify-between px-4">
         {/* Logo */}
-        <Link href="/" className="flex items-center gap-2">
+        <Link href="/" className="flex items-center gap-2 py-1.5">
           <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-primary">
-            <span className="text-sm font-bold text-primary-foreground">م</span>
+            <span className="text-sm font-bold text-primary-foreground">و</span>
           </div>
           <span className="text-xl font-bold">ویترین ساز</span>
         </Link>
@@ -51,7 +51,7 @@ export function Header() {
             <Link
               key={item.href}
               href={item.href}
-              className="text-sm font-medium text-muted-foreground transition-colors hover:text-foreground"
+              className="px-3 py-2 text-sm font-medium text-muted-foreground transition-colors hover:text-foreground"
             >
               {item.label}
             </Link>
@@ -99,7 +99,7 @@ export function Header() {
               <div className="flex flex-col gap-6 pt-6">
                 <Link href="/" className="flex items-center gap-2" onClick={() => setIsOpen(false)}>
                   <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-primary">
-                    <span className="text-sm font-bold text-primary-foreground">م</span>
+                    <span className="text-sm font-bold text-primary-foreground">و</span>
                   </div>
                   <span className="text-xl font-bold">ویترین ساز</span>
                 </Link>
@@ -108,7 +108,7 @@ export function Header() {
                     <Link
                       key={item.href}
                       href={item.href}
-                      className="text-base font-medium text-muted-foreground transition-colors hover:text-foreground"
+                      className="block px-2 py-3 text-base font-medium text-muted-foreground transition-colors hover:text-foreground"
                       onClick={() => setIsOpen(false)}
                     >
                       {item.label}

@@ -1,5 +1,11 @@
 from rest_framework import generics, status, permissions
 from rest_framework.response import Response
+from django.shortcuts import redirect
+from django.http import Http404
+from django.db import transaction
+from django.views import View
+from django.utils.decorators import method_decorator
+from django.views.decorators.cache import cache_page
 from .models import SiteCategory, Theme, Site, Plugin, SitePlugin
 from .serializers import (
     SiteCategorySerializer, ThemeSerializer, SiteSerializer, 
@@ -84,6 +90,7 @@ class SiteCreateView(generics.CreateAPIView):
     serializer_class = SiteSerializer
     permission_classes = [permissions.IsAuthenticated]
 
+    @transaction.atomic
     def perform_create(self, serializer):
         # Get data from validated_data or request.data
         validated_data = serializer.validated_data
@@ -114,10 +121,14 @@ class SiteCreateView(generics.CreateAPIView):
         )
 
 class SitePublicView(generics.RetrieveAPIView):
-    queryset = Site.objects.all()
+    queryset = Site.objects.select_related('theme').all()
     serializer_class = SiteSerializer
     permission_classes = [permissions.AllowAny]
     lookup_field = 'slug'
+
+    @method_decorator(cache_page(60 * 15)) # Cache for 15 minutes
+    def get(self, request, *args, **kwargs):
+        return super().get(request, *args, **kwargs)
 
 class SiteActivePluginsView(generics.RetrieveAPIView):
     permission_classes = [permissions.IsAuthenticated]
@@ -132,6 +143,7 @@ class SitePluginToggleView(generics.GenericAPIView):
     permission_classes = [permissions.IsAuthenticated]
     serializer_class = SitePluginSerializer
 
+    @transaction.atomic
     def post(self, request, *args, **kwargs):
         site = request.user.sites.first()
         if not site:
@@ -172,6 +184,19 @@ class DebugSlugsView(generics.GenericAPIView):
     def get(self, request):
         return Response([(s.name, s.slug) for s in Site.objects.all()])
 
+class SiteSitemapListView(generics.ListAPIView):
+    queryset = Site.objects.all()
+    serializer_class = SiteSerializer
+    permission_classes = [permissions.AllowAny]
+
+    def list(self, request, *args, **kwargs):
+        sites = self.get_queryset()
+        data = [{
+            'slug': site.slug,
+            'updated_at': site.updated_at
+        } for site in sites if site.slug]
+        return Response(data)
+
 class SiteSettingsUpdateView(generics.UpdateAPIView):
     serializer_class = SiteSerializer
     permission_classes = [permissions.IsAuthenticated]
@@ -180,6 +205,7 @@ class SiteSettingsUpdateView(generics.UpdateAPIView):
     def get_object(self):
         return self.request.user.sites.first()
 
+    @transaction.atomic
     def patch(self, request, *args, **kwargs):
         instance = self.get_object()
         if not instance:
@@ -226,16 +252,38 @@ class SiteSettingsUpdateView(generics.UpdateAPIView):
         if name:
             instance.name = name
 
-        # 4. Handle Logo Update
+        # 4. Handle SEO Fields Update
+        meta_title = request.data.get('meta_title')
+        if meta_title is not None:
+            instance.meta_title = meta_title
+            
+        meta_description = request.data.get('meta_description')
+        if meta_description is not None:
+            instance.meta_description = meta_description
+            
+        schema_type = request.data.get('schema_type')
+        if schema_type is not None:
+            instance.schema_type = schema_type
+
+        # 5. Handle Logo Update
         logo = request.FILES.get('logo')
         if logo:
             instance.logo = logo
 
-        # 5. Handle Cover Image Update
+        # 6. Handle Cover Image Update
         cover_image = request.FILES.get('cover_image')
         if cover_image:
             instance.cover_image = cover_image
 
         instance.save()
         return Response(self.get_serializer(instance).data)
+
+class SiteRedirectView(View):
+    def get(self, request, slug):
+        try:
+            site = Site.objects.get(slug=slug)
+            # Redirect to the frontend preview page
+            return redirect(f'http://localhost:3000/preview/{site.slug}/')
+        except Site.DoesNotExist:
+            raise Http404("Site not found")
 

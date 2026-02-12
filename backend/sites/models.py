@@ -1,4 +1,4 @@
-from django.db import models
+from django.db import models, transaction
 from django.conf import settings
 
 class SiteCategory(models.Model):
@@ -51,7 +51,14 @@ class Site(models.Model):
     category = models.ForeignKey(SiteCategory, on_delete=models.PROTECT, related_name='sites')
     theme = models.ForeignKey(Theme, on_delete=models.PROTECT, related_name='sites', null=True, blank=True)
     settings = models.JSONField(default=dict, blank=True)
+    
+    # SEO Fields
+    meta_title = models.CharField(max_length=255, null=True, blank=True)
+    meta_description = models.TextField(null=True, blank=True)
+    schema_type = models.CharField(max_length=100, default='Restaurant', blank=True)
+    
     created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
     trial_ends_at = models.DateTimeField(null=True, blank=True)
     subscription_ends_at = models.DateTimeField(null=True, blank=True)
 
@@ -65,6 +72,7 @@ class Site(models.Model):
             self.save(update_fields=['trial_ends_at'])
 
     @staticmethod
+    @transaction.atomic
     def get_or_create_for_user(user):
         if not user.is_authenticated:
             return None

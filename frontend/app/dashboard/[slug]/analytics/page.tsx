@@ -43,50 +43,50 @@ import {
 
 const stats = [
   {
-    title: "درآمد کل (همه سایت‌ها)",
-    value: "۸۵,۶۰۰,۰۰۰",
+    title: "درآمد کل",
+    value: "۴۵,۶۰۰,۰۰۰",
     change: "+۱۸%",
     trend: "up",
     icon: DollarSign,
     unit: "تومان",
-    description: "مجموع تمام وبسایت‌های فعال",
+    description: "نسبت به ماه گذشته",
   },
   {
-    title: "تعداد سفارشات کل",
-    value: "۷۴۲",
+    title: "تعداد سفارشات",
+    value: "۳۴۲",
     change: "+۱۲%",
     trend: "up",
     icon: ShoppingBag,
-    description: "۸۸ سفارش جدید امروز",
+    description: "۳۸ سفارش امروز",
   },
   {
     title: "بازدید کل",
-    value: "۴۲,۴۵۶",
+    value: "۱۲,۴۵۶",
     change: "+۸%",
     trend: "up",
     icon: Eye,
-    description: "+۴۵۰ بازدید در ساعت اخیر",
+    description: "+۱۵۰ بازدید در ساعت اخیر",
   },
   {
     title: "میانگین سبد خرید",
-    value: "۱۵۳,۳۰۰",
-    change: "+۳%",
-    trend: "up",
+    value: "۱۳۳,۳۰۰",
+    change: "-۳%",
+    trend: "down",
     icon: TrendingUp,
     unit: "تومان",
-    description: "بهبود نسبت به دوره قبل",
+    description: "نیاز به بهینه‌سازی",
   },
 ]
 
 // Advanced mock data for comparison
 const comparisonData = [
-  { label: "شنبه", current: 8200000, previous: 7800000 },
-  { label: "یکشنبه", current: 7800000, previous: 8100000 },
-  { label: "دوشنبه", current: 10100000, previous: 9500000 },
-  { label: "سه‌شنبه", current: 9900000, previous: 9200000 },
-  { label: "چهارشنبه", current: 12200000, previous: 11800000 },
-  { label: "پنج‌شنبه", current: 15500000, previous: 14200000 },
-  { label: "جمعه", current: 18200000, previous: 16100000 },
+  { label: "شنبه", current: 4200000, previous: 3800000 },
+  { label: "یکشنبه", current: 3800000, previous: 4100000 },
+  { label: "دوشنبه", current: 5100000, previous: 4500000 },
+  { label: "سه‌شنبه", current: 4900000, previous: 4200000 },
+  { label: "چهارشنبه", current: 6200000, previous: 5800000 },
+  { label: "پنج‌شنبه", current: 8500000, previous: 7200000 },
+  { label: "جمعه", current: 9200000, previous: 8100000 },
 ]
 
 // Mock data for top products by category
@@ -102,7 +102,7 @@ const productSalesData = [
   { id: "10", name: "پنکیک", sales: 55, categoryId: "4", revenue: 5225000, trend: "up" },
 ]
 
-export default function GlobalAnalyticsPage() {
+export default function AnalyticsPage() {
   const [timeRange, setTimeRange] = useState("7days")
   const [selectedCategory, setSelectedCategory] = useState<string>("all")
   const [isExporting, setIsExporting] = useState(false)
@@ -135,9 +135,9 @@ export default function GlobalAnalyticsPage() {
     <div className="space-y-6" dir="rtl">
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
-          <h1 className="text-2xl font-bold">آنالیز و آمار کلی</h1>
+          <h1 className="text-2xl font-bold">پیشخوان تحلیل و آنالیز</h1>
           <p className="text-muted-foreground mt-1">
-            مشاهده عملکرد مجموع وبسایت‌های شما به صورت یکپارچه
+            بررسی دقیق عملکرد فروش، ترافیک و محبوبیت محصولات
           </p>
         </div>
         <div className="flex flex-wrap items-center gap-2">
@@ -193,7 +193,7 @@ export default function GlobalAnalyticsPage() {
         <Card className="lg:col-span-2">
           <CardHeader className="flex flex-row items-center justify-between">
             <div>
-              <CardTitle className="text-right">مقایسه عملکرد مجموع درآمد</CardTitle>
+              <CardTitle className="text-right">مقایسه عملکرد درآمد</CardTitle>
               <CardDescription className="text-right flex items-center gap-4 mt-1">
                 <span className="flex items-center gap-1.5">
                   <span className="h-3 w-3 rounded-full bg-primary" /> این دوره
@@ -239,7 +239,7 @@ export default function GlobalAnalyticsPage() {
         <Card>
           <CardHeader>
             <div className="flex items-center justify-between">
-              <CardTitle className="text-right">تحلیل کلی محصولات</CardTitle>
+              <CardTitle className="text-right">تحلیل محصولات</CardTitle>
               <Select value={selectedCategory} onValueChange={setSelectedCategory}>
                 <SelectTrigger className="w-[110px] h-8 text-xs">
                   <SelectValue />
@@ -252,7 +252,7 @@ export default function GlobalAnalyticsPage() {
                 </SelectContent>
               </Select>
             </div>
-            <CardDescription className="text-right">بررسی محبوبیت در تمام سایت‌ها</CardDescription>
+            <CardDescription className="text-right">بررسی محبوبیت و سودآوری</CardDescription>
           </CardHeader>
           <CardContent>
             <div className="space-y-5 mt-2">
@@ -263,7 +263,7 @@ export default function GlobalAnalyticsPage() {
                       <div className="text-xs font-bold text-muted-foreground w-4">#{index + 1}</div>
                       <div>
                         <p className="text-sm font-bold group-hover:text-primary transition-colors">{product.name}</p>
-                        <p className="text-[10px] text-muted-foreground">{product.sales} سفارش کل</p>
+                        <p className="text-[10px] text-muted-foreground">{product.sales} سفارش</p>
                       </div>
                     </div>
                     <div className="text-right">
@@ -289,7 +289,170 @@ export default function GlobalAnalyticsPage() {
                 </div>
               ))}
             </div>
+            <Dialog>
+              <DialogTrigger asChild>
+                <Button variant="ghost" className="w-full mt-6 text-xs h-8 gap-2">
+                  مشاهده گزارش کامل محصولات
+                  <ChevronRight className="h-3 w-3" />
+                </Button>
+              </DialogTrigger>
+              <DialogContent className="max-w-4xl max-h-[80vh] overflow-y-auto">
+                <DialogHeader>
+                  <DialogTitle className="text-right mb-4">گزارش جامع فروش محصولات</DialogTitle>
+                </DialogHeader>
+                <Table dir="rtl">
+                  <TableHeader>
+                    <TableRow>
+                      <TableHead className="text-right">نام محصول</TableHead>
+                      <TableHead className="text-right">تعداد فروش</TableHead>
+                      <TableHead className="text-right">درآمد (تومان)</TableHead>
+                      <TableHead className="text-right">روند</TableHead>
+                    </TableRow>
+                  </TableHeader>
+                  <TableBody>
+                    {productSalesData.sort((a, b) => b.sales - a.sales).map((product) => (
+                      <TableRow key={product.id}>
+                        <TableCell className="font-medium text-right">{product.name}</TableCell>
+                        <TableCell className="text-right font-bold">{product.sales}</TableCell>
+                        <TableCell className="text-right">{formatPrice(product.revenue)}</TableCell>
+                        <TableCell className="text-right">
+                          <div className={cn(
+                            "flex items-center gap-1 text-[10px] font-bold",
+                            product.trend === "up" ? "text-green-600" : "text-red-600"
+                          )}>
+                            {product.trend === "up" ? <TrendingUp className="h-3 w-3" /> : <TrendingDown className="h-3 w-3" />}
+                            {product.trend === "up" ? "صعودی" : "نزولی"}
+                          </div>
+                        </TableCell>
+                      </TableRow>
+                    ))}
+                  </TableBody>
+                </Table>
+              </DialogContent>
+            </Dialog>
           </CardContent>
+        </Card>
+      </div>
+
+      <div className="grid gap-6 lg:grid-cols-2">
+         <Card>
+          <CardHeader className="flex flex-row items-center justify-between">
+            <div>
+              <CardTitle className="text-right">تحلیل ترافیک و ورودی</CardTitle>
+              <CardDescription className="text-right font-medium text-green-600">رشد ۱۲٪ نسبت به هفته گذشته</CardDescription>
+            </div>
+            <BarChart3 className="h-5 w-5 text-muted-foreground" />
+          </CardHeader>
+          <CardContent className="grid gap-4 sm:grid-cols-2">
+            <div className="p-4 rounded-2xl bg-primary/[0.03] border border-primary/5 space-y-3">
+              <div className="flex items-center justify-between">
+                 <div className="h-8 w-8 rounded-full bg-blue-100 flex items-center justify-center">
+                  <Eye className="h-4 w-4 text-blue-600" />
+                </div>
+                <span className="text-[10px] font-bold text-blue-600 bg-blue-50 px-1.5 py-0.5 rounded">+۱۵٪</span>
+              </div>
+              <div>
+                <p className="text-2xl font-black">۱۲,۴۵۶</p>
+                <p className="text-xs text-muted-foreground font-bold">بازدید کل صفحه منو</p>
+              </div>
+            </div>
+
+            <div className="p-4 rounded-2xl bg-primary/[0.03] border border-primary/5 space-y-3">
+              <div className="flex items-center justify-between">
+                 <div className="h-8 w-8 rounded-full bg-purple-100 flex items-center justify-center">
+                  <Users className="h-4 w-4 text-purple-600" />
+                </div>
+                <span className="text-[10px] font-bold text-purple-600 bg-purple-50 px-1.5 py-0.5 rounded">+۸٪</span>
+              </div>
+              <div>
+                <p className="text-2xl font-black">۸,۲۳۴</p>
+                <p className="text-xs text-muted-foreground font-bold">بازدیدکننده یکتا</p>
+              </div>
+            </div>
+
+            <div className="p-4 rounded-2xl bg-primary/[0.03] border border-primary/5 space-y-3 sm:col-span-2">
+              <div className="flex items-center justify-between mb-2">
+                <p className="text-xs font-bold">ساعت‌های اوج بازدید</p>
+                <p className="text-[10px] text-muted-foreground">میانگین روزانه</p>
+              </div>
+              <div className="flex items-end gap-1 h-12">
+                {[20, 35, 45, 80, 100, 90, 60, 40, 25, 15, 10, 5].map((v, i) => (
+                  <div 
+                    key={i} 
+                    className={cn("flex-1 rounded-t-sm", v > 70 ? "bg-primary" : "bg-primary/20")} 
+                    style={{ height: `${v}%` }} 
+                  />
+                ))}
+              </div>
+              <div className="flex justify-between text-[8px] text-muted-foreground font-bold px-1">
+                <span>۱۲ ظهر</span>
+                <span>۴ عصر</span>
+                <span>۸ شب</span>
+                <span>۱۲ شب</span>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+
+        <Card>
+          <Tabs defaultValue="locations" className="w-full">
+            <CardHeader className="flex flex-row items-center justify-between pb-2">
+              <CardTitle className="text-right">منابع و موقعیت</CardTitle>
+              <TabsList className="grid w-[160px] grid-cols-2 h-8">
+                <TabsTrigger value="locations" className="text-xs">شهرها</TabsTrigger>
+                <TabsTrigger value="sources" className="text-xs">منابع</TabsTrigger>
+              </TabsList>
+            </CardHeader>
+            <CardContent>
+              <TabsContent value="locations" className="space-y-4 mt-2">
+                {[
+                  { city: "تهران", visitors: 4523, percent: 65, color: "bg-primary" },
+                  { city: "مشهد", visitors: 1234, percent: 18, color: "bg-blue-500" },
+                  { city: "اصفهان", visitors: 987, percent: 14, color: "bg-orange-500" },
+                  { city: "سایر", visitors: 231, percent: 3, color: "bg-slate-400" },
+                ].map((location) => (
+                  <div key={location.city} className="space-y-1.5">
+                    <div className="flex items-center justify-between text-xs">
+                      <div className="flex items-center gap-2 font-bold">
+                        <MapPin className="h-3.5 w-3.5 text-muted-foreground" />
+                        <span>{location.city}</span>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <span className="text-muted-foreground">{location.visitors.toLocaleString("fa-IR")} نفر</span>
+                        <span className="font-black text-primary">{location.percent}%</span>
+                      </div>
+                    </div>
+                    <div className="h-1.5 bg-muted rounded-full overflow-hidden">
+                      <div 
+                        className={cn("h-full", location.color)}
+                        style={{ width: `${location.percent}%` }}
+                      />
+                    </div>
+                  </div>
+                ))}
+              </TabsContent>
+              <TabsContent value="sources" className="space-y-5 mt-4">
+                {[
+                  { name: "اسکن QR مستقیم", val: 55 },
+                  { name: "اینستاگرام", val: 25 },
+                  { name: "گوگل (جستجو)", val: 15 },
+                  { name: "سایر", val: 5 },
+                ].map((source) => (
+                  <div key={source.name} className="flex items-center gap-4">
+                    <div className="flex-1">
+                       <div className="flex items-center justify-between mb-1.5">
+                        <span className="text-xs font-bold">{source.name}</span>
+                        <span className="text-xs font-black">{source.val}%</span>
+                      </div>
+                      <div className="h-2 bg-muted rounded-full overflow-hidden">
+                        <div className="h-full bg-primary" style={{ width: `${source.val}%` }} />
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </TabsContent>
+            </CardContent>
+          </Tabs>
         </Card>
       </div>
     </div>

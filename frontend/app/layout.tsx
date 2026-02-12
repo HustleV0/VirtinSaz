@@ -1,5 +1,6 @@
 import React from "react"
 import type { Metadata, Viewport } from 'next'
+import { Noto_Sans_Arabic } from 'next/font/google'
 import { AuthProvider } from '@/hooks/use-auth'
 import { SiteProvider } from '@/hooks/site-context'
 import { Analytics } from '@vercel/analytics/next'
@@ -7,11 +8,62 @@ import { ThemeProvider } from '@/components/theme-provider'
 import { Toaster } from 'sonner'
 import './globals.css'
 
+const noto = Noto_Sans_Arabic({
+  subsets: ['arabic'],
+  variable: '--font-serif',
+  display: 'swap',
+})
+
 export const metadata: Metadata = {
-  title: 'ویترین ساز | ساخت وبسایت رستوران و کافه',
-  description: 'پلتفرم ساخت وبسایت برای رستوران‌ها و کافه‌ها. به سادگی وبسایت خود را بسازید و مدیریت کنید.',
-  generator: 'v0.app',
-  keywords: ['رستوران', 'کافه', 'منو آنلاین', 'وبسایت رستوران', 'ساخت وبسایت'],
+  title: {
+    template: '%s | ویترین ساز',
+    default: 'ویترین ساز | ساخت وبسایت سریع، مدرن و حرفه‌ای',
+  },
+  description: 'پلتفرم پیشرفته ساخت وبسایت برای تمامی کسب‌وکارها. بدون نیاز به دانش فنی، سایت حرفه‌ای خود را با تم‌های آماده و شخصی‌سازی شده در کمتر از ۵ دقیقه راه اندازی کنید.',
+  generator: 'VirtinSaz',
+  keywords: [
+    'ساخت وبسایت', 
+    'سایت ساز', 
+    'طراحی سایت', 
+    'ساخت سایت سریع', 
+    'وبسایت شرکتی', 
+    'وبسایت شخصی', 
+    'فروشگاه آنلاین',
+    'دیجیتال مارکتینگ',
+    'ویترین ساز'
+  ],
+  authors: [{ name: 'VirtinSaz Team' }],
+  creator: 'VirtinSaz',
+  publisher: 'VirtinSaz',
+  formatDetection: {
+    email: false,
+    address: false,
+    telephone: false,
+  },
+  openGraph: {
+    title: 'ویترین ساز | ساخت وبسایت سریع و مدرن',
+    description: 'پلتفرم ساخت وبسایت حرفه‌ای برای انواع کسب‌وکارها و اشخاص',
+    url: 'https://virtinsaz.ir',
+    siteName: 'ویترین ساز',
+    locale: 'fa_IR',
+    type: 'website',
+  },
+  twitter: {
+    card: 'summary_large_image',
+    title: 'ویترین ساز | ساخت وبسایت سریع و مدرن',
+    description: 'پلتفرم ساخت وبسایت حرفه‌ای برای انواع کسب‌وکارها و اشخاص',
+  },
+  robots: {
+    index: true,
+    follow: true,
+    googleBot: {
+      index: true,
+      follow: true,
+      'max-video-preview': -1,
+      'max-image-preview': 'large',
+      'max-snippet': -1,
+    },
+  },
   icons: {
     icon: [
       {
@@ -46,7 +98,14 @@ export default function RootLayout({
   children: React.ReactNode
 }>) {
   return (
-    <html lang="fa" dir="rtl" suppressHydrationWarning>
+    <html lang="fa" dir="rtl" suppressHydrationWarning className={noto.variable}>
+      <head>
+        <link 
+          rel="stylesheet" 
+          href="https://cdn.jsdelivr.net/gh/rastikerdar/vazirmatn@v33.003/Vazirmatn-font-face.css" 
+          crossOrigin="anonymous"
+        />
+      </head>
       <body className="font-sans antialiased">
         <AuthProvider>
           <SiteProvider>

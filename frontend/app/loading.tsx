@@ -1,7 +1,7 @@
 "use client"
 
 import { motion } from "framer-motion"
-import { UtensilsCrossed } from "lucide-react"
+import { Globe } from "lucide-react"
 
 export default function Loading() {
   return (
@@ -38,15 +38,15 @@ export default function Loading() {
           <div className="relative flex h-24 w-24 items-center justify-center rounded-full bg-primary/5 border border-primary/10 shadow-2xl backdrop-blur-sm">
             <motion.div
               animate={{
-                rotate: [0, 15, -15, 0],
+                rotate: [0, 10, -10, 0],
               }}
               transition={{
-                duration: 2.5,
+                duration: 3,
                 repeat: Infinity,
                 ease: "easeInOut",
               }}
             >
-              <UtensilsCrossed className="h-10 w-10 text-primary" strokeWidth={1.5} />
+              <Globe className="h-10 w-10 text-primary" strokeWidth={1.5} />
             </motion.div>
           </div>
         </motion.div>
@@ -54,23 +54,23 @@ export default function Loading() {
         {/* Brand Name & Tagline */}
         <div className="flex flex-col items-center gap-4 text-center">
           <motion.div
-            initial={{ opacity: 0, letterSpacing: "0px" }}
-            animate={{ opacity: 1, letterSpacing: "4px" }}
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.8, delay: 0.2 }}
-            className="flex items-center gap-2"
+            className="flex flex-col items-center gap-2"
           >
-            <span className="text-3xl font-black uppercase tracking-[0.2em] text-primary">
-              Vitrin<span className="text-muted-foreground opacity-50">Saz</span>
+            <span className="text-4xl font-black text-primary">
+              ویترین<span className="text-muted-foreground opacity-50">ساز</span>
             </span>
           </motion.div>
           
           <motion.p
             initial={{ opacity: 0 }}
-            animate={{ opacity: 0.4 }}
+            animate={{ opacity: 0.6 }}
             transition={{ duration: 1, delay: 0.6 }}
-            className="text-xs font-medium uppercase tracking-[0.3em]"
+            className="text-sm font-medium tracking-[0.1em] text-muted-foreground"
           >
-            Digital Dining Experience
+            ساخت سریع و هوشمند وبسایت
           </motion.p>
         </div>
 

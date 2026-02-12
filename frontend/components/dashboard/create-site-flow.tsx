@@ -171,10 +171,10 @@ export function CreateSiteFlow() {
           {step === 1 && (
             <div className="space-y-4">
               <div className="space-y-2">
-                <Label htmlFor="name">نام رستوران یا کافه</Label>
+                <Label htmlFor="name">نام کسب‌وکار یا برند</Label>
                 <Input
                   id="name"
-                  placeholder="مثلا: کافه لذت"
+                  placeholder="مثلا: شرکت تکنولوژی آریا"
                   value={formData.name}
                   onChange={(e) => setFormData({ ...formData, name: e.target.value })}
                 />
@@ -182,10 +182,10 @@ export function CreateSiteFlow() {
               <div className="space-y-2">
                 <Label htmlFor="slug">آدرس اینترنتی (Slug)</Label>
                 <div className="flex items-center gap-2" dir="ltr">
-                  <span className="text-muted-foreground">.menusaz.ir</span>
+                  <span className="text-muted-foreground">.virtinsaz.ir</span>
                   <Input
                     id="slug"
-                    placeholder="my-restaurant"
+                    placeholder="my-business"
                     className="text-left"
                     value={formData.slug}
                     onChange={(e) => setFormData({ ...formData, slug: e.target.value.toLowerCase().replace(/\s+/g, "-") })}

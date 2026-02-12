@@ -1,70 +1,44 @@
-"use client"
-
-import { useEffect, useState } from "react"
-import { useParams } from "next/navigation"
 import { MinimalCafeContact } from "@/components/templates/MinimalCafeContact"
 import { ModernRestaurantContact } from "@/components/templates/ModernRestaurantContact"
 import { TraditionalIranianContact } from "@/components/templates/TraditionalIranianContact"
-import { MinimalCafeContactSkeleton } from "@/components/templates/MinimalCafeContactSkeleton"
-import { ModernRestaurantContactSkeleton } from "@/components/templates/ModernRestaurantContactSkeleton"
-import { TraditionalIranianContactSkeleton } from "@/components/templates/TraditionalIranianContactSkeleton"
 import { api } from "@/lib/api"
-import Loading from "@/app/loading"
+import { notFound } from "next/navigation"
+import { Metadata } from "next"
 
-export default function ContactPage() {
-  const params = useParams()
-  const siteId = params?.slug as string
-  const [loadingStage, setLoadingStage] = useState<"initial" | "skeleton" | "ready">("initial")
-  const [siteData, setSiteData] = useState<any>(null)
+export const revalidate = 3600
 
-  useEffect(() => {
-    const fetchData = async () => {
-      try {
-        const site = await api.get(`/sites/site/public/${siteId}/`)
-        setSiteData(site)
-        setLoadingStage("skeleton")
-      } catch (error) {
-        console.error("Error fetching site data:", error)
-        setLoadingStage("ready")
-      }
-    }
-    
-    if (siteId) {
-      fetchData()
-    }
-  }, [siteId])
+interface PageProps {
+  params: Promise<{ slug: string }>
+}
 
-  useEffect(() => {
-    if (loadingStage === "skeleton") {
-      const timer = setTimeout(() => {
-        setLoadingStage("ready")
-      }, 1000)
-      return () => clearTimeout(timer)
-    }
-  }, [loadingStage])
-
-  if (loadingStage === "initial") {
-    return <Loading />
+async function getSiteData(slug: string) {
+  try {
+    return await api.get(`/sites/site/public/${slug}/`)
+  } catch (error) {
+    console.error("Error fetching site data:", error)
+    return null
   }
+}
+
+export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
+  const { slug } = await params
+  const site = await getSiteData(slug)
+  if (!site) return { title: "تماس با ما" }
+  return {
+    title: `تماس با ما | ${site.name}`,
+    description: `پل‌های ارتباطی با ${site.name}`,
+  }
+}
+
+export default async function ContactPage({ params }: PageProps) {
+  const { slug } = await params
+  const siteData = await getSiteData(slug)
 
   if (!siteData) {
-    return <div className="flex h-screen items-center justify-center">سایت مورد نظر یافت نشد.</div>
+    notFound()
   }
 
   const themeId = siteData.source_identifier || "minimal-cafe"
-
-  if (loadingStage === "skeleton") {
-    switch (themeId) {
-      case "minimal-cafe":
-        return <MinimalCafeContactSkeleton />
-      case "modern-restaurant":
-        return <ModernRestaurantContactSkeleton />
-      case "traditional-persian":
-        return <TraditionalIranianContactSkeleton />
-      default:
-        return <MinimalCafeContactSkeleton />
-    }
-  }
 
   const restaurantProps = {
     id: siteData.id,

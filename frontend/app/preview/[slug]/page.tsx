@@ -1,75 +1,82 @@
-"use client"
-
-import { useParams } from "next/navigation"
-import { useState, useEffect } from "react"
+import { Metadata } from "next"
 import { MinimalCafe } from "@/components/templates/MinimalCafe"
 import { TraditionalIranian } from "@/components/templates/TraditionalIranian"
 import { ModernRestaurant } from "@/components/templates/ModernRestaurant"
-import { MinimalCafeSkeleton } from "@/components/templates/MinimalCafeSkeleton"
-import { ModernRestaurantSkeleton } from "@/components/templates/ModernRestaurantSkeleton"
-import { TraditionalIranianSkeleton } from "@/components/templates/TraditionalIranianSkeleton"
-import Loading from "@/app/loading"
 import { api } from "@/lib/api"
+import { notFound } from "next/navigation"
 
-export default function PreviewPage() {
-  const params = useParams()
-  const siteId = params?.slug as string
-  const [loadingStage, setLoadingStage] = useState<"initial" | "skeleton" | "ready">("initial")
-  const [siteData, setSiteData] = useState<any>(null)
-  const [menuData, setMenuData] = useState<{categories: any[], products: any[]}>({categories: [], products: []})
+export const revalidate = 3600 // Revalidate every hour
+
+interface PageProps {
+  params: Promise<{ slug: string }>
+}
+
+async function getSiteData(slug: string) {
+  try {
+    const [site, menu] = await Promise.all([
+      api.get(`/sites/site/public/${slug}/`),
+      api.get(`/menu/public-data/${slug}/`)
+    ])
+    return { site, menu }
+  } catch (error) {
+    console.error("Error fetching site data:", error)
+    return null
+  }
+}
+
+export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
+  const { slug } = await params
+  const data = await getSiteData(slug)
   
-  useEffect(() => {
-    const fetchData = async () => {
-      try {
-        const [site, menu] = await Promise.all([
-          api.get(`/sites/site/public/${siteId}/`),
-          api.get(`/menu/public-data/${siteId}/`)
-        ])
-        setSiteData(site)
-        setMenuData(menu)
-        setLoadingStage("skeleton")
-      } catch (error) {
-        console.error("Error fetching site data:", error)
-        setLoadingStage("ready") // Show fallback or error
-      }
+  if (!data || !data.site) {
+    return {
+      title: "سایت یافت نشد",
     }
-    
-    if (siteId) {
-      fetchData()
-    }
-  }, [siteId])
-
-  useEffect(() => {
-    if (loadingStage === "skeleton") {
-      const timer = setTimeout(() => {
-        setLoadingStage("ready")
-      }, 1500)
-      return () => clearTimeout(timer)
-    }
-  }, [loadingStage])
-
-  if (loadingStage === "initial") {
-    return <Loading />
   }
 
-  if (!siteData) {
-    return <div className="flex h-screen items-center justify-center">سایت مورد نظر یافت نشد.</div>
+  const { site } = data
+  const title = site.meta_title || `${site.name} | ${site.category_name || "ویترین ساز"}`
+  const description = site.meta_description || site.settings?.description || `مشاهده منو و اطلاعات ${site.name}`
+
+  const schema = {
+    "@context": "https://schema.org",
+    "@type": site.schema_type || "Restaurant",
+    "name": site.name,
+    "description": description,
+    "url": `https://virtinsaz.ir/preview/${slug}`,
+    "logo": site.logo,
+    "image": site.cover_image,
+    "address": {
+      "@type": "PostalAddress",
+      "streetAddress": site.settings?.address_line,
+    },
+    "telephone": site.settings?.phone,
   }
 
+  return {
+    title,
+    description,
+    openGraph: {
+      title,
+      description,
+      images: site.logo ? [site.logo] : [],
+    },
+    other: {
+      "structured-data": JSON.stringify(schema),
+    },
+  }
+}
+
+export default async function PreviewPage({ params }: PageProps) {
+  const { slug } = await params
+  const data = await getSiteData(slug)
+
+  if (!data || !data.site) {
+    notFound()
+  }
+
+  const { site: siteData, menu: menuData } = data
   const themeId = siteData.source_identifier || "minimal-cafe"
-
-  if (loadingStage === "skeleton") {
-    switch (themeId) {
-      case "minimal-cafe":
-        return <MinimalCafeSkeleton />
-      case "traditional-persian":
-        return <TraditionalIranianSkeleton />
-      case "modern-restaurant":
-        return <ModernRestaurantSkeleton />
-      default:
-        return <MinimalCafeSkeleton />
-    }
-  }
 
   const restaurantProps = {
     id: siteData.id,
@@ -92,16 +99,38 @@ export default function PreviewPage() {
     }
   }
 
-  console.log("Rendering site with theme:", themeId);
+  const schema = {
+    "@context": "https://schema.org",
+    "@type": siteData.schema_type || "Restaurant",
+    "name": siteData.name,
+    "description": siteData.meta_description || siteData.settings?.description,
+    "url": `https://virtinsaz.ir/preview/${slug}`,
+    "logo": siteData.logo,
+    "image": siteData.cover_image,
+  }
 
+  let ThemeComponent;
   switch (themeId) {
     case "minimal-cafe":
-      return <MinimalCafe restaurant={restaurantProps as any} categories={menuData.categories} products={menuData.products} />
+      ThemeComponent = <MinimalCafe restaurant={restaurantProps as any} categories={menuData.categories} products={menuData.products} />
+      break;
     case "traditional-persian":
-      return <TraditionalIranian restaurant={restaurantProps as any} categories={menuData.categories} products={menuData.products} />
+      ThemeComponent = <TraditionalIranian restaurant={restaurantProps as any} categories={menuData.categories} products={menuData.products} />
+      break;
     case "modern-restaurant":
-      return <ModernRestaurant restaurant={restaurantProps as any} categories={menuData.categories} products={menuData.products} />
+      ThemeComponent = <ModernRestaurant restaurant={restaurantProps as any} categories={menuData.categories} products={menuData.products} />
+      break;
     default:
-      return <MinimalCafe restaurant={restaurantProps as any} categories={menuData.categories} products={menuData.products} />
+      ThemeComponent = <MinimalCafe restaurant={restaurantProps as any} categories={menuData.categories} products={menuData.products} />
   }
+
+  return (
+    <>
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(schema) }}
+      />
+      {ThemeComponent}
+    </>
+  )
 }

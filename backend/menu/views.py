@@ -1,5 +1,8 @@
 from rest_framework import viewsets, permissions, filters, exceptions, generics
 from rest_framework.response import Response
+from django.db import transaction
+from django.utils.decorators import method_decorator
+from django.views.decorators.cache import cache_page
 from .models import ProductTag, ProductCategory, Product
 from .serializers import ProductTagSerializer, ProductCategorySerializer, ProductSerializer
 from sites.models import Site, SiteCategory, Theme
@@ -7,6 +10,7 @@ from sites.models import Site, SiteCategory, Theme
 class PublicMenuDataView(generics.RetrieveAPIView):
     permission_classes = [permissions.AllowAny]
     
+    @method_decorator(cache_page(60 * 15))
     def get(self, request, slug):
         try:
             site = Site.objects.get(slug=slug)
@@ -43,6 +47,7 @@ class SiteSpecificMixin:
             
         return self.queryset.filter(site=site)
 
+    @transaction.atomic
     def perform_create(self, serializer):
         site = Site.get_or_create_for_user(self.request.user)
         if not site:

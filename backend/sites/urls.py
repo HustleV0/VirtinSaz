@@ -12,7 +12,8 @@ from .views import (
     SitePublicView,
     SiteActivePluginsView,
     SitePluginToggleView,
-    DebugSlugsView
+    DebugSlugsView,
+    SiteSitemapListView
 )
 
 urlpatterns = [
@@ -27,6 +28,7 @@ urlpatterns = [
     path('site/toggle-plugin/', SitePluginToggleView.as_view(), name='site-toggle-plugin'),
     path('site/create/', SiteCreateView.as_view(), name='site-create'),
     path('site/settings/', SiteSettingsUpdateView.as_view(), name='site-settings-update'),
+    path('site/sitemap/', SiteSitemapListView.as_view(), name='site-sitemap'),
     path('debug-slugs/', DebugSlugsView.as_view(), name='debug-slugs'),
     re_path(r'^site/public/(?P<slug>[^/]+)/$', SitePublicView.as_view(), name='site-public'),
 ]

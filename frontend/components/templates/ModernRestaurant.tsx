@@ -1,9 +1,9 @@
 "use client"
 
-import { useState, useMemo } from "react"
+import { useState, useMemo, useEffect } from "react"
 import Link from "next/link"
 import { useRouter } from "next/navigation"
-import { motion, AnimatePresence } from "framer-motion"
+import { motion, AnimatePresence, useScroll, useTransform } from "framer-motion"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import {
@@ -12,27 +12,24 @@ import {
   SheetHeader,
   SheetTitle,
   SheetTrigger,
-  SheetFooter,
 } from "@/components/ui/sheet"
-import {
-  mockCategories,
-  mockProducts,
-  formatPrice,
-} from "@/lib/mock-data"
-import type { Restaurant } from "@/types"
+import { formatPrice } from "@/lib/mock-data"
 import {
   Menu as MenuIcon,
   Phone,
   MapPin,
   Instagram,
   Send,
-  Star,
   Search,
   ShoppingBag,
   Plus,
   Minus,
   Trash2,
   ArrowRight,
+  ChevronRight,
+  Clock,
+  Star,
+  ExternalLink,
 } from "lucide-react"
 
 interface CartItem {
@@ -43,13 +40,14 @@ interface CartItem {
   quantity: number
 }
 
-// Modern Restaurant Colors
+// Modern Premium Restaurant Theme
 const themeColors = {
-  primary: '#2d3436',
-  secondary: '#dfe6e9',
-  accent: '#e17055',
-  background: '#fafafa',
-  text: '#2d3436',
+  primary: '#0f172a',    // Dark Navy / Slate
+  accent: '#f59e0b',     // Amber / Gold
+  background: '#020617', // Very Dark
+  surface: '#1e293b',    // Lighter Slate
+  text: '#f8fafc',
+  muted: '#94a3b8',
 }
 
 export function ModernRestaurant({ 
@@ -67,6 +65,19 @@ export function ModernRestaurant({
   const [cart, setCart] = useState<CartItem[]>([])
   const [isCartOpen, setIsCartOpen] = useState(false)
   const router = useRouter()
+  const { scrollY } = useScroll()
+  
+  const navBackground = useTransform(
+    scrollY,
+    [0, 100],
+    ["rgba(2, 6, 23, 0)", "rgba(2, 6, 23, 0.8)"]
+  )
+  
+  const navBlur = useTransform(
+    scrollY,
+    [0, 100],
+    ["blur(0px)", "blur(12px)"]
+  )
 
   const addToCart = (product: any) => {
     setCart((prev) => {
@@ -134,301 +145,340 @@ export function ModernRestaurant({
   })
 
   return (
-    <div className="min-h-screen font-sans" style={{ backgroundColor: themeColors.background, color: themeColors.text }}>
-      {/* Sleek Navigation */}
-      <nav className="fixed top-0 left-0 right-0 z-50 bg-white/80 backdrop-blur-md border-b">
+    <div className="min-h-screen font-sans selection:bg-amber-500 selection:text-white" style={{ backgroundColor: themeColors.background, color: themeColors.text }} dir="rtl">
+      
+      {/* Premium Glass Navigation */}
+      <motion.nav 
+        style={{ backgroundColor: navBackground, backdropFilter: navBlur }}
+        className="fixed top-0 left-0 right-0 z-50 border-b border-white/5 transition-all"
+      >
         <div className="container mx-auto px-6 h-20 flex items-center justify-between">
-          <Link href={`/preview/${restaurant.id}`} className="flex items-center gap-2 text-2xl font-black tracking-tighter uppercase">
-            {restaurant.logo && (
-              <img src={restaurant.logo} alt={restaurant.name} className="h-10 w-10 object-cover rounded-sm" />
-            )}
-            {restaurant.name}
+          <Link href={`/preview/${restaurant.slug}`} className="flex items-center gap-3">
+            <div className="h-10 w-10 rounded-xl bg-gradient-to-br from-amber-400 to-amber-600 flex items-center justify-center shadow-lg shadow-amber-500/20">
+              {restaurant.logo ? (
+                <img src={restaurant.logo} alt={restaurant.name} className="h-7 w-7 object-contain" />
+              ) : (
+                <Star className="h-5 w-5 text-white fill-white" />
+              )}
+            </div>
+            <span className="text-xl font-bold tracking-tight bg-clip-text text-transparent bg-gradient-to-r from-white to-white/70">
+              {restaurant.name}
+            </span>
           </Link>
 
-          <div className="hidden md:flex items-center gap-10">
-            <Link href={`/preview/${restaurant.id}`} className="text-sm font-bold uppercase tracking-widest hover:text-[#e17055] transition-colors">منو</Link>
-            <Link href={`/preview/${restaurant.id}/about`} className="text-sm font-bold uppercase tracking-widest opacity-50 hover:opacity-100 transition-opacity">داستان ما</Link>
-            <Link href={`/preview/${restaurant.id}/contact`} className="text-sm font-bold uppercase tracking-widest opacity-50 hover:opacity-100 transition-opacity">تماس</Link>
+          <div className="hidden md:flex items-center gap-8">
+            {['منو', 'درباره ما', 'تماس'].map((item, idx) => (
+              <Link 
+                key={item}
+                href={`/preview/${restaurant.slug}${idx === 0 ? '' : idx === 1 ? '/about' : '/contact'}`} 
+                className="text-sm font-medium hover:text-amber-500 transition-colors relative group"
+              >
+                {item}
+                <span className="absolute -bottom-1 right-0 w-0 h-0.5 bg-amber-500 transition-all group-hover:w-full" />
+              </Link>
+            ))}
           </div>
 
-          {/* Social and Contact - Desktop */}
-          <div className="hidden items-center gap-4 md:flex border-x px-6">
-            {restaurant.socialLinks?.instagram && (
-              <a
-                href={`https://instagram.com/${restaurant.socialLinks.instagram}`}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="hover:text-[#e17055] transition-colors"
-              >
-                <Instagram className="h-5 w-5" />
-              </a>
-            )}
-            {restaurant.socialLinks?.telegram && (
-              <a
-                href={`https://t.me/${restaurant.socialLinks.telegram}`}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="hover:text-[#e17055] transition-colors"
-              >
-                <Send className="h-5 w-5" />
-              </a>
-            )}
-            {restaurant.phone && (
-              <a
-                href={`tel:${restaurant.phone}`}
-                className="flex items-center gap-2 mr-2 font-bold text-sm tracking-tighter"
-                dir="ltr"
-              >
-                <Phone className="h-4 w-4 text-[#e17055]" />
-                <span>{restaurant.phone}</span>
-              </a>
-            )}
-          </div>
-
-          <div className="flex items-center gap-4">
+          <div className="flex items-center gap-3">
              <Button 
                 variant="ghost" 
                 size="icon" 
-                className="relative rounded-full hover:bg-black hover:text-white transition-all"
+                className="relative rounded-full hover:bg-white/10 text-white"
                 onClick={() => setIsCartOpen(true)}
              >
               <ShoppingBag className="h-5 w-5" />
               {cartCount > 0 && (
-                <span className="absolute -top-1 -right-1 bg-[#e17055] text-white text-[10px] font-bold h-4 w-4 rounded-full flex items-center justify-center">
+                <motion.span 
+                  initial={{ scale: 0 }}
+                  animate={{ scale: 1 }}
+                  className="absolute -top-1 -right-1 bg-amber-500 text-white text-[10px] font-bold h-4 w-4 rounded-full flex items-center justify-center shadow-lg shadow-amber-500/40"
+                >
                   {cartCount}
-                </span>
+                </motion.span>
               )}
             </Button>
-            <Button variant="ghost" size="icon" className="md:hidden" onClick={() => setIsMenuOpen(true)}>
+            <Button variant="ghost" size="icon" className="md:hidden text-white" onClick={() => setIsMenuOpen(true)}>
               <MenuIcon className="h-6 w-6" />
             </Button>
+            <Link href={`/preview/${restaurant.slug}/contact`}>
+              <Button className="hidden md:flex bg-amber-500 hover:bg-amber-600 text-slate-950 font-bold rounded-full px-6">
+                رزرو میز
+              </Button>
+            </Link>
           </div>
         </div>
-      </nav>
+      </motion.nav>
 
-      {/* Hero Section - Split Layout */}
-      <section className="pt-20">
-        <div className="flex flex-col lg:flex-row min-h-[80vh]">
-          <motion.div 
-            initial={{ opacity: 0, x: -50 }}
-            animate={{ opacity: 1, x: 0 }}
-            transition={{ duration: 0.8, ease: "easeOut" }}
-            className="flex-1 relative min-h-[400px]"
-          >
-            <img 
-                src={restaurant.coverImage || "/placeholder.jpg"} 
-                className="absolute inset-0 w-full h-full object-cover"
-                alt="Modern Restaurant Hero"
-            />
-          </motion.div>
-          <motion.div 
-            initial={{ opacity: 0, x: 50 }}
-            animate={{ opacity: 1, x: 0 }}
-            transition={{ duration: 0.8, ease: "easeOut" }}
-            className="flex-1 flex flex-col justify-center px-10 lg:px-20 py-20 bg-white"
-          >
-            <motion.span 
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.4 }}
-              className="inline-flex items-center justify-center rounded-md border text-xs font-medium bg-primary text-primary-foreground w-fit mb-6 px-4 py-1" 
-              style={{ backgroundColor: themeColors.accent }}
-            >
-              خوش آمدید
-            </motion.span>
-            <motion.h1 
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.5 }}
-              className="text-5xl lg:text-7xl font-black mb-8 leading-[1.1]"
-            >
-              {restaurant.name}
-            </motion.h1>
-            <motion.p 
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.6 }}
-              className="text-xl opacity-60 max-w-lg mb-12 leading-relaxed"
-            >
-              {restaurant.description}
-            </motion.p>
-            <motion.div 
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.7 }}
-              className="flex flex-wrap gap-4"
-            >
-              <Button className="h-14 px-10 rounded-none text-lg font-bold" style={{ backgroundColor: themeColors.primary }}>رزرو میز</Button>
-              <Button variant="outline" className="h-14 px-10 rounded-none text-lg font-bold border-2">تماس</Button>
-            </motion.div>
-          </motion.div>
+      {/* Hero Section - Immersive Design */}
+      <section className="relative min-h-[90vh] flex items-center overflow-hidden pt-20">
+        <div className="absolute inset-0 z-0">
+          <div className="absolute inset-0 bg-gradient-to-t from-slate-950 via-slate-950/40 to-transparent z-10" />
+          <motion.img 
+            initial={{ scale: 1.1, opacity: 0 }}
+            animate={{ scale: 1, opacity: 0.6 }}
+            transition={{ duration: 1.5 }}
+            src={restaurant.coverImage || "/placeholder.jpg"} 
+            className="w-full h-full object-cover"
+            alt="Hero Background"
+          />
         </div>
-      </section>
 
-      {/* Menu Categories Horizontal Scroll */}
-      <section className="sticky top-20 z-40 bg-white border-b overflow-x-auto scrollbar-hide">
-        <div className="container mx-auto px-6 h-16 flex items-center gap-8 min-w-max">
-            <button 
-                onClick={() => setActiveCategory(null)}
-                className={`text-sm font-bold uppercase tracking-tighter transition-all ${activeCategory === null ? 'text-[#e17055] border-b-2 border-[#e17055]' : 'opacity-40 hover:opacity-100'} h-full px-2`}
+        <div className="container mx-auto px-6 relative z-20">
+          <div className="max-w-3xl">
+            <motion.div
+              initial={{ opacity: 0, y: 30 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.8 }}
             >
-                همه دسته‌ها
-            </button>
-            {categories.map(cat => (
-                <button 
-                    key={cat.id}
-                    onClick={() => setActiveCategory(cat.id.toString())}
-                    className={`text-sm font-bold uppercase tracking-tighter transition-all ${activeCategory === cat.id.toString() ? 'text-[#e17055] border-b-2 border-[#e17055]' : 'opacity-40 hover:opacity-100'} h-full px-2`}
+              <Badge className="mb-6 bg-amber-500/10 text-amber-500 border-amber-500/20 px-4 py-1.5 rounded-full text-sm font-medium">
+                ✨ تجربه طعمی متفاوت در {restaurant.name}
+              </Badge>
+              <h1 className="text-5xl md:text-7xl lg:text-8xl font-black leading-[1.1] mb-8">
+                هنر آشپزی <br />
+                <span className="text-amber-500">مدرن</span> و اصیل
+              </h1>
+              <p className="text-lg md:text-xl text-slate-400 mb-10 max-w-xl leading-relaxed">
+                {restaurant.description || "ما با استفاده از تازه‌ترین مواد اولیه و دستور پخت‌های منحصر به فرد، تجربه‌ای فراموش‌نشدنی را برای شما رقم می‌زنیم."}
+              </p>
+              <div className="flex flex-wrap gap-4">
+                <Button 
+                  className="h-14 px-10 rounded-full text-lg font-bold bg-amber-500 hover:bg-amber-600 text-slate-950 shadow-xl shadow-amber-500/20"
+                  onClick={() => {
+                    const element = document.getElementById('menu');
+                    element?.scrollIntoView({ behavior: 'smooth' });
+                  }}
                 >
-                    {cat.name}
-                </button>
+                  مشاهده منو
+                </Button>
+                <Link href={`/preview/${restaurant.slug}/contact`}>
+                  <Button className="h-14 px-10 rounded-full text-lg font-bold bg-white text-slate-950 hover:bg-white/90 shadow-xl shadow-white/10 transition-all">
+                    رزرو آنلاین
+                  </Button>
+                </Link>
+              </div>
+            </motion.div>
+          </div>
+        </div>
+
+        {/* Scroll Indicator */}
+        <motion.div 
+          animate={{ y: [0, 10, 0] }}
+          transition={{ duration: 2, repeat: Infinity }}
+          className="absolute bottom-10 left-1/2 -translate-x-1/2 flex flex-col items-center gap-2 opacity-30"
+        >
+          <span className="text-[10px] uppercase tracking-[0.2em] font-bold">Scroll</span>
+          <div className="w-px h-12 bg-gradient-to-b from-white to-transparent" />
+        </motion.div>
+      </section>
+
+      {/* Featured Info Grid */}
+      <section className="py-20 border-b border-white/5">
+        <div className="container mx-auto px-6">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+            {[
+              { icon: MapPin, title: "آدرس ما", desc: restaurant.settings?.address_line || "تهران، خیابان ولیعصر" },
+              { icon: Phone, title: "تماس مستقیم", desc: restaurant.phone || "۰۲۱-۱۲۳۴۵۶۷۸" },
+              { icon: Clock, title: "ساعات کاری", desc: "همه‌روزه از ۱۱:۰۰ الی ۲۳:۳۰" },
+            ].map((item, idx) => (
+              <motion.div 
+                key={idx}
+                initial={{ opacity: 0, y: 20 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                transition={{ delay: idx * 0.1 }}
+                className="p-8 rounded-3xl bg-white/5 border border-white/10 flex items-start gap-6 group hover:bg-white/[0.08] transition-all"
+              >
+                <div className="h-12 w-12 rounded-2xl bg-amber-500/10 flex items-center justify-center shrink-0 group-hover:scale-110 transition-transform">
+                  <item.icon className="h-6 w-6 text-amber-500" />
+                </div>
+                <div>
+                  <h4 className="font-bold text-lg mb-1">{item.title}</h4>
+                  <p className="text-slate-400 text-sm">{item.desc}</p>
+                </div>
+              </motion.div>
             ))}
+          </div>
         </div>
       </section>
 
-      {/* Main Menu Grid */}
-      <main className="container mx-auto px-6 py-20">
-        <div className="mb-16">
-            <motion.div 
-              initial={{ opacity: 0, y: 20 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              className="flex flex-col md:flex-row md:items-end justify-between gap-6 mb-12"
+      {/* Menu Header & Search */}
+      <section className="py-20 bg-slate-950/50" id="menu">
+        <div className="container mx-auto px-6">
+          <div className="flex flex-col md:flex-row items-center justify-between gap-8 mb-16">
+            <div className="text-center md:text-right">
+              <h2 className="text-4xl md:text-5xl font-black mb-4">منوی رستوران</h2>
+              <p className="text-slate-500">بهترین طعم‌ها را از میان دسته‌بندی‌های ما انتخاب کنید</p>
+            </div>
+            <div className="relative w-full md:w-96 group">
+              <Search className="absolute right-4 top-1/2 -translate-y-1/2 h-5 w-5 text-slate-500 group-focus-within:text-amber-500 transition-colors" />
+              <input 
+                type="text" 
+                placeholder="جستجو در منو..."
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                className="w-full h-14 bg-white/5 border border-white/10 rounded-2xl pr-12 pl-6 focus:border-amber-500 outline-none transition-all placeholder:text-slate-600"
+              />
+            </div>
+          </div>
+
+          {/* Categories Horizontal Scroll */}
+          <div className="flex gap-4 overflow-x-auto pb-6 scrollbar-hide">
+            <Button
+              onClick={() => setActiveCategory(null)}
+              variant={activeCategory === null ? 'default' : 'outline'}
+              className={`rounded-full px-8 h-12 shrink-0 border-white/10 ${activeCategory === null ? 'bg-amber-500 text-slate-950' : 'text-white hover:bg-white/5'}`}
             >
-                <div>
-                    <span className="text-xs font-black uppercase tracking-widest text-[#e17055]">منوی انتخابی</span>
-                    <h2 className="text-4xl font-black">غذاهای ما</h2>
-                </div>
-                <div className="relative w-full md:w-72">
-                    <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 opacity-30" />
-                    <input 
-                        type="text" 
-                        placeholder="جستجو..."
-                        value={searchQuery}
-                        onChange={(e) => setSearchQuery(e.target.value)}
-                        className="w-full bg-transparent border-b-2 border-black/10 py-2 pl-10 focus:border-[#e17055] outline-none transition-all"
-                    />
-                </div>
-            </motion.div>
-
-            <AnimatePresence mode="wait">
-              <motion.div 
-                key={activeCategory || searchQuery || 'all'}
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0, y: -20 }}
-                transition={{ duration: 0.4 }}
-                className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-x-8 gap-y-16"
+              همه غذاها
+            </Button>
+            {categories.map(cat => (
+              <Button
+                key={cat.id}
+                onClick={() => setActiveCategory(cat.id.toString())}
+                variant={activeCategory === cat.id.toString() ? 'default' : 'outline'}
+                className={`rounded-full px-8 h-12 shrink-0 border-white/10 ${activeCategory === cat.id.toString() ? 'bg-amber-500 text-slate-950' : 'text-white hover:bg-white/5'}`}
               >
-                  {filteredProducts.map((product, index) => {
-                      const isAvailable = product.is_available ?? product.isAvailable ?? true
-                      const discountPercentage = product.discount_percentage || 0
-                      const discountPrice = discountPercentage > 0 
-                        ? product.price * (1 - discountPercentage / 100) 
-                        : null
+                {cat.name}
+              </Button>
+            ))}
+          </div>
 
-                      return (
-                      <motion.div 
-                        key={product.id}
-                        initial={{ opacity: 0, y: 20 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        transition={{ delay: index * 0.05 }}
-                        className="group cursor-pointer"
-                      >
-                          <div className="relative aspect-[4/5] overflow-hidden mb-6 bg-gray-100">
-                              {product.image && (
-                                  <img 
-                                      src={product.image} 
-                                      className={`w-full h-full object-cover transition-transform duration-700 group-hover:scale-110 ${!isAvailable ? 'grayscale opacity-50' : ''}`} 
-                                      alt={product.name} 
-                                  />
-                              )}
-                              {isAvailable ? (
-                                <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
-                                    <Button 
-                                        className="rounded-none h-12 px-8 font-bold bg-[#e17055]"
-                                        onClick={(e) => {
-                                            e.stopPropagation();
-                                            addToCart(product);
-                                        }}
-                                    >
-                                        افزودن به سبد
-                                    </Button>
-                                </div>
-                              ) : (
-                                <div className="absolute inset-0 bg-black/60 flex items-center justify-center">
-                                    <Badge variant="destructive" className="rounded-none h-10 px-6 text-sm font-black uppercase tracking-widest">ناموجود</Badge>
-                                </div>
-                              )}
-                              {product.isPopular && (
-                                  <Badge className="absolute top-4 right-4 rounded-none bg-black">محبوب</Badge>
-                              )}
-                              {discountPercentage > 0 && isAvailable && (
-                                  <Badge className="absolute top-4 left-4 rounded-none bg-red-600 border-none">{discountPercentage}% تخفیف</Badge>
-                              )}
-                          </div>
-                          <div className="flex justify-between items-start mb-2">
-                              <h3 className="text-lg font-bold group-hover:text-[#e17055] transition-colors">{product.name}</h3>
-                              {restaurant.settings.showPrices && (
-                                  <div className="flex flex-col items-end">
-                                      {discountPrice ? (
-                                          <>
-                                              <span className="text-[10px] line-through opacity-30 mb-0.5">{formatPrice(product.price)}</span>
-                                              <span className="font-bold">{formatPrice(discountPrice)} {restaurant.settings.currency}</span>
-                                          </>
-                                      ) : (
-                                          <span className="font-bold">{formatPrice(product.price)} {restaurant.settings.currency}</span>
-                                      )}
-                                  </div>
-                              )}
-                          </div>
-                          <p className="text-sm opacity-50 line-clamp-2 leading-relaxed mb-6">{product.description}</p>
+          {/* Product Grid - Glassmorphism Cards */}
+          <AnimatePresence mode="wait">
+            <motion.div 
+              key={activeCategory || searchQuery || 'all'}
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -20 }}
+              transition={{ duration: 0.4 }}
+              className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8 mt-12"
+            >
+              {filteredProducts.map((product, index) => {
+                const isAvailable = product.is_available ?? product.isAvailable ?? true
+                const discountPercentage = product.discount_percentage || 0
+                const discountPrice = discountPercentage > 0 
+                  ? product.price * (1 - discountPercentage / 100) 
+                  : null
+
+                return (
+                  <motion.div 
+                    key={product.id}
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ delay: index * 0.05 }}
+                    className="group relative flex flex-col h-full bg-white/5 border border-white/10 rounded-[2.5rem] overflow-hidden hover:bg-white/[0.08] transition-all hover:border-amber-500/30"
+                  >
+                    {/* Image Wrapper */}
+                    <div className="relative aspect-[4/3] overflow-hidden">
+                      {product.image ? (
+                        <img 
+                          src={product.image} 
+                          className={`w-full h-full object-cover transition-transform duration-700 group-hover:scale-110 ${!isAvailable ? 'grayscale opacity-50' : ''}`} 
+                          alt={product.name} 
+                        />
+                      ) : (
+                        <div className="w-full h-full bg-slate-800 flex items-center justify-center">
+                          <ShoppingBag className="h-10 w-10 text-slate-700" />
+                        </div>
+                      )}
+                      
+                      {/* Overlays */}
+                      <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
+                      
+                      {discountPercentage > 0 && (
+                        <div className="absolute top-5 left-5 bg-red-500 text-white text-[10px] font-black px-3 py-1.5 rounded-full shadow-lg">
+                          {discountPercentage}% تخفیف
+                        </div>
+                      )}
+
+                      {product.isPopular && (
+                        <div className="absolute top-5 right-5 bg-amber-500 text-slate-950 text-[10px] font-black px-3 py-1.5 rounded-full shadow-lg">
+                          محبوب
+                        </div>
+                      )}
+                    </div>
+
+                    {/* Content */}
+                    <div className="p-8 flex flex-col flex-1">
+                      <div className="flex justify-between items-start gap-4 mb-4">
+                        <h3 className="text-xl font-bold group-hover:text-amber-500 transition-colors">{product.name}</h3>
+                        <div className="flex flex-col items-end shrink-0">
+                          {discountPrice ? (
+                            <>
+                              <span className="text-amber-500 font-bold text-lg">{formatPrice(discountPrice)}</span>
+                              <span className="text-xs line-through text-slate-500">{formatPrice(product.price)}</span>
+                            </>
+                          ) : (
+                            <span className="text-white font-bold text-lg">{formatPrice(product.price)}</span>
+                          )}
+                        </div>
+                      </div>
+                      
+                      <p className="text-sm text-slate-400 line-clamp-2 leading-relaxed mb-8 flex-1">
+                        {product.description || "توضیحاتی برای این غذا ثبت نشده است."}
+                      </p>
+
+                      <div className="mt-auto">
+                        {isAvailable ? (
                           <Button 
-                              className="w-full rounded-none h-12 font-bold uppercase tracking-widest text-xs" 
-                              style={{ backgroundColor: themeColors.primary }}
-                              onClick={() => addToCart(product)}
+                            className="w-full h-14 bg-white/10 hover:bg-amber-500 hover:text-slate-950 text-white font-bold rounded-2xl transition-all border border-white/5"
+                            onClick={() => addToCart(product)}
                           >
-                              سفارش دهید
+                            <Plus className="h-4 w-4 ml-2" />
+                            افزودن به سبد
                           </Button>
-                      </motion.div>
-                      )
-                  })}
-              </motion.div>
-            </AnimatePresence>
+                        ) : (
+                          <Button disabled className="w-full h-14 bg-slate-800 text-slate-500 font-bold rounded-2xl">
+                            ناموجود
+                          </Button>
+                        )}
+                      </div>
+                    </div>
+                  </motion.div>
+                )
+              })}
+            </motion.div>
+          </AnimatePresence>
         </div>
-      </main>
+      </section>
 
-      {/* Cart Sheet */}
+      {/* Cart Sheet - Dark Premium */}
       <Sheet open={isCartOpen} onOpenChange={setIsCartOpen}>
-        <SheetContent side="left" className="w-full sm:max-w-md p-0 flex flex-col rounded-none border-none [&>button]:text-white">
-            <SheetHeader className="p-8 bg-black text-white flex-row justify-between items-center space-y-0">
-                <SheetTitle className="text-2xl font-black uppercase tracking-tighter text-white">سبد خرید</SheetTitle>
+        <SheetContent side="left" className="w-full sm:max-w-md p-0 flex flex-col bg-slate-950 border-white/5 text-white">
+            <SheetHeader className="p-8 border-b border-white/5 flex-row justify-between items-center space-y-0">
+                <SheetTitle className="text-2xl font-black text-white flex items-center gap-3">
+                  <ShoppingBag className="h-6 w-6 text-amber-500" />
+                  سبد سفارشات
+                </SheetTitle>
             </SheetHeader>
             <div className="flex-1 overflow-y-auto p-8">
                 {cart.length === 0 ? (
-                    <div className="h-full flex flex-col items-center justify-center opacity-30">
-                        <ShoppingBag className="h-20 w-20 mb-4" />
-                        <p className="text-xl font-bold">خالی است</p>
+                    <div className="h-full flex flex-col items-center justify-center text-slate-500">
+                        <div className="h-24 w-24 rounded-full bg-white/5 flex items-center justify-center mb-6">
+                          <ShoppingBag className="h-10 w-10 opacity-20" />
+                        </div>
+                        <p className="text-xl font-bold">سبد خرید شما خالی است</p>
                     </div>
                 ) : (
-                    <div className="space-y-8">
+                    <div className="space-y-6">
                         {cart.map(item => (
-                            <div key={item.id} className="flex gap-6">
-                                <div className="w-20 h-24 bg-gray-100 shrink-0">
+                            <div key={item.id} className="flex gap-6 group">
+                                <div className="w-20 h-20 rounded-2xl overflow-hidden bg-slate-900 border border-white/5 shrink-0">
                                     {item.image && <img src={item.image} className="w-full h-full object-cover" />}
                                 </div>
                                 <div className="flex-1 flex flex-col justify-between py-1">
-                                    <div>
+                                    <div className="flex justify-between items-start">
                                         <h4 className="font-bold">{item.name}</h4>
-                                        <p className="text-sm opacity-50">{formatPrice(item.price)} {restaurant.settings.currency}</p>
+                                        <button onClick={() => removeFromCart(item.id)} className="text-slate-500 hover:text-red-500 transition-colors">
+                                          <Trash2 className="h-4 w-4" />
+                                        </button>
                                     </div>
-                                    <div className="flex items-center gap-4">
-                                        <div className="flex items-center border">
-                                            <button onClick={() => updateQuantity(item.id, -1)} className="px-2 py-1 hover:bg-gray-100"><Minus className="h-3 w-3" /></button>
-                                            <span className="w-8 text-center text-xs font-bold">{item.quantity}</span>
-                                            <button onClick={() => updateQuantity(item.id, 1)} className="px-2 py-1 hover:bg-gray-100"><Plus className="h-3 w-3" /></button>
+                                    <div className="flex items-center justify-between">
+                                        <div className="flex items-center bg-white/5 rounded-xl p-1 border border-white/5">
+                                            <button onClick={() => updateQuantity(item.id, -1)} className="w-8 h-8 flex items-center justify-center hover:bg-white/10 rounded-lg transition-colors"><Minus className="h-3 w-3" /></button>
+                                            <span className="w-8 text-center text-sm font-bold">{item.quantity}</span>
+                                            <button onClick={() => updateQuantity(item.id, 1)} className="w-8 h-8 flex items-center justify-center hover:bg-white/10 rounded-lg transition-colors"><Plus className="h-3 w-3" /></button>
                                         </div>
-                                        <button onClick={() => removeFromCart(item.id)} className="text-[10px] uppercase font-bold tracking-widest opacity-40 hover:opacity-100">حذف</button>
+                                        <span className="font-bold text-amber-500">{formatPrice(item.price * item.quantity)}</span>
                                     </div>
                                 </div>
                             </div>
@@ -437,13 +487,16 @@ export function ModernRestaurant({
                 )}
             </div>
             {cart.length > 0 && (
-                <div className="p-8 border-t bg-gray-50">
-                    <div className="flex justify-between items-center mb-6">
-                        <span className="text-sm font-bold uppercase tracking-widest opacity-50">جمع کل</span>
-                        <span className="text-2xl font-black">{formatPrice(cartTotal)} {restaurant.settings.currency}</span>
+                <div className="p-8 border-t border-white/5 bg-slate-900/50 backdrop-blur-md">
+                    <div className="flex justify-between items-center mb-8">
+                        <span className="text-slate-400 font-medium">مجموع کل قابل پرداخت</span>
+                        <span className="text-3xl font-black text-amber-500">{formatPrice(cartTotal)}</span>
                     </div>
-                    <Button className="w-full h-16 rounded-none text-lg font-black uppercase tracking-tighter" onClick={handleCheckout} style={{ backgroundColor: themeColors.primary }}>
-                        نهایی کردن سفارش
+                    <Button 
+                      className="w-full h-16 bg-amber-500 hover:bg-amber-600 text-slate-950 text-xl font-black rounded-2xl shadow-xl shadow-amber-500/20" 
+                      onClick={handleCheckout}
+                    >
+                        ثبت و پرداخت سفارش
                     </Button>
                 </div>
             )}
@@ -452,26 +505,33 @@ export function ModernRestaurant({
 
       {/* Mobile Menu */}
       <Sheet open={isMenuOpen} onOpenChange={setIsMenuOpen}>
-        <SheetContent side="right" className="w-full flex flex-col p-10 bg-black text-white border-none [&>button]:text-white">
+        <SheetContent side="right" className="w-full flex flex-col p-10 bg-slate-950 text-white border-none">
             <SheetHeader className="sr-only">
                 <SheetTitle>{restaurant.name}</SheetTitle>
             </SheetHeader>
-            <nav className="flex flex-col gap-8">
-                <Link href={`/preview/${restaurant.slug}`} className="text-4xl font-black uppercase tracking-tighter hover:text-[#e17055]" onClick={() => setIsMenuOpen(false)}>منو</Link>
-                <Link href={`/preview/${restaurant.slug}/about`} className="text-4xl font-black uppercase tracking-tighter opacity-40 hover:opacity-100" onClick={() => setIsMenuOpen(false)}>داستان ما</Link>
-                <Link href={`/preview/${restaurant.slug}/contact`} className="text-4xl font-black uppercase tracking-tighter opacity-40 hover:opacity-100" onClick={() => setIsMenuOpen(false)}>تماس</Link>
+            <nav className="flex flex-col gap-10 mt-10">
+                {['منو', 'درباره ما', 'تماس'].map((item, idx) => (
+                  <Link 
+                    key={item}
+                    href={`/preview/${restaurant.slug}${idx === 0 ? '' : idx === 1 ? '/about' : '/contact'}`} 
+                    className="text-5xl font-black hover:text-amber-500 transition-colors"
+                    onClick={() => setIsMenuOpen(false)}
+                  >
+                    {item}
+                  </Link>
+                ))}
             </nav>
-            <div className="mt-auto">
-                <p className="text-sm opacity-40 font-bold uppercase tracking-widest mb-4">دنبال کنید</p>
-                <div className="flex gap-6">
+            <div className="mt-auto pt-10 border-t border-white/5">
+                <p className="text-sm text-slate-500 font-bold uppercase tracking-[0.2em] mb-6">شبکه‌های اجتماعی</p>
+                <div className="flex gap-8">
                     {restaurant.socialLinks?.instagram && (
-                      <a href={`https://instagram.com/${restaurant.socialLinks.instagram}`} target="_blank" rel="noopener noreferrer">
-                        <Instagram className="h-6 w-6" />
+                      <a href={`https://instagram.com/${restaurant.socialLinks.instagram}`} target="_blank" rel="noopener noreferrer" className="h-14 w-14 rounded-2xl bg-white/5 flex items-center justify-center hover:bg-amber-500 hover:text-slate-950 transition-all">
+                        <Instagram className="h-7 w-7" />
                       </a>
                     )}
                     {restaurant.socialLinks?.telegram && (
-                      <a href={`https://t.me/${restaurant.socialLinks.telegram}`} target="_blank" rel="noopener noreferrer">
-                        <Send className="h-6 w-6" />
+                      <a href={`https://t.me/${restaurant.socialLinks.telegram}`} target="_blank" rel="noopener noreferrer" className="h-14 w-14 rounded-2xl bg-white/5 flex items-center justify-center hover:bg-amber-500 hover:text-slate-950 transition-all">
+                        <Send className="h-7 w-7" />
                       </a>
                     )}
                 </div>
@@ -479,37 +539,59 @@ export function ModernRestaurant({
         </SheetContent>
       </Sheet>
 
-      {/* Modern Footer */}
-      <footer className="bg-black text-white py-24">
+      {/* Modern Premium Footer */}
+      <footer className="bg-slate-950 text-white pt-24 pb-12 border-t border-white/5">
         <div className="container mx-auto px-6">
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-20 mb-20">
-                <div className="col-span-1 md:col-span-2">
-                    <h2 className="text-5xl lg:text-7xl font-black mb-10 tracking-tighter uppercase">{restaurant.name}</h2>
-                    <p className="text-xl opacity-50 max-w-xl leading-relaxed">{restaurant.description}</p>
-                </div>
-                <div className="flex flex-col gap-6">
-                    <div>
-                        <p className="text-xs font-black uppercase tracking-widest text-[#e17055] mb-2">موقعیت</p>
-                        <p className="font-bold">{restaurant.address}</p>
+            <div className="grid grid-cols-1 lg:grid-cols-4 gap-16 mb-24">
+                <div className="lg:col-span-2">
+                    <div className="flex items-center gap-3 mb-8">
+                      <div className="h-12 w-12 rounded-xl bg-amber-500 flex items-center justify-center">
+                        <Star className="h-6 w-6 text-slate-950 fill-slate-950" />
+                      </div>
+                      <span className="text-3xl font-black">{restaurant.name}</span>
                     </div>
-                    <div>
-                        <p className="text-xs font-black uppercase tracking-widest text-[#e17055] mb-2">رزرو</p>
-                        <p className="font-bold">{restaurant.phone}</p>
+                    <p className="text-lg text-slate-400 max-w-xl leading-relaxed">
+                      {restaurant.description || "تجربه‌ای متفاوت از طعم و هنر آشپزی در محیطی مدرن و دلنشین."}
+                    </p>
+                </div>
+                <div className="space-y-8">
+                    <h4 className="text-amber-500 font-bold text-lg uppercase tracking-wider">اطلاعات تماس</h4>
+                    <div className="space-y-4">
+                      <div className="flex items-start gap-4">
+                        <MapPin className="h-5 w-5 text-slate-500 shrink-0 mt-1" />
+                        <p className="text-slate-300 font-medium">{restaurant.settings?.address_line || "تهران، خیابان ولیعصر"}</p>
+                      </div>
+                      <div className="flex items-center gap-4">
+                        <Phone className="h-5 w-5 text-slate-500 shrink-0" />
+                        <p className="text-slate-300 font-medium" dir="ltr">{restaurant.phone || "۰۲۱-۱۲۳۴۵۶۷۸"}</p>
+                      </div>
+                    </div>
+                </div>
+                <div className="space-y-8">
+                    <h4 className="text-amber-500 font-bold text-lg uppercase tracking-wider">ساعات پذیرایی</h4>
+                    <div className="space-y-3">
+                      <div className="flex justify-between items-center text-slate-300">
+                        <span>شنبه - چهارشنبه</span>
+                        <span className="font-bold">۱۱:۰۰ - ۲۳:۰۰</span>
+                      </div>
+                      <div className="flex justify-between items-center text-slate-300">
+                        <span>پنجشنبه - جمعه</span>
+                        <span className="font-bold">۱۲:۰۰ - ۲۴:۰۰</span>
+                      </div>
                     </div>
                 </div>
             </div>
-            <div className="pt-10 border-t border-white/10 flex flex-col md:flex-row justify-between items-center gap-6">
-                <p className="text-xs opacity-40 uppercase font-bold tracking-widest">© 2024 MENUSAZ - ALL RIGHTS RESERVED</p>
-                <div className="flex gap-10">
-                    {restaurant.socialLinks?.instagram && (
-                      <a href={`https://instagram.com/${restaurant.socialLinks.instagram}`} target="_blank" rel="noopener noreferrer" className="text-xs font-bold uppercase tracking-widest opacity-40 hover:opacity-100 transition-opacity">اینستاگرام</a>
-                    )}
-                    {restaurant.socialLinks?.telegram && (
-                      <a href={`https://t.me/${restaurant.socialLinks.telegram}`} target="_blank" rel="noopener noreferrer" className="text-xs font-bold uppercase tracking-widest opacity-40 hover:opacity-100 transition-opacity">تلگرام</a>
-                    )}
-                    {restaurant.socialLinks?.whatsapp && (
-                      <a href={`https://wa.me/${restaurant.socialLinks.whatsapp}`} target="_blank" rel="noopener noreferrer" className="text-xs font-bold uppercase tracking-widest opacity-40 hover:opacity-100 transition-opacity">واتساپ</a>
-                    )}
+            
+            <div className="pt-12 border-t border-white/5 flex flex-col md:flex-row justify-between items-center gap-8">
+                <p className="text-sm text-slate-500">
+                  © 2024 <span className="text-white font-bold">Vitrinsaz</span>. تمامی حقوق محفوظ است.
+                </p>
+                <div className="flex gap-6">
+                    {[Instagram, Send, Phone].map((Icon, i) => (
+                      <a key={i} href="#" className="h-10 w-10 rounded-full bg-white/5 flex items-center justify-center hover:bg-amber-500 hover:text-slate-950 transition-all">
+                        <Icon className="h-4 w-4" />
+                      </a>
+                    ))}
                 </div>
             </div>
         </div>

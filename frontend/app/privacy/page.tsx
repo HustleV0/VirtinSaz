@@ -1,6 +1,10 @@
-"use client"
-
 import LegalPage from "@/components/legal-layout"
+import { Metadata } from "next"
+
+export const metadata: Metadata = {
+  title: "حریم خصوصی | ویترین ساز",
+  description: "سیاست‌های حفظ حریم خصوصی و امنیت داده‌های کاربران در ویترین ساز",
+}
 
 export default function PrivacyPage() {
   return (

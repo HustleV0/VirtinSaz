@@ -1,52 +1,46 @@
 import React from "react"
 import type { Metadata, Viewport } from "next"
-import { mockRestaurants } from "@/lib/mock-data"
 import { ThemeProvider } from "@/components/theme-provider"
+import { api } from "@/lib/api"
+
+async function getSiteData(slug: string) {
+  try {
+    return await api.get(`/sites/site/public/${slug}/`)
+  } catch (error) {
+    console.error("Layout metadata fetch error:", error)
+    return null
+  }
+}
 
 export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }): Promise<Metadata> {
   const { slug } = await params
-  try {
-    const response = await fetch(`http://localhost:8000/api/sites/site/public/${slug}/`)
-    if (response.ok) {
-      const site = await response.json()
-      const logoUrl = site.logo 
-        ? (site.logo.startsWith('http') ? site.logo : `http://localhost:8000${site.logo}`)
-        : "/favicon.ico"
-        
-      return {
-        title: `${site.name} | ویترین ساز`,
-        description: site.settings?.description || "",
-        icons: {
-          icon: logoUrl,
-        },
-      }
+  const site = await getSiteData(slug)
+  
+  if (!site) {
+    return {
+      title: "ویترین ساز",
     }
-  } catch (error) {
-    console.error("Metadata fetch error:", error)
   }
 
-  const restaurant = mockRestaurants.find(r => r.slug === slug) || mockRestaurants[0]
+  const logoUrl = site.logo 
+    ? (site.logo.startsWith('http') ? site.logo : `http://localhost:8000${site.logo}`)
+    : "/favicon.ico"
+    
   return {
-    title: `${restaurant.name} | ویترین ساز`,
-    description: restaurant.description,
+    title: `${site.name} | ویترین ساز`,
+    description: site.settings?.description || "",
+    icons: {
+      icon: logoUrl,
+    },
   }
 }
 
 export async function generateViewport({ params }: { params: Promise<{ slug: string }> }): Promise<Viewport> {
   const { slug } = await params
-  try {
-    const response = await fetch(`http://localhost:8000/api/sites/site/public/${slug}/`)
-    if (response.ok) {
-      const site = await response.json()
-      return {
-        themeColor: site.settings?.primaryColor || "#000000",
-      }
-    }
-  } catch (error) {}
-
-  const restaurant = mockRestaurants.find(r => r.slug === slug) || mockRestaurants[0]
+  const site = await getSiteData(slug)
+  
   return {
-    themeColor: restaurant.settings.primaryColor,
+    themeColor: site?.settings?.primaryColor || "#000000",
   }
 }
 
@@ -57,7 +51,6 @@ export default async function PreviewLayout({
   children: React.ReactNode
   params: Promise<{ slug: string }>
 }) {
-  await params // Ensure params are available if needed, though children might use them
   return (
     <ThemeProvider
       attribute="class"

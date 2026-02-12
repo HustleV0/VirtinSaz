@@ -26,7 +26,7 @@ export function Hero() {
               <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-primary opacity-75" />
               <span className="relative inline-flex h-2 w-2 rounded-full bg-primary" />
             </span>
-            <span>بیش از ۵۰۰ رستوران فعال</span>
+            <span>بیش از ۵۰۰ کسب‌وکار فعال</span>
           </motion.div>
 
           {/* Main Heading */}
@@ -36,7 +36,7 @@ export function Hero() {
             transition={{ duration: 0.5, delay: 0.1 }}
             className="mb-6 text-4xl font-bold tracking-tight text-balance md:text-5xl lg:text-6xl"
           >
-            وبسایت رستوران خود را
+            وبسایت حرفه‌ای خود را
             <br />
             <span className="text-muted-foreground">در چند دقیقه</span> بسازید
           </motion.h1>
@@ -48,8 +48,8 @@ export function Hero() {
             transition={{ duration: 0.5, delay: 0.2 }}
             className="mx-auto mb-10 max-w-2xl text-lg text-muted-foreground text-pretty md:text-xl"
           >
-            با ویترین ساز به سادگی وبسایت حرفه‌ای برای رستوران یا کافه خود بسازید.
-            منوی آنلاین، سفارش آنلاین و مدیریت کامل در یک پلتفرم.
+            با ویترین ساز به سادگی وبسایت مدرن و خاص برای برند خود بسازید.
+            تم‌های آماده، شخصی‌سازی کامل و مدیریت هوشمند در یک پلتفرم قدرتمند.
           </motion.p>
 
           {/* CTA Buttons */}
@@ -121,7 +121,7 @@ export function Hero() {
               <div className="h-3 w-3 rounded-full bg-destructive/60" />
               <div className="h-3 w-3 rounded-full bg-warning/60" />
               <div className="h-3 w-3 rounded-full bg-success/60" />
-              <span className="mr-4 text-xs text-muted-foreground">cafe-lezzat.vitrinsaz.ir</span>
+              <span className="mr-4 text-xs text-muted-foreground">my-business.virtinsaz.ir</span>
             </div>
             <div className="aspect-[16/9] overflow-hidden rounded-b-lg bg-muted">
               <div className="flex h-full flex-col">

@@ -46,15 +46,15 @@ export function Footer() {
         <div className="grid gap-8 md:grid-cols-2 lg:grid-cols-5">
           {/* Brand */}
           <div className="lg:col-span-2">
-            <Link href="/" className="flex items-center gap-2">
+            <Link href="/" className="flex items-center gap-2 py-1.5">
               <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-primary">
-                <span className="text-sm font-bold text-primary-foreground">م</span>
+                <span className="text-sm font-bold text-primary-foreground">و</span>
               </div>
               <span className="text-xl font-bold">ویترین ساز</span>
             </Link>
             <p className="mt-4 max-w-sm text-sm text-muted-foreground">
-              پلتفرم ساخت وبسایت برای رستوران‌ها و کافه‌ها. به سادگی وبسایت حرفه‌ای
-              خود را بسازید و کسب‌وکارتان را آنلاین کنید.
+              پلتفرم پیشرفته ساخت وبسایت برای تمامی کسب‌وکارها. به سادگی وبسایت مدرن
+              خود را بسازید و برندتان را آنلاین کنید.
             </p>
             {/* Social Links */}
             <div className="mt-6 flex gap-4">
@@ -62,7 +62,7 @@ export function Footer() {
                 href="https://instagram.com/vitrinsaz"
                 target="_blank"
                 rel="noopener noreferrer"
-                className="flex h-10 w-10 items-center justify-center rounded-lg bg-secondary text-muted-foreground transition-colors hover:bg-primary hover:text-primary-foreground"
+                className="flex h-11 w-11 items-center justify-center rounded-lg bg-secondary text-muted-foreground transition-colors hover:bg-primary hover:text-primary-foreground"
               >
                 <Instagram className="h-5 w-5" />
                 <span className="sr-only">اینستاگرام</span>
@@ -71,14 +71,14 @@ export function Footer() {
                 href="https://t.me/vitrinsaz"
                 target="_blank"
                 rel="noopener noreferrer"
-                className="flex h-10 w-10 items-center justify-center rounded-lg bg-secondary text-muted-foreground transition-colors hover:bg-primary hover:text-primary-foreground"
+                className="flex h-11 w-11 items-center justify-center rounded-lg bg-secondary text-muted-foreground transition-colors hover:bg-primary hover:text-primary-foreground"
               >
                 <Send className="h-5 w-5" />
                 <span className="sr-only">تلگرام</span>
               </a>
               <a
                 href="tel:02112345678"
-                className="flex h-10 w-10 items-center justify-center rounded-lg bg-secondary text-muted-foreground transition-colors hover:bg-primary hover:text-primary-foreground"
+                className="flex h-11 w-11 items-center justify-center rounded-lg bg-secondary text-muted-foreground transition-colors hover:bg-primary hover:text-primary-foreground"
               >
                 <Phone className="h-5 w-5" />
                 <span className="sr-only">تلفن</span>
@@ -95,7 +95,7 @@ export function Footer() {
                   <li key={link.href}>
                     <Link
                       href={link.href}
-                      className="text-sm text-muted-foreground transition-colors hover:text-foreground"
+                      className="inline-block py-1.5 text-sm text-muted-foreground transition-colors hover:text-foreground"
                     >
                       {link.label}
                     </Link>

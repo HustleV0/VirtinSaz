@@ -44,7 +44,9 @@ class ThemeSerializer(serializers.ModelSerializer):
 class SiteSerializer(serializers.ModelSerializer):
     category_name = serializers.CharField(source='category.name', read_only=True)
     theme_name = serializers.CharField(source='theme.name', read_only=True)
-    source_identifier = serializers.CharField(source='theme.source_identifier', read_only=True)
+    theme = serializers.PrimaryKeyRelatedField(queryset=Theme.objects.all(), required=False, allow_null=True)
+    category = serializers.PrimaryKeyRelatedField(queryset=SiteCategory.objects.all())
+    source_identifier = serializers.SerializerMethodField()
     owner_phone = serializers.CharField(source='owner.phone_number', read_only=True)
     owner_id = serializers.IntegerField(source='owner.id', read_only=True)
     active_plugins = serializers.SerializerMethodField()
@@ -61,9 +63,16 @@ class SiteSerializer(serializers.ModelSerializer):
             'source_identifier', 'owner_phone', 'owner_id', 
             'settings', 'active_plugins', 'required_plugins', 
             'product_count', 'subscription_days_left', 'is_trial',
-            'trial_ends_at', 'subscription_ends_at', 'created_at'
+            'trial_ends_at', 'subscription_ends_at', 'created_at', 'updated_at',
+            'meta_title', 'meta_description', 'schema_type'
         ]
         read_only_fields = ['owner']
+
+    def get_source_identifier(self, obj):
+        if obj.theme:
+            return obj.theme.source_identifier
+        # Fallback to a default if theme is missing
+        return "minimal-cafe"
 
     def get_active_plugins(self, obj):
         return obj.get_active_plugins()

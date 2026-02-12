@@ -22,7 +22,7 @@ export function CTA() {
             آماده شروع هستید؟
           </h2>
           <p className="mb-8 text-lg text-muted-foreground">
-            همین الان ثبت‌نام کنید و وبسایت رستوران خود را در چند دقیقه بسازید.
+            همین الان ثبت‌نام کنید و وبسایت حرفه‌ای خود را در چند دقیقه بسازید.
             ۷ روز اول رایگان!
           </p>
           <div className="flex flex-col items-center justify-center gap-4 sm:flex-row">

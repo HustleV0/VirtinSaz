@@ -148,7 +148,7 @@ export function Templates() {
                     </div>
                     <div className="flex-1 px-4">
                       <div className="mx-auto max-w-md rounded-md bg-background px-4 py-1.5 text-center text-xs text-muted-foreground ltr">
-                        {activeTheme.slug}.menusaz.ir
+                        {activeTheme.slug}.virtinsaz.ir
                       </div>
                     </div>
                     <Button variant="ghost" size="sm" className="gap-2">

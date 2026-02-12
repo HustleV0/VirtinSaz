@@ -3,7 +3,7 @@
 import React from "react"
 import { useState } from "react"
 import Link from "next/link"
-import { usePathname } from "next/navigation"
+import { usePathname, useParams, useRouter } from "next/navigation"
 import { Button } from "@/components/ui/button"
 import { ThemeToggle } from "@/components/theme-toggle"
 import { Sheet, SheetContent, SheetTrigger, SheetTitle, SheetDescription } from "@/components/ui/sheet"
@@ -28,10 +28,13 @@ import {
   LogOut,
   User,
   ChevronLeft,
+  ChevronsUpDown,
+  Plus,
   ExternalLink,
   ShoppingCart,
   Puzzle,
   TrendingUp,
+  Globe,
 } from "lucide-react"
 import { useAuth } from "@/hooks/use-auth"
 import { cn } from "@/lib/utils"
@@ -102,54 +105,137 @@ const sidebarItems = [
   },
 ]
 
+import { ScrollArea } from "@/components/ui/scroll-area"
+
 function SidebarContent({ onItemClick, restaurantName, phone, siteSlug, hasSite }: { onItemClick?: () => void, restaurantName?: string, phone?: string, siteSlug?: string | null, hasSite?: boolean }) {
   const pathname = usePathname()
-  const slug = siteSlug || "your-restaurant"
-  const { isPluginActive } = useSiteStore()
+  const params = useParams()
+  const router = useRouter()
+  const urlSlug = params?.slug as string
+  const { isPluginActive, sites } = useSiteStore()
+
+  const handleSiteChange = (newSlug: string) => {
+    if (newSlug === "all") {
+      router.push("/dashboard")
+      if (onItemClick) onItemClick()
+      return
+    }
+
+    if (newSlug === urlSlug) return
+    
+    if (urlSlug) {
+      const newPathname = pathname.replace(`/dashboard/${urlSlug}`, `/dashboard/${newSlug}`)
+      router.push(newPathname)
+    } else {
+      const pathAfterDashboard = pathname.replace("/dashboard", "")
+      if (pathAfterDashboard && pathAfterDashboard !== "/") {
+        const cleanPath = pathAfterDashboard.startsWith("/") ? pathAfterDashboard : `/${pathAfterDashboard}`
+        router.push(`/dashboard/${newSlug}${cleanPath}`)
+      } else {
+        router.push(`/dashboard/${newSlug}/analytics`)
+      }
+    }
+    if (onItemClick) onItemClick()
+  }
+
+  const currentSite = sites.find(s => s.slug === urlSlug)
 
   return (
     <div className="flex h-full flex-col">
-      {/* ... (بقیه کدها ثابت می‌ماند) */}
       {/* Logo */}
       <div className="flex h-16 items-center border-b border-sidebar-border px-6">
-        <Link href="/" className="flex items-center gap-2">
+        <Link href="/dashboard" className="flex items-center gap-2">
           <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-sidebar-primary">
-            <span className="text-sm font-bold text-sidebar-primary-foreground">م</span>
+            <span className="text-sm font-bold text-sidebar-primary-foreground">و</span>
           </div>
           <span className="text-xl font-bold text-sidebar-foreground">ویترین ساز</span>
         </Link>
       </div>
 
-      {/* Restaurant Info */}
+      {/* Site Switcher */}
       <div className="border-b border-sidebar-border p-4">
-        <div className="flex items-center gap-3">
-          <div className="h-10 w-10 rounded-lg bg-sidebar-accent flex items-center justify-center text-sidebar-accent-foreground">
-             <UtensilsCrossed className="h-5 w-5" />
-          </div>
-          <div className="flex-1 truncate">
-            <p className="truncate font-medium text-sidebar-foreground">
-              {restaurantName || "رستوران من"}
-            </p>
-            {hasSite && (
-              <p className="truncate text-xs text-sidebar-foreground/60" dir="ltr">
-                {slug}.vitrinsaz.ir
-              </p>
-            )}
-          </div>
-        </div>
+        <DropdownMenu dir="rtl">
+          <DropdownMenuTrigger asChild>
+            <Button 
+              variant="ghost" 
+              className="w-full h-auto justify-start gap-3 px-2 py-2 hover:bg-sidebar-accent group"
+            >
+              <div className="h-10 w-10 shrink-0 rounded-lg bg-sidebar-accent flex items-center justify-center text-sidebar-accent-foreground group-hover:bg-sidebar-primary/10 group-hover:text-sidebar-primary transition-colors">
+                 <Globe className="h-5 w-5" />
+              </div>
+              <div className="flex-1 truncate text-right">
+                <p className="truncate font-medium text-sidebar-foreground">
+                  {currentSite?.name || "همه سایت‌ها"}
+                </p>
+                <p className="truncate text-xs text-sidebar-foreground/60" dir="ltr">
+                  {urlSlug ? `${urlSlug}.vitrinsaz.ir` : "مدیریت مرکزی"}
+                </p>
+              </div>
+              <ChevronsUpDown className="ml-auto h-4 w-4 shrink-0 opacity-50" />
+            </Button>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent className="w-64" align="start" side="bottom">
+            <div className="px-2 py-1.5 text-xs font-semibold text-muted-foreground text-right">
+              وبسایت‌های من
+            </div>
+            <DropdownMenuItem 
+              onClick={() => handleSiteChange("all")}
+              className={cn(
+                "flex flex-col items-start gap-0.5 py-2 cursor-pointer text-right w-full",
+                !urlSlug && "bg-sidebar-accent"
+              )}
+            >
+              <span className="font-medium">همه سایت‌ها</span>
+              <span className="text-xs text-muted-foreground">مشاهده لیست کلی</span>
+            </DropdownMenuItem>
+            
+            <DropdownMenuSeparator />
+            
+            <ScrollArea className={cn("flex flex-col", sites.length > 5 ? "h-[200px]" : "h-auto")} dir="rtl">
+              {sites.map((site) => (
+                <DropdownMenuItem 
+                  key={site.id} 
+                  onClick={() => handleSiteChange(site.slug)}
+                  className={cn(
+                    "flex flex-col items-start gap-0.5 py-2 cursor-pointer text-right w-full",
+                    site.slug === urlSlug && "bg-sidebar-accent"
+                  )}
+                >
+                  <span className="font-medium">{site.name}</span>
+                  <span className="text-xs text-muted-foreground" dir="ltr">{site.slug}.vitrinsaz.ir</span>
+                </DropdownMenuItem>
+              ))}
+            </ScrollArea>
+
+            <DropdownMenuSeparator />
+            <DropdownMenuItem asChild className="text-right w-full">
+              <Link href="/dashboard?create=true" className="flex items-center gap-2 cursor-pointer text-primary font-medium py-2">
+                <Plus className="h-4 w-4" />
+                <span>افزودن سایت جدید</span>
+              </Link>
+            </DropdownMenuItem>
+          </DropdownMenuContent>
+        </DropdownMenu>
       </div>
 
       {/* Navigation */}
-      <nav className="flex-1 space-y-1 p-4">
+      <nav className="flex-1 space-y-1 p-4 overflow-y-auto">
         {sidebarItems.map((item) => {
-          const isActive = pathname === item.href
+          let href = item.href
+          if (urlSlug && href.startsWith("/dashboard") && href !== "/dashboard") {
+            const pathAfterDashboard = href.replace("/dashboard", "")
+            href = `/dashboard/${urlSlug}${pathAfterDashboard}`
+          }
+
+          const isActive = pathname === href
           
-          // Hide most items if no site
-          if (!hasSite && item.href !== "/dashboard" && item.href !== "/dashboard/subscription") {
+          // Hide site-specific items if no site is selected, 
+          // EXCEPT for items that have global versions
+          const globalAllowed = ["/dashboard", "/dashboard/profile"]
+          if (!urlSlug && !globalAllowed.includes(item.href)) {
             return null
           }
 
-          // Check for plugin activity if item is plugin-dependent
           if (item.plugin && !isPluginActive(item.plugin)) {
             return null
           }
@@ -157,7 +243,7 @@ function SidebarContent({ onItemClick, restaurantName, phone, siteSlug, hasSite 
           return (
             <Link
               key={item.href}
-              href={item.href}
+              href={href}
               onClick={onItemClick}
               className={cn(
                 "flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition-colors",
@@ -174,9 +260,9 @@ function SidebarContent({ onItemClick, restaurantName, phone, siteSlug, hasSite 
       </nav>
 
       {/* Preview Button */}
-      {hasSite && (
+      {urlSlug && (
         <div className="border-t border-sidebar-border p-4">
-          <Link href={`/preview/${slug}`} target="_blank">
+          <Link href={`/preview/${urlSlug}`} target="_blank">
             <Button variant="outline" className="w-full gap-2 bg-transparent">
               <Eye className="h-4 w-4" />
               پیش‌نمایش وبسایت
@@ -196,13 +282,18 @@ export default function DashboardLayout({
 }) {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false)
   const { user, logout, isLoading: isAuthLoading } = useAuth()
-  const { fetchSite, isLoading: isSiteLoading } = useSiteStore()
+  const { site, fetchSite, fetchAllSites, isLoading: isSiteLoading } = useSiteStore()
+  const pathname = usePathname()
+  const params = useParams()
+  const urlSlug = params?.slug as string
+  const isDashboardRoot = pathname === "/dashboard"
 
   useEffect(() => {
     if (user?.has_site) {
-      fetchSite()
+      fetchSite(urlSlug)
+      fetchAllSites()
     }
-  }, [user, fetchSite])
+  }, [user, fetchSite, fetchAllSites, urlSlug])
 
   if (isAuthLoading || (user?.has_site && isSiteLoading)) {
     return <div className="flex min-h-screen items-center justify-center">در حال بارگذاری...</div>
@@ -217,9 +308,9 @@ export default function DashboardLayout({
       {/* Desktop Sidebar */}
       <aside className="hidden w-64 shrink-0 border-l border-sidebar-border bg-sidebar lg:block">
         <SidebarContent 
-          restaurantName={user.restaurant_name} 
+          restaurantName={site?.name || user.restaurant_name} 
           phone={user.phone_number} 
-          siteSlug={user.site_slug}
+          siteSlug={site?.slug || user.site_slug}
           hasSite={user.has_site}
         />
       </aside>
@@ -233,9 +324,9 @@ export default function DashboardLayout({
           </SheetDescription>
           <SidebarContent 
             onItemClick={() => setIsSidebarOpen(false)} 
-            restaurantName={user.restaurant_name} 
+            restaurantName={site?.name || user.restaurant_name} 
             phone={user.phone_number} 
-            siteSlug={user.site_slug}
+            siteSlug={site?.slug || user.site_slug}
             hasSite={user.has_site}
           />
         </SheetContent>

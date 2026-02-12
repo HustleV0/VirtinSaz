@@ -1,7 +1,9 @@
+from django.db import transaction
 from .models import Site, Theme, Plugin, SitePlugin
 
 class ThemeService:
     @staticmethod
+    @transaction.atomic
     def activate_theme(site: Site, theme: Theme):
         """
         Activates a theme for a site and ensures all required plugins are active.

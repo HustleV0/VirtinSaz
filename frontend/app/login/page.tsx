@@ -62,7 +62,7 @@ export default function LoginPage() {
 
           <Link href="/" className="mb-8 flex items-center gap-2">
             <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-primary">
-              <span className="text-lg font-bold text-primary-foreground">م</span>
+              <span className="text-lg font-bold text-primary-foreground">و</span>
             </div>
             <span className="text-2xl font-bold">ویترین ساز</span>
           </Link>
@@ -142,8 +142,8 @@ export default function LoginPage() {
         <div className="max-w-md p-12 text-primary-foreground">
           <h2 className="text-3xl font-bold">خوش آمدید!</h2>
           <p className="mt-4 text-lg text-primary-foreground/80">
-            با ورود به حساب کاربری، به داشبورد مدیریت رستوران خود دسترسی پیدا کنید
-            و وبسایت خود را مدیریت کنید.
+            با ورود به حساب کاربری، به داشبورد مدیریت وبسایت خود دسترسی پیدا کنید
+            و کسب‌وکارتان را مدیریت کنید.
           </p>
         </div>
       </div>

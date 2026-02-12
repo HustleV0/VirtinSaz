@@ -32,7 +32,10 @@ interface Site {
   subscription_ends_at: string
 }
 
+import { useSearchParams } from "next/navigation"
+
 export default function DashboardPage() {
+  const searchParams = useSearchParams()
   const [mounted, setMounted] = useState(false)
   const [sites, setSites] = useState<Site[]>([])
   const [isFetchingSites, setIsFetchingSites] = useState(true)
@@ -45,6 +48,12 @@ export default function DashboardPage() {
       fetchSites()
     }
   }, [token])
+
+  useEffect(() => {
+    if (searchParams.get("create") === "true") {
+      setShowCreateFlow(true)
+    }
+  }, [searchParams])
 
   const fetchSites = async () => {
     setIsFetchingSites(true)
@@ -115,53 +124,64 @@ export default function DashboardPage() {
           ))}
         </div>
       ) : (
-        <div className="grid gap-4">
+        <div className="grid gap-6">
           {sites.map((site) => (
-            <Card key={site.id} className="overflow-hidden border-border/50 transition-all hover:border-primary/30 hover:shadow-md">
+            <Card key={site.id} className="group relative overflow-hidden border-border/40 bg-card transition-all hover:border-primary/50 hover:shadow-xl dark:bg-card/50">
+              <div className="absolute right-0 top-0 h-1 w-full bg-gradient-to-r from-primary/50 to-primary opacity-0 transition-opacity group-hover:opacity-100" />
               <CardContent className="p-0">
-                <div className="flex flex-col md:flex-row items-center p-4 gap-6">
+                <div className="flex flex-col md:flex-row items-center p-6 gap-6">
                   {/* Logo/Avatar */}
-                  <div className="flex h-20 w-20 shrink-0 items-center justify-center rounded-xl bg-primary/5 border border-primary/10 overflow-hidden">
+                  <div className="relative flex h-24 w-24 shrink-0 items-center justify-center rounded-2xl bg-primary/5 border border-primary/10 overflow-hidden shadow-inner group-hover:border-primary/20 transition-colors">
                     {site.logo ? (
-                      <img src={site.logo.startsWith('http') ? site.logo : `http://localhost:8000${site.logo}`} alt={site.name} className="h-full w-full object-cover" />
+                      <img src={site.logo.startsWith('http') ? site.logo : `http://localhost:8000${site.logo}`} alt={site.name} className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-110" />
                     ) : (
-                      <Globe className="h-10 w-10 text-primary/40" />
+                      <Globe className="h-10 w-10 text-primary/30 group-hover:text-primary/50 transition-colors" />
                     )}
                   </div>
 
                   {/* Info */}
-                  <div className="flex-1 space-y-1 text-center md:text-right">
-                    <h3 className="text-xl font-bold">{site.name}</h3>
-                    <div className="flex flex-wrap justify-center md:justify-start gap-3 text-sm text-muted-foreground">
-                      <span className="flex items-center gap-1">
-                        <Package className="h-3.5 w-3.5" />
-                        {site.product_count} محصول
+                  <div className="flex-1 space-y-2 text-center md:text-right">
+                    <div className="flex flex-col md:flex-row items-center gap-2 md:gap-3">
+                      <h3 className="text-2xl font-black tracking-tight">{site.name}</h3>
+                      <Badge variant="secondary" className="bg-primary/5 text-primary hover:bg-primary/10 border-none px-3 py-0.5 text-[11px] font-bold uppercase tracking-wider">
+                        {site.category_name}
+                      </Badge>
+                    </div>
+                    
+                    <div className="flex flex-wrap justify-center md:justify-start gap-4 text-sm font-medium text-muted-foreground">
+                      <span className="flex items-center gap-1.5 bg-muted/50 px-2 py-1 rounded-md">
+                        <Package className="h-4 w-4 text-primary/70" />
+                        {site.product_count} محصول ثبت شده
                       </span>
-                      <span className="flex items-center gap-1">
-                        <Badge variant="secondary" className="text-[10px] font-normal">
-                          {site.category_name}
-                        </Badge>
+                      <span className="flex items-center gap-1.5 bg-muted/50 px-2 py-1 rounded-md ltr" dir="ltr">
+                        <Globe className="h-4 w-4 text-primary/70" />
+                        {site.slug}.virtinsaz.ir
                       </span>
                     </div>
                   </div>
 
                   {/* Subscription Status */}
-                  <div className="w-full md:w-auto px-6 py-3 md:py-0 md:px-0 border-y md:border-y-0 md:border-x border-border/50 flex flex-row md:flex-col justify-around md:justify-center items-center md:items-start gap-2">
-                    <div className="flex items-center gap-2">
-                      <Calendar className="h-4 w-4 text-muted-foreground" />
-                      <span className="text-sm font-medium">اشتراک:</span>
-                      <Badge variant={site.subscription_days_left > 0 ? (site.is_trial ? "secondary" : "default") : "destructive"}>
-                        {site.is_trial ? "آزمایشی (۲۴ ساعته)" : "ویژه"}
+                  <div className="w-full md:w-auto px-6 py-4 md:py-0 md:px-6 border-y md:border-y-0 md:border-x border-border/40 flex flex-col justify-center gap-3">
+                    <div className="flex items-center justify-between md:justify-start gap-4">
+                      <div className="flex items-center gap-2">
+                        <Calendar className="h-4 w-4 text-primary/60" />
+                        <span className="text-sm font-bold">نوع اشتراک:</span>
+                      </div>
+                      <Badge variant={site.subscription_days_left > 0 ? (site.is_trial ? "secondary" : "default") : "destructive"} className="shadow-sm">
+                        {site.is_trial ? "آزمایشی رایگان" : "پلن حرفه‌ای"}
                       </Badge>
                     </div>
-                    <div className="flex items-center gap-2">
-                      <ClockIcon className="h-4 w-4 text-muted-foreground" />
+                    <div className="flex items-center justify-between md:justify-start gap-4">
+                      <div className="flex items-center gap-2">
+                        <ClockIcon className="h-4 w-4 text-primary/60" />
+                        <span className="text-sm font-bold">وضعیت:</span>
+                      </div>
                       <span className="text-sm">
                         {site.subscription_days_left > 0 ? (
-                          <span className="font-bold text-primary">{site.subscription_days_left} روز باقی‌مانده</span>
+                          <span className="font-black text-primary bg-primary/5 px-2 py-1 rounded-lg">{site.subscription_days_left} روز تا پایان</span>
                         ) : (
-                          <span className="font-bold text-destructive flex items-center gap-1">
-                            <AlertTriangle className="h-3.5 w-3.5" />
+                          <span className="font-black text-destructive bg-destructive/5 px-2 py-1 rounded-lg flex items-center gap-1">
+                            <AlertTriangle className="h-4 w-4" />
                             منقضی شده
                           </span>
                         )}
@@ -170,24 +190,26 @@ export default function DashboardPage() {
                   </div>
 
                   {/* Actions */}
-                  <div className="flex items-center gap-2 w-full md:w-auto">
-                    <Link href={`/preview/${site.slug}`} target="_blank" className="flex-1 md:flex-none">
-                      <Button variant="outline" size="sm" className="w-full gap-1">
-                        <ExternalLink className="h-3.5 w-3.5" />
-                        مشاهده
-                      </Button>
-                    </Link>
-                    <Link href="/dashboard" className="flex-1 md:flex-none">
-                      <Button size="sm" className="w-full gap-1">
-                        <LayoutDashboard className="h-3.5 w-3.5" />
-                        مدیریت
-                      </Button>
-                    </Link>
-                    <Link href="/pricing" className="flex-1 md:flex-none">
-                      <Button variant="secondary" size="sm" className="w-full">
-                        خرید اشتراک
-                      </Button>
-                    </Link>
+                  <div className="flex flex-wrap md:flex-nowrap items-center gap-3 w-full md:w-auto">
+                    <div className="grid grid-cols-2 md:flex gap-3 w-full">
+                      <Link href={`/preview/${site.slug}`} target="_blank" className="w-full md:w-auto">
+                        <Button variant="outline" size="lg" className="w-full gap-2 border-primary/20 hover:bg-primary/5 hover:text-primary transition-all">
+                          <ExternalLink className="h-4 w-4" />
+                          مشاهده سایت
+                        </Button>
+                      </Link>
+                      <Link href={`/dashboard/${site.slug}/analytics`} className="w-full md:w-auto">
+                        <Button size="lg" className="w-full gap-2 shadow-lg shadow-primary/20">
+                          <LayoutDashboard className="h-4 w-4" />
+                          پنل مدیریت
+                        </Button>
+                      </Link>
+                      <Link href={`/dashboard/${site.slug}/subscription`} className="col-span-2 w-full md:w-auto">
+                        <Button variant="secondary" size="lg" className="w-full bg-primary/10 text-primary hover:bg-primary/20 border-none">
+                          تمدید اشتراک
+                        </Button>
+                      </Link>
+                    </div>
                   </div>
                 </div>
               </CardContent>

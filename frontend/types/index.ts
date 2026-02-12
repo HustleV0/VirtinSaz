@@ -187,6 +187,7 @@ export interface Theme {
   preview_url: string | null
   tag?: string | null
   description?: string | null
+  required_plugins?: string[]
   source_identifier: string
   config: Record<string, any>
   default_settings: Record<string, any>

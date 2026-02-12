@@ -1,12 +1,10 @@
-"use client"
-
 import React from "react"
 import { Header } from "@/components/landing/header"
 import { Footer } from "@/components/landing/footer"
-import { motion } from "framer-motion"
 import Link from "next/link"
 import { Button } from "@/components/ui/button"
-import { ArrowLeft, Calendar, User, Clock } from "lucide-react"
+import { ArrowLeft, Calendar, Clock } from "lucide-react"
+import { Metadata } from "next"
 
 const blogPosts = [
   {
@@ -41,6 +39,11 @@ const blogPosts = [
   },
 ]
 
+export const metadata: Metadata = {
+  title: "وبلاگ | ویترین ساز",
+  description: "آخرین مقالات، اخبار و آموزش‌های دنیای رستوران‌داری و تکنولوژی‌های جدید",
+}
+
 export default function BlogPage() {
   return (
     <div className="flex min-h-screen flex-col">
@@ -53,12 +56,9 @@ export default function BlogPage() {
           </div>
 
           <div className="grid gap-8 md:grid-cols-2 lg:grid-cols-3">
-            {blogPosts.map((post, index) => (
-              <motion.article
+            {blogPosts.map((post) => (
+              <article
                 key={post.id}
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: index * 0.1 }}
                 className="group flex flex-col overflow-hidden rounded-2xl border border-border bg-card transition-all hover:shadow-lg"
               >
                 <div className="relative aspect-video overflow-hidden">
@@ -103,7 +103,7 @@ export default function BlogPage() {
                     </Button>
                   </div>
                 </div>
-              </motion.article>
+              </article>
             ))}
           </div>
         </div>

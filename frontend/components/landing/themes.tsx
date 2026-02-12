@@ -175,9 +175,9 @@ export function Themes() {
                 <div className="mt-6 text-center">
                   <div className="flex items-center justify-center gap-2 mb-2">
                     <h3 className="text-xl font-semibold">{activeTheme.name}</h3>
-                    {theme.tag && (
+                    {activeTheme.tag && (
                       <Badge className="bg-primary/10 text-primary hover:bg-primary/20 border-none">
-                        {theme.tag}
+                        {activeTheme.tag}
                       </Badge>
                     )}
                   </div>

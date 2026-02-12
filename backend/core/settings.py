@@ -55,6 +55,7 @@ INSTALLED_APPS = [
     'menu',
     'orders',
     'subscription',
+    'plugin_engine',
 ]
 
 MIDDLEWARE = [
