@@ -33,9 +33,11 @@ interface ClientMenuProps {
   slug: string
   categories: any[]
   products: any[]
+  activePlugins?: string[]
 }
 
-export function ClientMenu({ slug, categories, products }: ClientMenuProps) {
+export function ClientMenu({ slug, categories, products, activePlugins = [] }: ClientMenuProps) {
+  const isCartEnabled = activePlugins.includes('shopping_cart')
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [searchQuery, setSearchQuery] = useState("")
   const [selectedCategory, setSelectedCategory] = useState("all")
@@ -122,82 +124,92 @@ export function ClientMenu({ slug, categories, products }: ClientMenuProps) {
             </Link>
             <h1 className="font-bold">منوی دیجیتال</h1>
             
-            <Sheet>
-              <SheetTrigger asChild>
-                <Button variant="outline" size="icon" className="relative bg-transparent">
-                  <ShoppingBag className="h-5 w-5" />
-                  {cartItemCount > 0 && (
-                    <span className="absolute -top-1 -right-1 w-5 h-5 bg-primary text-primary-foreground text-xs rounded-full flex items-center justify-center">
-                      {cartItemCount}
-                    </span>
-                  )}
-                </Button>
-              </SheetTrigger>
-              <SheetContent side="left" className="w-full sm:max-w-md">
-                <SheetHeader>
-                  <SheetTitle>سبد خرید</SheetTitle>
-                  <SheetDescription>
-                    {cartItemCount} محصول در سبد شما
-                  </SheetDescription>
-                </SheetHeader>
-                <div className="mt-6 flex-1 overflow-auto">
-                  {cartItems.length === 0 ? (
-                    <div className="flex flex-col items-center justify-center h-64 text-center">
-                      <ShoppingBag className="h-12 w-12 text-muted-foreground mb-4" />
-                      <p className="text-muted-foreground">سبد خرید شما خالی است</p>
-                    </div>
-                  ) : (
-                    <div className="space-y-4">
-                      {cartItems.map((item: any) => (
-                        <div key={item.id} className="flex items-center gap-3 p-3 rounded-lg border">
-                          <div className="flex-1 min-w-0">
-                            <h4 className="font-medium truncate">{item.title}</h4>
-                            <p className="text-sm text-muted-foreground">
-                              {item.price.toLocaleString("fa-IR")} تومان
-                            </p>
-                          </div>
-                          <div className="flex items-center gap-2">
-                            <Button 
-                              variant="outline" 
-                              size="icon" 
-                              className="h-8 w-8 bg-transparent"
-                              onClick={() => updateQuantity(item.id, item.quantity - 1)}
-                            >
-                              {item.quantity === 1 ? <X className="h-4 w-4" /> : <Minus className="h-4 w-4" />}
-                            </Button>
-                            <span className="w-8 text-center font-medium">{item.quantity}</span>
-                            <Button 
-                              variant="outline" 
-                              size="icon" 
-                              className="h-8 w-8 bg-transparent"
-                              onClick={() => updateQuantity(item.id, item.quantity + 1)}
-                            >
-                              <Plus className="h-4 w-4" />
-                            </Button>
-                          </div>
-                        </div>
-                      ))}
-                    </div>
-                  )}
-                </div>
-                {cartItems.length > 0 && (
-                  <div className="border-t pt-4 mt-4 space-y-4">
-                    <div className="flex items-center justify-between text-lg font-bold">
-                      <span>جمع کل:</span>
-                      <span>{cartTotal.toLocaleString("fa-IR")} تومان</span>
-                    </div>
-                    <Button 
-                      className="w-full" 
-                      size="lg" 
-                      onClick={handleCheckout}
-                      disabled={isSubmitting}
-                    >
-                      {isSubmitting ? "در حال ثبت..." : "ثبت سفارش"}
-                    </Button>
-                  </div>
+            <div className="relative">
+              <Button 
+                variant="outline" 
+                size="icon" 
+                className={`relative bg-transparent ${!isCartEnabled ? 'opacity-50 cursor-not-allowed' : ''}`}
+                disabled={!isCartEnabled}
+              >
+                <ShoppingBag className="h-5 w-5" />
+                {isCartEnabled && cartItemCount > 0 && (
+                  <span className="absolute -top-1 -right-1 w-5 h-5 bg-primary text-primary-foreground text-xs rounded-full flex items-center justify-center">
+                    {cartItemCount}
+                  </span>
                 )}
-              </SheetContent>
-            </Sheet>
+              </Button>
+              {isCartEnabled && (
+                <Sheet>
+                  <SheetTrigger asChild>
+                    <div className="absolute inset-0 cursor-pointer" />
+                  </SheetTrigger>
+                  <SheetContent side="left" className="w-full sm:max-w-md">
+                    <SheetHeader>
+                      <SheetTitle>سبد خرید</SheetTitle>
+                      <SheetDescription>
+                        {cartItemCount} محصول در سبد شما
+                      </SheetDescription>
+                    </SheetHeader>
+                    <div className="mt-6 flex-1 overflow-auto">
+                      {cartItems.length === 0 ? (
+                        <div className="flex flex-col items-center justify-center h-64 text-center">
+                          <ShoppingBag className="h-12 w-12 text-muted-foreground mb-4" />
+                          <p className="text-muted-foreground">سبد خرید شما خالی است</p>
+                        </div>
+                      ) : (
+                        <div className="space-y-4">
+                          {cartItems.map((item: any) => (
+                            <div key={item.id} className="flex items-center gap-3 p-3 rounded-lg border">
+                              <div className="flex-1 min-w-0">
+                                <h4 className="font-medium truncate">{item.title}</h4>
+                                <p className="text-sm text-muted-foreground">
+                                  {item.price.toLocaleString("fa-IR")} تومان
+                                </p>
+                              </div>
+                              <div className="flex items-center gap-2">
+                                <Button 
+                                  variant="outline" 
+                                  size="icon" 
+                                  className="h-8 w-8 bg-transparent"
+                                  onClick={() => updateQuantity(item.id, item.quantity - 1)}
+                                >
+                                  {item.quantity === 1 ? <X className="h-4 w-4" /> : <Minus className="h-4 w-4" />}
+                                </Button>
+                                <span className="w-8 text-center font-medium">{item.quantity}</span>
+                                <Button 
+                                  variant="outline" 
+                                  size="icon" 
+                                  className="h-8 w-8 bg-transparent"
+                                  onClick={() => updateQuantity(item.id, item.quantity + 1)}
+                                >
+                                  <Plus className="h-4 w-4" />
+                                </Button>
+                              </div>
+                            </div>
+                          ))}
+                        </div>
+                      )}
+                    </div>
+                    {cartItems.length > 0 && (
+                      <div className="border-t pt-4 mt-4 space-y-4">
+                        <div className="flex items-center justify-between text-lg font-bold">
+                          <span>جمع کل:</span>
+                          <span>{cartTotal.toLocaleString("fa-IR")} تومان</span>
+                        </div>
+                        <Button 
+                          className="w-full" 
+                          size="lg" 
+                          onClick={handleCheckout}
+                          disabled={isSubmitting}
+                        >
+                          {isSubmitting ? "در حال ثبت..." : "ثبت سفارش"}
+                        </Button>
+                      </div>
+                    )}
+                  </SheetContent>
+                </Sheet>
+              )}
+            </div>
           </div>
 
           <div className="relative">
@@ -288,7 +300,15 @@ export function ClientMenu({ slug, categories, products }: ClientMenuProps) {
                                       </span>
                                     </div>
                                     
-                                    {quantity === 0 ? (
+                                    {!isCartEnabled ? (
+                                      <Button 
+                                        size="sm" 
+                                        disabled
+                                        className="gap-1 opacity-50"
+                                      >
+                                        غیرفعال
+                                      </Button>
+                                    ) : quantity === 0 ? (
                                       <Button 
                                         size="sm" 
                                         onClick={() => addItem(product)}

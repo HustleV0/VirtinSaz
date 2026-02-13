@@ -3,6 +3,8 @@ import type { Metadata, Viewport } from "next"
 import { ThemeProvider } from "@/components/theme-provider"
 import { api } from "@/lib/api"
 
+const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL?.replace('/api', '') || "https://dash.vofino.ir"
+
 async function getSiteData(slug: string) {
   try {
     return await api.get(`/sites/site/public/${slug}/`)
@@ -23,7 +25,7 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
   }
 
   const logoUrl = site.logo 
-    ? (site.logo.startsWith('http') ? site.logo : `http://localhost:8000${site.logo}`)
+    ? (site.logo.startsWith('http') ? site.logo : `${API_BASE_URL}${site.logo}`)
     : "/favicon.ico"
     
   return {

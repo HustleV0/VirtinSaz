@@ -8,6 +8,7 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Eye, EyeOff, ArrowRight } from "lucide-react"
 import { useAuth } from "@/hooks/use-auth"
+import { api } from "@/lib/api"
 import { toast } from "sonner"
 
 export default function LoginPage() {
@@ -16,7 +17,7 @@ export default function LoginPage() {
   const [showPassword, setShowPassword] = useState(false)
   const [isLoading, setIsLoading] = useState(false)
   const [formData, setFormData] = useState({
-    phone: "",
+    username: "",
     password: "",
   })
 
@@ -25,24 +26,15 @@ export default function LoginPage() {
     setIsLoading(true)
     
     try {
-      const response = await fetch("http://localhost:8000/api/accounts/login/", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          phone_number: formData.phone,
-          password: formData.password,
-        }),
+      const data = await api.post("/accounts/login/", {
+        username: formData.username,
+        password: formData.password,
       })
-      const data = await response.json()
-      if (response.ok) {
-        login(data.access, data.refresh, data.user)
-        toast.success("خوش آمدید")
-        router.push("/dashboard")
-      } else {
-        toast.error(data.error || "شماره موبایل یا رمز عبور اشتباه است")
-      }
-    } catch (error) {
-      toast.error("خطا در برقراری ارتباط")
+      login(data.access, data.refresh, data.user)
+      toast.success("خوش آمدید")
+      router.push("/dashboard")
+    } catch (error: any) {
+      toast.error(error.message || "شماره موبایل یا رمز عبور اشتباه است")
     } finally {
       setIsLoading(false)
     }
@@ -78,14 +70,14 @@ export default function LoginPage() {
           <form onSubmit={handleSubmit} className="mt-8 space-y-6">
             <div className="space-y-4">
               <div className="space-y-2">
-                <Label htmlFor="phone">شماره موبایل</Label>
+                <Label htmlFor="username">نام کاربری</Label>
                 <Input
-                  id="phone"
-                  type="tel"
-                  placeholder="۰۹۱۲۱۲۳۴۵۶۷"
-                  value={formData.phone}
+                  id="username"
+                  type="text"
+                  placeholder="نام کاربری خود را وارد کنید"
+                  value={formData.username}
                   onChange={(e) =>
-                    setFormData({ ...formData, phone: e.target.value })
+                    setFormData({ ...formData, username: e.target.value })
                   }
                   required
                   dir="ltr"

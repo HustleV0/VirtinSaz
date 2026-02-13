@@ -41,6 +41,8 @@ import { cn } from "@/lib/utils"
 import { useSiteStore } from "@/lib/store/use-site-store"
 import { useEffect } from "react"
 
+const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL?.replace('/api', '') || "https://dash.vofino.ir"
+
 const sidebarItems = [
   {
     title: "داشبورد",
@@ -168,7 +170,7 @@ function SidebarContent({ onItemClick, restaurantName, phone, siteSlug, hasSite 
                   {currentSite?.name || "همه سایت‌ها"}
                 </p>
                 <p className="truncate text-xs text-sidebar-foreground/60" dir="ltr">
-                  {urlSlug ? `${urlSlug}.vitrinsaz.ir` : "مدیریت مرکزی"}
+                  {urlSlug ? `${urlSlug}.vofino.ir` : "مدیریت مرکزی"}
                 </p>
               </div>
               <ChevronsUpDown className="ml-auto h-4 w-4 shrink-0 opacity-50" />
@@ -301,7 +303,7 @@ export default function DashboardLayout({
 
   if (!user) return null
 
-  const avatarUrl = user.avatar ? (user.avatar.startsWith('http') ? user.avatar : `http://localhost:8000${user.avatar}`) : null
+  const avatarUrl = user.avatar ? (user.avatar.startsWith('http') ? user.avatar : `${API_BASE_URL}${user.avatar}`) : null
 
   return (
     <div className="flex min-h-screen bg-background text-right" dir="rtl">

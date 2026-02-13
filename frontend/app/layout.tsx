@@ -1,18 +1,11 @@
 import React from "react"
 import type { Metadata, Viewport } from 'next'
-import { Noto_Sans_Arabic } from 'next/font/google'
 import { AuthProvider } from '@/hooks/use-auth'
 import { SiteProvider } from '@/hooks/site-context'
 import { Analytics } from '@vercel/analytics/next'
 import { ThemeProvider } from '@/components/theme-provider'
 import { Toaster } from 'sonner'
 import './globals.css'
-
-const noto = Noto_Sans_Arabic({
-  subsets: ['arabic'],
-  variable: '--font-serif',
-  display: 'swap',
-})
 
 export const metadata: Metadata = {
   title: {
@@ -43,7 +36,7 @@ export const metadata: Metadata = {
   openGraph: {
     title: 'ویترین ساز | ساخت وبسایت سریع و مدرن',
     description: 'پلتفرم ساخت وبسایت حرفه‌ای برای انواع کسب‌وکارها و اشخاص',
-    url: 'https://virtinsaz.ir',
+    url: 'https://vofino.ir',
     siteName: 'ویترین ساز',
     locale: 'fa_IR',
     type: 'website',
@@ -98,7 +91,7 @@ export default function RootLayout({
   children: React.ReactNode
 }>) {
   return (
-    <html lang="fa" dir="rtl" suppressHydrationWarning className={noto.variable}>
+    <html lang="fa" dir="rtl" suppressHydrationWarning>
       <head>
         <link 
           rel="stylesheet" 

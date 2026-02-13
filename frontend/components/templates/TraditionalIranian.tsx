@@ -66,6 +66,7 @@ export function TraditionalIranian({
   const [cart, setCart] = useState<CartItem[]>([])
   const [isCartOpen, setIsCartOpen] = useState(false)
   const router = useRouter()
+  const isCartEnabled = restaurant.activePlugins?.includes('shopping_cart')
 
   const addToCart = (product: any) => {
     setCart((prev) => {
@@ -216,71 +217,73 @@ export function TraditionalIranian({
 
           {/* Actions */}
           <div className="flex items-center gap-4">
-            <Sheet open={isCartOpen} onOpenChange={setIsCartOpen}>
-              <SheetTrigger asChild>
-                <Button variant="ghost" size="icon" className="relative h-12 w-12 rounded-full border" style={{ borderColor: themeColors.accent }}>
-                  <ShoppingBag className="h-6 w-6" />
-                  {cartCount > 0 && (
-                    <Badge className="absolute -top-1 -right-1 h-6 w-6 justify-center rounded-full p-0 text-xs" style={{ backgroundColor: themeColors.accent, color: themeColors.primary }}>
-                      {cartCount}
-                    </Badge>
-                  )}
-                </Button>
-              </SheetTrigger>
-              <SheetContent side="left" className="flex w-full flex-col sm:max-w-md p-0" style={{ backgroundColor: themeColors.background }}>
-                <SheetHeader className="p-6 border-b" style={{ borderColor: themeColors.accent }}>
-                  <SheetTitle className="flex items-center gap-2 text-xl font-bold">
+            {isCartEnabled && (
+              <Sheet open={isCartOpen} onOpenChange={setIsCartOpen}>
+                <SheetTrigger asChild>
+                  <Button variant="ghost" size="icon" className="relative h-12 w-12 rounded-full border" style={{ borderColor: themeColors.accent }}>
                     <ShoppingBag className="h-6 w-6" />
-                    سبد خرید
-                  </SheetTitle>
-                </SheetHeader>
-                <div className="flex-1 overflow-y-auto px-6 min-h-0">
-                  {cart.length === 0 ? (
-                    <div className="flex min-h-[300px] flex-col items-center justify-center gap-4 text-center">
-                      <ShoppingBag className="h-16 w-16 opacity-20" />
-                      <p className="text-lg">سبد خرید شما خالی است</p>
-                    </div>
-                  ) : (
-                    <div className="space-y-6 py-6">
-                      {cart.map((item) => (
-                        <div key={item.id} className="flex items-center gap-4 border-b pb-4 last:border-0" style={{ borderColor: `${themeColors.accent}40` }}>
-                          {item.image && (
-                            <img src={item.image} alt={item.name} className="h-20 w-20 rounded-lg object-cover border" style={{ borderColor: themeColors.accent }} />
-                          )}
-                          <div className="flex-1">
-                            <h4 className="text-lg font-bold">{item.name}</h4>
-                            <p className="text-sm opacity-70">{formatPrice(item.price)} {restaurant.settings.currency}</p>
-                            <div className="mt-3 flex items-center gap-3">
-                              <Button variant="outline" size="icon" className="h-8 w-8 rounded-full" onClick={() => updateQuantity(item.id, -1)} style={{ borderColor: themeColors.accent }}>
-                                <Minus className="h-4 w-4" />
-                              </Button>
-                              <span className="w-6 text-center font-bold">{item.quantity}</span>
-                              <Button variant="outline" size="icon" className="h-8 w-8 rounded-full" onClick={() => updateQuantity(item.id, 1)} style={{ borderColor: themeColors.accent }}>
-                                <Plus className="h-4 w-4" />
-                              </Button>
+                    {cartCount > 0 && (
+                      <Badge className="absolute -top-1 -right-1 h-6 w-6 justify-center rounded-full p-0 text-xs" style={{ backgroundColor: themeColors.accent, color: themeColors.primary }}>
+                        {cartCount}
+                      </Badge>
+                    )}
+                  </Button>
+                </SheetTrigger>
+                <SheetContent side="left" className="flex w-full flex-col sm:max-w-md p-0" style={{ backgroundColor: themeColors.background }}>
+                  <SheetHeader className="p-6 border-b" style={{ borderColor: themeColors.accent }}>
+                    <SheetTitle className="flex items-center gap-2 text-xl font-bold">
+                      <ShoppingBag className="h-6 w-6" />
+                      سبد خرید
+                    </SheetTitle>
+                  </SheetHeader>
+                  <div className="flex-1 overflow-y-auto px-6 min-h-0">
+                    {cart.length === 0 ? (
+                      <div className="flex min-h-[300px] flex-col items-center justify-center gap-4 text-center">
+                        <ShoppingBag className="h-16 w-16 opacity-20" />
+                        <p className="text-lg">سبد خرید شما خالی است</p>
+                      </div>
+                    ) : (
+                      <div className="space-y-6 py-6">
+                        {cart.map((item) => (
+                          <div key={item.id} className="flex items-center gap-4 border-b pb-4 last:border-0" style={{ borderColor: `${themeColors.accent}40` }}>
+                            {item.image && (
+                              <img src={item.image} alt={item.name} className="h-20 w-20 rounded-lg object-cover border" style={{ borderColor: themeColors.accent }} />
+                            )}
+                            <div className="flex-1">
+                              <h4 className="text-lg font-bold">{item.name}</h4>
+                              <p className="text-sm opacity-70">{formatPrice(item.price)} {restaurant.settings.currency}</p>
+                              <div className="mt-3 flex items-center gap-3">
+                                <Button variant="outline" size="icon" className="h-8 w-8 rounded-full" onClick={() => updateQuantity(item.id, -1)} style={{ borderColor: themeColors.accent }}>
+                                  <Minus className="h-4 w-4" />
+                                </Button>
+                                <span className="w-6 text-center font-bold">{item.quantity}</span>
+                                <Button variant="outline" size="icon" className="h-8 w-8 rounded-full" onClick={() => updateQuantity(item.id, 1)} style={{ borderColor: themeColors.accent }}>
+                                  <Plus className="h-4 w-4" />
+                                </Button>
+                              </div>
                             </div>
+                            <Button variant="ghost" size="icon" className="hover:text-destructive" onClick={() => removeFromCart(item.id)}>
+                              <Trash2 className="h-5 w-5" />
+                            </Button>
                           </div>
-                          <Button variant="ghost" size="icon" className="hover:text-destructive" onClick={() => removeFromCart(item.id)}>
-                            <Trash2 className="h-5 w-5" />
-                          </Button>
-                        </div>
-                      ))}
+                        ))}
+                      </div>
+                    )}
+                  </div>
+                  {cart.length > 0 && (
+                    <div className="flex flex-col gap-4 border-t p-6 mt-auto" style={{ borderColor: themeColors.accent }}>
+                      <div className="flex w-full items-center justify-between text-xl font-bold">
+                        <span>مجموع:</span>
+                        <span>{formatPrice(cartTotal)} {restaurant.settings.currency}</span>
+                      </div>
+                      <Button className="w-full text-lg h-14 rounded-xl" onClick={handleCheckout} style={{ backgroundColor: themeColors.primary, color: themeColors.secondary }}>
+                        تایید و پرداخت
+                      </Button>
                     </div>
                   )}
-                </div>
-                {cart.length > 0 && (
-                  <div className="flex flex-col gap-4 border-t p-6 mt-auto" style={{ borderColor: themeColors.accent }}>
-                    <div className="flex w-full items-center justify-between text-xl font-bold">
-                      <span>مجموع:</span>
-                      <span>{formatPrice(cartTotal)} {restaurant.settings.currency}</span>
-                    </div>
-                    <Button className="w-full text-lg h-14 rounded-xl" onClick={handleCheckout} style={{ backgroundColor: themeColors.primary, color: themeColors.secondary }}>
-                      تایید و پرداخت
-                    </Button>
-                  </div>
-                )}
-              </SheetContent>
-            </Sheet>
+                </SheetContent>
+              </Sheet>
+            )}
 
             <Sheet open={isMenuOpen} onOpenChange={setIsMenuOpen}>
               <SheetTrigger asChild>
@@ -501,13 +504,14 @@ export function TraditionalIranian({
   )
 }
 
-function ProductCard({ product, restaurant, onAddToCart }: { product: any, restaurant: Restaurant, onAddToCart: () => void }) {
+function ProductCard({ product, restaurant, onAddToCart }: { product: any, restaurant: any, onAddToCart: () => void }) {
   const title = product.title || product.name
   const description = product.description
   const price = product.price
   const isAvailable = product.is_available ?? product.isAvailable ?? true
   const isPopular = product.is_popular ?? product.isPopular
   const discountPercentage = product.discount_percentage || 0
+  const isCartEnabled = restaurant.activePlugins?.includes('shopping_cart')
   
   const discountPrice = discountPercentage > 0 
     ? price * (1 - discountPercentage / 100) 
@@ -564,15 +568,17 @@ function ProductCard({ product, restaurant, onAddToCart }: { product: any, resta
               )}
             </div>
           )}
-          <Button 
-            size="sm" 
-            className="h-9 w-9 rounded-full p-0 shadow-lg" 
-            disabled={!isAvailable} 
-            onClick={onAddToCart}
-            style={{ backgroundColor: themeColors.primary, color: themeColors.secondary }}
-          >
-            {isAvailable ? <Plus className="h-5 w-5" /> : <X className="h-4 w-4" />}
-          </Button>
+          {isCartEnabled && (
+            <Button 
+              size="sm" 
+              className="h-9 w-9 rounded-full p-0 shadow-lg" 
+              disabled={!isAvailable} 
+              onClick={onAddToCart}
+              style={{ backgroundColor: themeColors.primary, color: themeColors.secondary }}
+            >
+              {isAvailable ? <Plus className="h-5 w-5" /> : <X className="h-4 w-4" />}
+            </Button>
+          )}
         </div>
       </div>
     </motion.div>

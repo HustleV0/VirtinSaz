@@ -8,8 +8,11 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { toast } from "sonner"
 import { useAuth } from "@/hooks/use-auth"
+import { api } from "@/lib/api"
 import { Layout, Palette, Check, ArrowRight, ArrowLeft, Loader2 } from "lucide-react"
 import { cn } from "@/lib/utils"
+
+const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL?.replace('/api', '') || "https://dash.vofino.ir"
 
 interface Category {
   id: number
@@ -33,7 +36,7 @@ export function CreateSiteFlow() {
   
   const [formData, setFormData] = useState({
     name: user?.restaurant_name || "",
-    slug: "",
+    subdomain: "",
     category_id: "",
     theme_id: "",
   })
@@ -53,8 +56,7 @@ export function CreateSiteFlow() {
 
   const fetchCategories = async () => {
     try {
-      const res = await fetch("http://localhost:8000/api/sites/site-categories/")
-      const data = await res.json()
+      const data = await api.get("/sites/site-categories/")
       setCategories(data)
     } catch (error) {
       toast.error("خطا در دریافت دسته‌بندی‌ها")
@@ -63,8 +65,7 @@ export function CreateSiteFlow() {
 
   const fetchThemes = async (categoryId: string) => {
     try {
-      const res = await fetch(`http://localhost:8000/api/sites/themes/?category_id=${categoryId}`)
-      const data = await res.json()
+      const data = await api.get(`/sites/themes/?category_id=${categoryId}`)
       setThemes(data)
     } catch (error) {
       toast.error("خطا در دریافت قالب‌ها")
@@ -74,7 +75,7 @@ export function CreateSiteFlow() {
   const handleNext = () => {
     if (step === 1) {
       if (!formData.name) return toast.error("نام سایت الزامی است")
-      if (!formData.slug) return toast.error("آدرس سایت الزامی است")
+      if (!formData.subdomain) return toast.error("آدرس سایت الزامی است")
       setStep(2)
     } else if (step === 2) {
       if (!formData.category_id) return toast.error("انتخاب دسته‌بندی الزامی است")
@@ -91,51 +92,28 @@ export function CreateSiteFlow() {
     
     setIsLoading(true)
     try {
-      const res = await fetch("http://localhost:8000/api/sites/site/create/", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          "Authorization": `Bearer ${token}`
-        },
-        body: JSON.stringify({
-          name: formData.name,
-          slug: formData.slug,
-          category: parseInt(formData.category_id),
-          theme: parseInt(formData.theme_id)
-        })
+      const siteData = await api.post("/sites/site/create/", {
+        name: formData.name,
+        subdomain: formData.subdomain,
+        category: parseInt(formData.category_id),
+        theme: parseInt(formData.theme_id)
       })
 
-      if (res.ok) {
-        const siteData = await res.json()
-        toast.success("سایت شما با موفقیت ساخته شد! حالا می‌توانید آن را شخصی‌سازی کنید.")
-        
-        // Update user state to reflect they now have a site
-        if (user) {
-          updateUser({
-            ...user,
-            has_site: true,
-            site_slug: siteData.slug,
-            restaurant_name: siteData.name
-          })
-        }
-        
-        router.refresh()
-      } else {
-        const errorData = await res.json()
-        if (errorData.detail) {
-          toast.error(errorData.detail)
-        } else {
-          // Join all error messages from all fields
-          const messages = Object.values(errorData).flat()
-          if (messages.length > 0) {
-            toast.error(messages[0] as string)
-          } else {
-            toast.error("خطا در ساخت سایت")
-          }
-        }
+      toast.success("سایت شما با موفقیت ساخته شد! حالا می‌توانید آن را شخصی‌سازی کنید.")
+      
+      // Update user state to reflect they now have a site
+      if (user) {
+        updateUser({
+          ...user,
+          has_site: true,
+          site_slug: siteData.slug,
+          restaurant_name: siteData.name
+        })
       }
-    } catch (error) {
-      toast.error("خطا در برقراری ارتباط")
+      
+      router.refresh()
+    } catch (error: any) {
+      toast.error(error.message || "خطا در ساخت سایت")
     } finally {
       setIsLoading(false)
     }
@@ -180,15 +158,15 @@ export function CreateSiteFlow() {
                 />
               </div>
               <div className="space-y-2">
-                <Label htmlFor="slug">آدرس اینترنتی (Slug)</Label>
+                <Label htmlFor="subdomain">آدرس اینترنتی (ساب‌دامین)</Label>
                 <div className="flex items-center gap-2" dir="ltr">
-                  <span className="text-muted-foreground">.virtinsaz.ir</span>
+                  <span className="text-muted-foreground">.vofino.ir</span>
                   <Input
-                    id="slug"
+                    id="subdomain"
                     placeholder="my-business"
                     className="text-left"
-                    value={formData.slug}
-                    onChange={(e) => setFormData({ ...formData, slug: e.target.value.toLowerCase().replace(/\s+/g, "-") })}
+                    value={formData.subdomain}
+                    onChange={(e) => setFormData({ ...formData, subdomain: e.target.value.toLowerCase().replace(/\s+/g, "-") })}
                   />
                 </div>
                 <p className="text-xs text-muted-foreground">فقط حروف انگلیسی، اعداد و خط تیره</p>
@@ -233,7 +211,7 @@ export function CreateSiteFlow() {
                     <div className="aspect-video bg-muted">
                       {tpl.preview_image && (
                         <img 
-                          src={tpl.preview_image.startsWith('http') ? tpl.preview_image : `http://localhost:8000${tpl.preview_image}`} 
+                          src={tpl.preview_image.startsWith('http') ? tpl.preview_image : `${API_BASE_URL}${tpl.preview_image}`} 
                           alt={tpl.name} 
                           className="h-full w-full object-cover"
                         />

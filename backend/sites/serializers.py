@@ -55,10 +55,16 @@ class SiteSerializer(serializers.ModelSerializer):
     subscription_days_left = serializers.SerializerMethodField()
     is_trial = serializers.SerializerMethodField()
 
+    def validate_subdomain(self, value):
+        from .models import UserSubdomain
+        if Site.objects.filter(subdomain=value).exists() or UserSubdomain.objects.filter(subdomain=value).exists():
+            raise serializers.ValidationError("این ساب‌دامین قبلا انتخاب شده است.")
+        return value
+
     class Meta:
         model = Site
         fields = [
-            'id', 'name', 'slug', 'logo', 'cover_image', 
+            'id', 'name', 'subdomain', 'slug', 'provisioning_status', 'logo', 'cover_image', 
             'category', 'category_name', 'theme', 'theme_name', 
             'source_identifier', 'owner_phone', 'owner_id', 
             'settings', 'active_plugins', 'required_plugins', 
@@ -66,7 +72,7 @@ class SiteSerializer(serializers.ModelSerializer):
             'trial_ends_at', 'subscription_ends_at', 'created_at', 'updated_at',
             'meta_title', 'meta_description', 'schema_type'
         ]
-        read_only_fields = ['owner']
+        read_only_fields = ['owner', 'provisioning_status']
 
     def get_source_identifier(self, obj):
         if obj.theme:
@@ -111,6 +117,7 @@ class SignupSerializer(serializers.Serializer):
     phone_number = serializers.CharField(max_length=15)
     password = serializers.CharField(write_only=True)
     site_name = serializers.CharField(max_length=255)
+    subdomain = serializers.CharField(max_length=100, required=False)
     category_id = serializers.IntegerField()
     theme_id = serializers.IntegerField()
     
@@ -129,12 +136,19 @@ class SignupSerializer(serializers.Serializer):
         if theme.category_id != category.id and category.slug not in (theme.site_types or []):
             raise serializers.ValidationError({"theme_id": "Theme does not support the selected category."})
         
+        subdomain = attrs.get('subdomain')
+        if subdomain:
+            from .models import UserSubdomain
+            if Site.objects.filter(models.Q(subdomain=subdomain) | models.Q(slug=subdomain)).exists() or UserSubdomain.objects.filter(subdomain=subdomain).exists():
+                raise serializers.ValidationError({"subdomain": "این ساب‌دامین قبلا انتخاب شده است."})
+        
         attrs['category'] = category
         attrs['theme'] = theme
         return attrs
 
     @transaction.atomic
     def create(self, validated_data):
+        from .models import Site # Import inside to avoid circular dependency
         user = User.objects.create_user(
             phone_number=validated_data['phone_number'],
             password=validated_data['password'],
@@ -143,17 +157,43 @@ class SignupSerializer(serializers.Serializer):
         
         from django.utils.text import slugify
         from .services import ThemeService
+        from .tasks import provision_site_task
+        
+        subdomain = validated_data.get('subdomain') or slugify(validated_data['site_name'], allow_unicode=True)
+        
         site = Site.objects.create(
             owner=user,
             name=validated_data['site_name'],
-            slug=slugify(validated_data['site_name'], allow_unicode=True),
+            subdomain=subdomain,
+            slug=subdomain,
             category=validated_data['category'],
             theme=validated_data['theme'],
-            settings=validated_data['theme'].default_settings
+            settings=validated_data['theme'].default_settings,
+            provisioning_status='optimizing_products'
         )
         
         # Activate theme plugins
         ThemeService.activate_theme(site, validated_data['theme'])
+        
+        # Create UserSubdomain record
+        from .models import UserSubdomain
+        request = self.context.get('request')
+        ip = None
+        if request:
+            x_forwarded_for = request.META.get('HTTP_X_FORWARDED_FOR')
+            if x_forwarded_for:
+                ip = x_forwarded_for.split(',')[0]
+            else:
+                ip = request.META.get('REMOTE_ADDR')
+        
+        UserSubdomain.objects.create(
+            subdomain=subdomain,
+            site=site,
+            user_ip=ip
+        )
+        
+        # Trigger provisioning
+        transaction.on_commit(lambda: provision_site_task.delay(site.id))
         
         self.user = user
         return site

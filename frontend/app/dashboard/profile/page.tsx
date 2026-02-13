@@ -8,10 +8,12 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { useAuth } from "@/hooks/use-auth"
 import { Loader2, Camera } from "lucide-react"
 
+const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL?.replace('/api', '') || "https://dash.vofino.ir"
+
 export default function GlobalProfilePage() {
   const { user } = useAuth()
 
-  const avatarUrl = user?.avatar ? (user.avatar.startsWith('http') ? user.avatar : `http://localhost:8000${user.avatar}`) : null
+  const avatarUrl = user?.avatar ? (user.avatar.startsWith('http') ? user.avatar : `${API_BASE_URL}${user.avatar}`) : null
 
   return (
     <div className="max-w-4xl mx-auto space-y-6" dir="rtl">

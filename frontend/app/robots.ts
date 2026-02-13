@@ -7,6 +7,6 @@ export default function robots(): MetadataRoute.Robots {
       allow: '/',
       disallow: ['/dashboard/', '/settings/', '/api/'],
     },
-    sitemap: 'https://virtinsaz.ir/sitemap.xml',
+    sitemap: 'https://vofino.ir/sitemap.xml',
   }
 }

@@ -58,6 +58,7 @@ export function MinimalCafe({
   const [cart, setCart] = useState<CartItem[]>([])
   const [isCartOpen, setIsCartOpen] = useState(false)
   const router = useRouter()
+  const isCartEnabled = restaurant.activePlugins?.includes('shopping_cart')
 
   const addToCart = (product: any) => {
     setCart((prev) => {
@@ -210,102 +211,112 @@ export function MinimalCafe({
           {/* Actions */}
           <div className="flex items-center gap-2">
             {/* Cart */}
-            <Sheet open={isCartOpen} onOpenChange={setIsCartOpen}>
-              <SheetTrigger asChild>
-                <Button variant="ghost" size="icon" className="relative">
-                  <ShoppingBag className="h-5 w-5" />
-                  {cartCount > 0 && (
-                    <Badge
-                      variant="destructive"
-                      className="absolute -top-1 -right-1 h-5 w-5 justify-center rounded-full p-0 text-[10px]"
-                    >
-                      {cartCount}
-                    </Badge>
-                  )}
-                </Button>
-              </SheetTrigger>
-              <SheetContent side="left" className="flex w-full flex-col sm:max-w-md">
-                <SheetHeader>
-                  <SheetTitle className="flex items-center gap-2">
-                    <ShoppingBag className="h-5 w-5" />
-                    سبد خرید
-                  </SheetTitle>
-                </SheetHeader>
+            <div className="relative">
+              <Button 
+                variant="ghost" 
+                size="icon" 
+                className={`relative ${!isCartEnabled ? 'opacity-50 cursor-not-allowed' : ''}`}
+                disabled={!isCartEnabled}
+              >
+                <ShoppingBag className="h-5 w-5" />
+                {isCartEnabled && cartCount > 0 && (
+                  <Badge
+                    variant="destructive"
+                    className="absolute -top-1 -right-1 h-5 w-5 justify-center rounded-full p-0 text-[10px]"
+                  >
+                    {cartCount}
+                  </Badge>
+                )}
+              </Button>
+              {isCartEnabled && (
+                <Sheet open={isCartOpen} onOpenChange={setIsCartOpen}>
+                  <SheetTrigger asChild>
+                    <div className="absolute inset-0 cursor-pointer" />
+                  </SheetTrigger>
+                  <SheetContent side="left" className="flex w-full flex-col sm:max-w-md">
+                    <SheetHeader>
+                      <SheetTitle className="flex items-center gap-2">
+                        <ShoppingBag className="h-5 w-5" />
+                        سبد خرید
+                      </SheetTitle>
+                    </SheetHeader>
 
-                <div className="flex-1 overflow-y-auto py-6">
-                  {cart.length === 0 ? (
-                    <div className="flex h-full flex-col items-center justify-center gap-4 text-center">
-                      <ShoppingBag className="h-12 w-12 text-muted-foreground" />
-                      <p className="text-muted-foreground">سبد خرید شما خالی است</p>
-                    </div>
-                  ) : (
-                    <div className="space-y-4">
-                      {cart.map((item) => (
-                        <div
-                          key={item.id}
-                          className="flex items-center gap-4 rounded-lg border p-3"
-                        >
-                          {item.image && (
-                            <img
-                              src={item.image}
-                              alt={item.name}
-                              className="h-16 w-16 rounded-md object-cover"
-                            />
-                          )}
-                          <div className="flex-1">
-                            <h4 className="font-medium">{item.name}</h4>
-                            <p className="text-sm text-muted-foreground">
-                              {formatPrice(item.price)} تومان
-                            </p>
-                            <div className="mt-2 flex items-center gap-2">
+                    <div className="flex-1 overflow-y-auto py-6">
+                      {cart.length === 0 ? (
+                        <div className="flex h-full flex-col items-center justify-center gap-4 text-center">
+                          <ShoppingBag className="h-12 w-12 text-muted-foreground" />
+                          <p className="text-muted-foreground">سبد خرید شما خالی است</p>
+                        </div>
+                      ) : (
+                        <div className="space-y-4">
+                          {cart.map((item) => (
+                            <div
+                              key={item.id}
+                              className="flex items-center gap-4 rounded-lg border p-3"
+                            >
+                              {item.image && (
+                                <img
+                                  src={item.image}
+                                  alt={item.name}
+                                  className="h-16 w-16 rounded-md object-cover"
+                                />
+                              )}
+                              <div className="flex-1">
+                                <h4 className="font-medium">{item.name}</h4>
+                                <p className="text-sm text-muted-foreground">
+                                  {formatPrice(item.price)} تومان
+                                </p>
+                                <div className="mt-2 flex items-center gap-2">
+                                  <Button
+                                    variant="outline"
+                                    size="icon"
+                                    className="h-7 w-7"
+                                    onClick={() => updateQuantity(item.id, -1)}
+                                  >
+                                    <Minus className="h-3 w-3" />
+                                  </Button>
+                                  <span className="w-4 text-center text-sm">
+                                    {item.quantity}
+                                  </span>
+                                  <Button
+                                    variant="outline"
+                                    size="icon"
+                                    className="h-7 w-7"
+                                    onClick={() => updateQuantity(item.id, 1)}
+                                  >
+                                    <Plus className="h-3 w-3" />
+                                  </Button>
+                                </div>
+                              </div>
                               <Button
-                                variant="outline"
+                                variant="ghost"
                                 size="icon"
-                                className="h-7 w-7"
-                                onClick={() => updateQuantity(item.id, -1)}
+                                className="text-muted-foreground hover:text-destructive"
+                                onClick={() => removeFromCart(item.id)}
                               >
-                                <Minus className="h-3 w-3" />
-                              </Button>
-                              <span className="w-4 text-center text-sm">
-                                {item.quantity}
-                              </span>
-                              <Button
-                                variant="outline"
-                                size="icon"
-                                className="h-7 w-7"
-                                onClick={() => updateQuantity(item.id, 1)}
-                              >
-                                <Plus className="h-3 w-3" />
+                                <Trash2 className="h-4 w-4" />
                               </Button>
                             </div>
-                          </div>
-                          <Button
-                            variant="ghost"
-                            size="icon"
-                            className="text-muted-foreground hover:text-destructive"
-                            onClick={() => removeFromCart(item.id)}
-                          >
-                            <Trash2 className="h-4 w-4" />
-                          </Button>
+                          ))}
                         </div>
-                      ))}
+                      )}
                     </div>
-                  )}
-                </div>
 
-                {cart.length > 0 && (
-                  <SheetFooter className="flex-col gap-4 border-t pt-6">
-                    <div className="flex w-full items-center justify-between font-bold">
-                      <span>مجموع:</span>
-                      <span>{formatPrice(cartTotal)} تومان</span>
-                    </div>
-                    <Button className="w-full" size="lg" onClick={handleCheckout}>
-                      تایید و پرداخت
-                    </Button>
-                  </SheetFooter>
-                )}
-              </SheetContent>
-            </Sheet>
+                    {cart.length > 0 && (
+                      <SheetFooter className="flex-col gap-4 border-t pt-6">
+                        <div className="flex w-full items-center justify-between font-bold">
+                          <span>مجموع:</span>
+                          <span>{formatPrice(cartTotal)} تومان</span>
+                        </div>
+                        <Button className="w-full" size="lg" onClick={handleCheckout}>
+                          تایید و پرداخت
+                        </Button>
+                      </SheetFooter>
+                    )}
+                  </SheetContent>
+                </Sheet>
+              )}
+            </div>
 
             {/* Mobile Menu */}
             <Sheet open={isMenuOpen} onOpenChange={setIsMenuOpen}>
@@ -655,6 +666,7 @@ function ProductCard({
   const title = product.title || product.name
   const isAvailable = product.is_available ?? product.isAvailable
   const isPopular = product.is_popular ?? product.isPopular
+  const isCartEnabled = restaurant.activePlugins?.includes('shopping_cart')
 
   return (
     <motion.div 
@@ -729,15 +741,25 @@ function ProductCard({
           )}
         </div>
 
-        <Button
-          className="mt-4 w-full gap-2"
-          size="sm"
-          disabled={!isAvailable}
-          onClick={onAddToCart}
-        >
-          <Plus className="h-4 w-4" />
-          سفارش
-        </Button>
+        {!isCartEnabled ? (
+          <Button
+            className="mt-4 w-full gap-2 opacity-50"
+            size="sm"
+            disabled
+          >
+            غیرفعال
+          </Button>
+        ) : (
+          <Button
+            className="mt-4 w-full gap-2"
+            size="sm"
+            disabled={!isAvailable}
+            onClick={onAddToCart}
+          >
+            <Plus className="h-4 w-4" />
+            سفارش
+          </Button>
+        )}
       </div>
     </motion.div>
   )

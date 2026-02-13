@@ -16,8 +16,11 @@ import {
   Loader2,
 } from "lucide-react"
 import { useAuth } from "@/hooks/use-auth"
+import { api } from "@/lib/api"
 import { CreateSiteFlow } from "@/components/dashboard/create-site-flow"
 import { toast } from "sonner"
+
+const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL?.replace('/api', '') || "https://dash.vofino.ir"
 
 interface Site {
   id: number
@@ -58,19 +61,10 @@ export default function DashboardPage() {
   const fetchSites = async () => {
     setIsFetchingSites(true)
     try {
-      const res = await fetch("http://localhost:8000/api/sites/user-sites/", {
-        headers: {
-          "Authorization": `Bearer ${token}`
-        }
-      })
-      if (res.ok) {
-        const data = await res.json()
-        setSites(data)
-      } else {
-        toast.error("خطا در دریافت لیست سایت‌ها")
-      }
+      const data = await api.get("/sites/user-sites/")
+      setSites(data)
     } catch (error) {
-      toast.error("خطا در برقراری ارتباط با سرور")
+      toast.error("خطا در دریافت لیست سایت‌ها")
     } finally {
       setIsFetchingSites(false)
     }
@@ -133,7 +127,7 @@ export default function DashboardPage() {
                   {/* Logo/Avatar */}
                   <div className="relative flex h-24 w-24 shrink-0 items-center justify-center rounded-2xl bg-primary/5 border border-primary/10 overflow-hidden shadow-inner group-hover:border-primary/20 transition-colors">
                     {site.logo ? (
-                      <img src={site.logo.startsWith('http') ? site.logo : `http://localhost:8000${site.logo}`} alt={site.name} className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-110" />
+                      <img src={site.logo.startsWith('http') ? site.logo : `${API_BASE_URL}${site.logo}`} alt={site.name} className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-110" />
                     ) : (
                       <Globe className="h-10 w-10 text-primary/30 group-hover:text-primary/50 transition-colors" />
                     )}
@@ -155,7 +149,7 @@ export default function DashboardPage() {
                       </span>
                       <span className="flex items-center gap-1.5 bg-muted/50 px-2 py-1 rounded-md ltr" dir="ltr">
                         <Globe className="h-4 w-4 text-primary/70" />
-                        {site.slug}.virtinsaz.ir
+                        {site.slug}.vofino.ir
                       </span>
                     </div>
                   </div>

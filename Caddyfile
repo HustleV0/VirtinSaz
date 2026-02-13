@@ -1,0 +1,49 @@
+{
+    email {$CADDY_EMAIL}
+    # On-demand TLS for subdomains
+    on_demand_tls {
+        ask http://django:8000/api/sites/check-subdomain/
+    }
+}
+
+# Backend (API & Admin)
+dash.vofino.ir {
+    reverse_proxy django:8000 {
+        header_up Host {host}
+        header_up X-Real-IP {remote_host}
+        header_up X-Forwarded-For {remote_host}
+        header_up X-Forwarded-Proto {scheme}
+    }
+
+    handle_path /static/* {
+        root * /app/static
+        file_server
+    }
+
+    handle_path /media/* {
+        root * /app/media
+        file_server
+    }
+
+    log {
+        output file /var/log/caddy/backend_access.log
+    }
+}
+
+# Frontend & User Subdomains
+vofino.ir, www.vofino.ir, *.vofino.ir {
+    tls {
+        on_demand
+    }
+
+    reverse_proxy frontend:3000 {
+        header_up Host {host}
+        header_up X-Real-IP {remote_host}
+        header_up X-Forwarded-For {remote_host}
+        header_up X-Forwarded-Proto {scheme}
+    }
+
+    log {
+        output file /var/log/caddy/frontend_access.log
+    }
+}

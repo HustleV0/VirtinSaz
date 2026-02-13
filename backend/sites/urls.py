@@ -13,7 +13,9 @@ from .views import (
     SiteActivePluginsView,
     SitePluginToggleView,
     DebugSlugsView,
-    SiteSitemapListView
+    SiteSitemapListView,
+    SubdomainAvailabilityView,
+    SiteCreationProgressView
 )
 
 urlpatterns = [
@@ -29,6 +31,8 @@ urlpatterns = [
     path('site/create/', SiteCreateView.as_view(), name='site-create'),
     path('site/settings/', SiteSettingsUpdateView.as_view(), name='site-settings-update'),
     path('site/sitemap/', SiteSitemapListView.as_view(), name='site-sitemap'),
+    path('check-subdomain/', SubdomainAvailabilityView.as_view(), name='check-subdomain'),
+    path('creation-progress/', SiteCreationProgressView.as_view(), name='creation-progress'),
     path('debug-slugs/', DebugSlugsView.as_view(), name='debug-slugs'),
     re_path(r'^site/public/(?P<slug>[^/]+)/$', SitePublicView.as_view(), name='site-public'),
 ]

@@ -10,10 +10,18 @@ interface PageProps {
 
 async function getMenuData(slug: string) {
   try {
-    return await api.get(`/menu/public-data/${slug}/`)
+    const [menuData, siteData] = await Promise.all([
+      api.get(`/menu/public-data/${slug}/`),
+      api.get(`/sites/site/public/${slug}/`)
+    ])
+    return { 
+      categories: menuData.categories, 
+      products: menuData.products,
+      activePlugins: siteData.active_plugins || []
+    }
   } catch (error) {
-    console.error("Failed to fetch menu:", error)
-    return { categories: [], products: [] }
+    console.error("Failed to fetch menu or site data:", error)
+    return { categories: [], products: [], activePlugins: [] }
   }
 }
 
@@ -32,13 +40,14 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
 
 export default async function MenuPage({ params }: PageProps) {
   const { slug } = await params
-  const { categories, products } = await getMenuData(slug)
+  const { categories, products, activePlugins } = await getMenuData(slug)
 
   return (
     <ClientMenu 
       slug={slug} 
       categories={categories} 
       products={products} 
+      activePlugins={activePlugins}
     />
   )
 }

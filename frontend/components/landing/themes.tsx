@@ -6,6 +6,7 @@ import { Badge } from "@/components/ui/badge"
 import { Eye, Loader2 } from "lucide-react"
 import { motion, AnimatePresence } from "framer-motion"
 import { SiteCategory, Theme } from "@/types"
+import { api } from "@/lib/api"
 
 export function Themes() {
   const [categories, setCategories] = useState<SiteCategory[]>([])
@@ -14,18 +15,13 @@ export function Themes() {
   const [activeTheme, setActiveTheme] = useState<Theme | null>(null)
   const [isLoading, setIsLoading] = useState(true)
 
-  const API_BASE_URL = "http://localhost:8000/api/sites"
-
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const [catsRes, themesRes] = await Promise.all([
-          fetch(`${API_BASE_URL}/site-categories/`),
-          fetch(`${API_BASE_URL}/themes/`)
+        const [catsData, themesData] = await Promise.all([
+          api.get("/sites/site-categories/"),
+          api.get("/sites/themes/")
         ])
-        
-        const catsData = await catsRes.json()
-        const themesData = await themesRes.json()
         
         setCategories(catsData)
         setThemes(themesData)
@@ -148,7 +144,7 @@ export function Themes() {
                     </div>
                     <div className="flex-1 px-4">
                       <div className="mx-auto max-w-md rounded-md bg-background px-4 py-1.5 text-center text-xs text-muted-foreground ltr">
-                        {activeTheme.slug}.menusaz.ir
+                        {activeTheme.slug}.vofino.ir
                       </div>
                     </div>
                     <Button variant="ghost" size="sm" className="gap-2">

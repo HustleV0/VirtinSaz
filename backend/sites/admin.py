@@ -1,7 +1,13 @@
 from django.contrib import admin
 from django.utils.html import format_html
-from .models import SiteCategory, Theme, Site, Plugin, SitePlugin
+from .models import SiteCategory, Theme, Site, Plugin, SitePlugin, UserSubdomain
 from menu.models import Product
+
+@admin.register(UserSubdomain)
+class UserSubdomainAdmin(admin.ModelAdmin):
+    list_display = ('subdomain', 'site', 'user_ip', 'is_active', 'created_at')
+    search_fields = ('subdomain', 'site__name', 'user_ip')
+    list_filter = ('is_active', 'created_at')
 
 class SitePluginInline(admin.TabularInline):
     model = SitePlugin

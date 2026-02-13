@@ -1,7 +1,7 @@
 import os
 import django
 
-os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'core.settings')
+os.environ['DJANGO_SETTINGS_MODULE'] = 'core.settings'
 django.setup()
 
 from sites.models import Plugin, Theme
@@ -76,6 +76,16 @@ def run():
             'description': 'مشاهده تمام تراکنش‌های مالی و مجموع مبالغ پرداخت شده.',
             'is_core': False,
             'is_usable': True
+        }
+    )
+
+    cart_plugin, _ = Plugin.objects.update_or_create(
+        key='shopping_cart',
+        defaults={
+            'name': 'سبد خرید',
+            'description': 'امکان افزودن محصولات به سبد خرید و مدیریت آن‌ها.',
+            'is_core': False,
+            'is_usable': False
         }
     )
 

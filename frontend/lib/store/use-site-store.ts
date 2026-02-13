@@ -24,7 +24,7 @@ export const useSiteStore = create<SiteState>((set, get) => ({
   fetchSite: async (slug?: string) => {
     set({ isLoading: true, error: null })
     try {
-      const url = slug ? `/sites/site/${slug}/` : '/sites/site/me/'
+      const url = slug ? `/sites/site/me/?slug=${slug}` : '/sites/site/me/'
       const siteData = await api.get(url)
       set({ 
         site: siteData, 
@@ -55,10 +55,12 @@ export const useSiteStore = create<SiteState>((set, get) => ({
   },
 
   togglePlugin: async (pluginKey: string, isActive: boolean) => {
+    const { site } = get()
     try {
       await api.post('/sites/site/toggle-plugin/', {
           plugin_key: pluginKey,
-          is_active: isActive
+          is_active: isActive,
+          site_slug: site?.slug
       })
       
       // Optimistic update

@@ -3,7 +3,7 @@
 import { useEffect, useState, use } from "react"
 import Link from "next/link"
 import Image from "next/image"
-import { useRouter } from "next/navigation"
+import { useRouter, useParams } from "next/navigation"
 import { toast } from "sonner"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
@@ -33,8 +33,8 @@ import {
 } from "lucide-react"
 import { api } from "@/lib/api"
 
-export default function EditProductPage({ params }: { params: Promise<{ id: string }> }) {
-  const { id } = use(params)
+export default function EditProductPage({ params }: { params: Promise<{ id: string, slug: string }> }) {
+  const { id, slug } = use(params)
   const router = useRouter()
   const [isLoading, setIsLoading] = useState(true)
   const [isSaving, setIsSaving] = useState(false)
@@ -117,7 +117,7 @@ export default function EditProductPage({ params }: { params: Promise<{ id: stri
     try {
       await api.delete(`/menu/products/${id}/`)
       toast.success("محصول با موفقیت حذف شد")
-      router.push("/dashboard/cafe/menu")
+      router.push(`/dashboard/${slug}/cafe/menu`)
     } catch (error) {
       toast.error("خطا در حذف محصول")
     }
@@ -138,7 +138,7 @@ export default function EditProductPage({ params }: { params: Promise<{ id: stri
       <div className="flex flex-col items-center justify-center min-h-[400px] text-center">
         <h2 className="text-xl font-semibold mb-2">محصول یافت نشد</h2>
         <Button asChild>
-          <Link href="/dashboard/cafe/menu">بازگشت به لیست محصولات</Link>
+          <Link href={`/dashboard/${slug}/cafe/menu`}>بازگشت به لیست محصولات</Link>
         </Button>
       </div>
     )
@@ -150,7 +150,7 @@ export default function EditProductPage({ params }: { params: Promise<{ id: stri
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div className="flex items-center gap-4">
           <Button variant="ghost" size="icon" asChild>
-            <Link href="/dashboard/cafe/menu">
+            <Link href={`/dashboard/${slug}/cafe/menu`}>
               <ArrowRight className="h-5 w-5" />
             </Link>
           </Button>

@@ -43,9 +43,23 @@ class Theme(models.Model):
         return self.name
 
 class Site(models.Model):
+    PROVISIONING_STATUS = (
+        ('optimizing_products', 'Optimizing Products'),
+        ('preparing_settings', 'Preparing Settings'),
+        ('setting_subdomain', 'Setting Subdomain'),
+        ('receiving_ssl', 'Receiving SSL'),
+        ('ready', 'Ready'),
+    )
+
     owner = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='sites')
     name = models.CharField(max_length=255)
+    subdomain = models.CharField(max_length=100, unique=True, null=True, blank=True)
     slug = models.SlugField(max_length=255, unique=True, allow_unicode=True, null=True, blank=True)
+    provisioning_status = models.CharField(
+        max_length=50, 
+        choices=PROVISIONING_STATUS, 
+        default='optimizing_products'
+    )
     logo = models.ImageField(upload_to='site_logos/', null=True, blank=True)
     cover_image = models.ImageField(upload_to='site_covers/', null=True, blank=True)
     category = models.ForeignKey(SiteCategory, on_delete=models.PROTECT, related_name='sites')
@@ -132,3 +146,13 @@ class SitePlugin(models.Model):
 
     def __str__(self):
         return f"{self.plugin.name} on {self.site.name}"
+
+class UserSubdomain(models.Model):
+    subdomain = models.CharField(max_length=100, unique=True)
+    site = models.OneToOneField(Site, on_delete=models.CASCADE, related_name='user_subdomain_record')
+    user_ip = models.GenericIPAddressField(null=True, blank=True)
+    is_active = models.BooleanField(default=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return self.subdomain

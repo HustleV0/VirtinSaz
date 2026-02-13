@@ -65,6 +65,7 @@ export function ModernRestaurant({
   const [cart, setCart] = useState<CartItem[]>([])
   const [isCartOpen, setIsCartOpen] = useState(false)
   const router = useRouter()
+  const isCartEnabled = restaurant.activePlugins?.includes('shopping_cart')
   const { scrollY } = useScroll()
   
   const navBackground = useTransform(
@@ -183,11 +184,12 @@ export function ModernRestaurant({
              <Button 
                 variant="ghost" 
                 size="icon" 
-                className="relative rounded-full hover:bg-white/10 text-white"
+                className={`relative rounded-full hover:bg-white/10 text-white ${!isCartEnabled ? 'opacity-50 cursor-not-allowed' : ''}`}
+                disabled={!isCartEnabled}
                 onClick={() => setIsCartOpen(true)}
              >
               <ShoppingBag className="h-5 w-5" />
-              {cartCount > 0 && (
+              {isCartEnabled && cartCount > 0 && (
                 <motion.span 
                   initial={{ scale: 0 }}
                   animate={{ scale: 1 }}
@@ -418,7 +420,14 @@ export function ModernRestaurant({
                       </p>
 
                       <div className="mt-auto">
-                        {isAvailable ? (
+                        {!isCartEnabled ? (
+                          <Button 
+                            disabled 
+                            className="w-full h-14 bg-slate-800 text-slate-500 font-bold rounded-2xl opacity-50"
+                          >
+                            غیرفعال
+                          </Button>
+                        ) : isAvailable ? (
                           <Button 
                             className="w-full h-14 bg-white/10 hover:bg-amber-500 hover:text-slate-950 text-white font-bold rounded-2xl transition-all border border-white/5"
                             onClick={() => addToCart(product)}
@@ -442,66 +451,68 @@ export function ModernRestaurant({
       </section>
 
       {/* Cart Sheet - Dark Premium */}
-      <Sheet open={isCartOpen} onOpenChange={setIsCartOpen}>
-        <SheetContent side="left" className="w-full sm:max-w-md p-0 flex flex-col bg-slate-950 border-white/5 text-white">
-            <SheetHeader className="p-8 border-b border-white/5 flex-row justify-between items-center space-y-0">
-                <SheetTitle className="text-2xl font-black text-white flex items-center gap-3">
-                  <ShoppingBag className="h-6 w-6 text-amber-500" />
-                  سبد سفارشات
-                </SheetTitle>
-            </SheetHeader>
-            <div className="flex-1 overflow-y-auto p-8">
-                {cart.length === 0 ? (
-                    <div className="h-full flex flex-col items-center justify-center text-slate-500">
-                        <div className="h-24 w-24 rounded-full bg-white/5 flex items-center justify-center mb-6">
-                          <ShoppingBag className="h-10 w-10 opacity-20" />
-                        </div>
-                        <p className="text-xl font-bold">سبد خرید شما خالی است</p>
-                    </div>
-                ) : (
-                    <div className="space-y-6">
-                        {cart.map(item => (
-                            <div key={item.id} className="flex gap-6 group">
-                                <div className="w-20 h-20 rounded-2xl overflow-hidden bg-slate-900 border border-white/5 shrink-0">
-                                    {item.image && <img src={item.image} className="w-full h-full object-cover" />}
-                                </div>
-                                <div className="flex-1 flex flex-col justify-between py-1">
-                                    <div className="flex justify-between items-start">
-                                        <h4 className="font-bold">{item.name}</h4>
-                                        <button onClick={() => removeFromCart(item.id)} className="text-slate-500 hover:text-red-500 transition-colors">
-                                          <Trash2 className="h-4 w-4" />
-                                        </button>
-                                    </div>
-                                    <div className="flex items-center justify-between">
-                                        <div className="flex items-center bg-white/5 rounded-xl p-1 border border-white/5">
-                                            <button onClick={() => updateQuantity(item.id, -1)} className="w-8 h-8 flex items-center justify-center hover:bg-white/10 rounded-lg transition-colors"><Minus className="h-3 w-3" /></button>
-                                            <span className="w-8 text-center text-sm font-bold">{item.quantity}</span>
-                                            <button onClick={() => updateQuantity(item.id, 1)} className="w-8 h-8 flex items-center justify-center hover:bg-white/10 rounded-lg transition-colors"><Plus className="h-3 w-3" /></button>
-                                        </div>
-                                        <span className="font-bold text-amber-500">{formatPrice(item.price * item.quantity)}</span>
-                                    </div>
-                                </div>
-                            </div>
-                        ))}
-                    </div>
-                )}
-            </div>
-            {cart.length > 0 && (
-                <div className="p-8 border-t border-white/5 bg-slate-900/50 backdrop-blur-md">
-                    <div className="flex justify-between items-center mb-8">
-                        <span className="text-slate-400 font-medium">مجموع کل قابل پرداخت</span>
-                        <span className="text-3xl font-black text-amber-500">{formatPrice(cartTotal)}</span>
-                    </div>
-                    <Button 
-                      className="w-full h-16 bg-amber-500 hover:bg-amber-600 text-slate-950 text-xl font-black rounded-2xl shadow-xl shadow-amber-500/20" 
-                      onClick={handleCheckout}
-                    >
-                        ثبت و پرداخت سفارش
-                    </Button>
-                </div>
-            )}
-        </SheetContent>
-      </Sheet>
+      {isCartEnabled && (
+        <Sheet open={isCartOpen} onOpenChange={setIsCartOpen}>
+          <SheetContent side="left" className="w-full sm:max-w-md p-0 flex flex-col bg-slate-950 border-white/5 text-white">
+              <SheetHeader className="p-8 border-b border-white/5 flex-row justify-between items-center space-y-0">
+                  <SheetTitle className="text-2xl font-black text-white flex items-center gap-3">
+                    <ShoppingBag className="h-6 w-6 text-amber-500" />
+                    سبد سفارشات
+                  </SheetTitle>
+              </SheetHeader>
+              <div className="flex-1 overflow-y-auto p-8">
+                  {cart.length === 0 ? (
+                      <div className="h-full flex flex-col items-center justify-center text-slate-500">
+                          <div className="h-24 w-24 rounded-full bg-white/5 flex items-center justify-center mb-6">
+                            <ShoppingBag className="h-10 w-10 opacity-20" />
+                          </div>
+                          <p className="text-xl font-bold">سبد خرید شما خالی است</p>
+                      </div>
+                  ) : (
+                      <div className="space-y-6">
+                          {cart.map(item => (
+                              <div key={item.id} className="flex gap-6 group">
+                                  <div className="w-20 h-20 rounded-2xl overflow-hidden bg-slate-900 border border-white/5 shrink-0">
+                                      {item.image && <img src={item.image} className="w-full h-full object-cover" />}
+                                  </div>
+                                  <div className="flex-1 flex flex-col justify-between py-1">
+                                      <div className="flex justify-between items-start">
+                                          <h4 className="font-bold">{item.name}</h4>
+                                          <button onClick={() => removeFromCart(item.id)} className="text-slate-500 hover:text-red-500 transition-colors">
+                                            <Trash2 className="h-4 w-4" />
+                                          </button>
+                                      </div>
+                                      <div className="flex items-center justify-between">
+                                          <div className="flex items-center bg-white/5 rounded-xl p-1 border border-white/5">
+                                              <button onClick={() => updateQuantity(item.id, -1)} className="w-8 h-8 flex items-center justify-center hover:bg-white/10 rounded-lg transition-colors"><Minus className="h-3 w-3" /></button>
+                                              <span className="w-8 text-center text-sm font-bold">{item.quantity}</span>
+                                              <button onClick={() => updateQuantity(item.id, 1)} className="w-8 h-8 flex items-center justify-center hover:bg-white/10 rounded-lg transition-colors"><Plus className="h-3 w-3" /></button>
+                                          </div>
+                                          <span className="font-bold text-amber-500">{formatPrice(item.price * item.quantity)}</span>
+                                      </div>
+                                  </div>
+                              </div>
+                          ))}
+                      </div>
+                  )}
+              </div>
+              {cart.length > 0 && (
+                  <div className="p-8 border-t border-white/5 bg-slate-900/50 backdrop-blur-md">
+                      <div className="flex justify-between items-center mb-8">
+                          <span className="text-slate-400 font-medium">مجموع کل قابل پرداخت</span>
+                          <span className="text-3xl font-black text-amber-500">{formatPrice(cartTotal)}</span>
+                      </div>
+                      <Button 
+                        className="w-full h-16 bg-amber-500 hover:bg-amber-600 text-slate-950 text-xl font-black rounded-2xl shadow-xl shadow-amber-500/20" 
+                        onClick={handleCheckout}
+                      >
+                          ثبت و پرداخت سفارش
+                      </Button>
+                  </div>
+              )}
+          </SheetContent>
+        </Sheet>
+      )}
 
       {/* Mobile Menu */}
       <Sheet open={isMenuOpen} onOpenChange={setIsMenuOpen}>

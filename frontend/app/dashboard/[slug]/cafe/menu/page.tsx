@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from "react"
 import Link from "next/link"
+import { useParams } from "next/navigation"
 import { toast } from "sonner"
 import { api } from "@/lib/api"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
@@ -48,6 +49,8 @@ import { formatPrice } from "@/lib/mock-data"
 type ViewMode = "grid" | "table"
 
 export default function ProductsPage() {
+  const params = useParams()
+  const slug = params.slug
   const [searchQuery, setSearchQuery] = useState("")
   const [categoryFilter, setCategoryFilter] = useState<string>("all")
   const [viewMode, setViewMode] = useState<ViewMode>("grid")
@@ -127,7 +130,7 @@ export default function ProductsPage() {
             {products.length} محصول در منو
           </p>
         </div>
-        <Link href="/dashboard/cafe/menu/new">
+        <Link href={`/dashboard/${slug}/cafe/menu/new`}>
           <Button className="gap-2">
             <Plus className="h-4 w-4" />
             افزودن محصول
@@ -223,7 +226,7 @@ export default function ProductsPage() {
                     </DropdownMenuTrigger>
                     <DropdownMenuContent align="end">
                       <DropdownMenuItem asChild>
-                        <Link href={`/dashboard/cafe/menu/${product.id}`}>
+                        <Link href={`/dashboard/${slug}/cafe/menu/${product.id}`}>
                           <Pencil className="ml-2 h-4 w-4" />
                           ویرایش
                         </Link>
@@ -368,7 +371,7 @@ export default function ProductsPage() {
                         </DropdownMenuTrigger>
                         <DropdownMenuContent align="end">
                           <DropdownMenuItem asChild>
-                            <Link href={`/dashboard/cafe/menu/${product.id}`}>
+                            <Link href={`/dashboard/${slug}/cafe/menu/${product.id}`}>
                               <Pencil className="ml-2 h-4 w-4" />
                               ویرایش
                             </Link>

@@ -77,6 +77,12 @@ class SiteMeView(generics.RetrieveAPIView):
     permission_classes = [permissions.IsAuthenticated]
 
     def get_object(self):
+        slug = self.request.query_params.get('slug')
+        if slug:
+            try:
+                return self.request.user.sites.get(slug=slug)
+            except Site.DoesNotExist:
+                return None
         return self.request.user.sites.first()
 
     def get(self, request, *args, **kwargs):
@@ -95,12 +101,12 @@ class SiteCreateView(generics.CreateAPIView):
         # Get data from validated_data or request.data
         validated_data = serializer.validated_data
         
-        # Set slug if not in validated_data
-        slug = validated_data.get('slug')
-        if not slug:
+        # Handle subdomain and slug
+        subdomain = validated_data.get('subdomain', self.request.data.get('subdomain'))
+        if not subdomain:
             from django.utils.text import slugify
             name = validated_data.get('name', self.request.data.get('name'))
-            slug = slugify(name, allow_unicode=True)
+            subdomain = slugify(name, allow_unicode=True)
             
         # Get theme default settings and merge with provided settings
         theme = validated_data.get('theme')
@@ -113,12 +119,32 @@ class SiteCreateView(generics.CreateAPIView):
         if isinstance(request_settings, dict):
             settings.update(request_settings)
 
-        serializer.save(
+        site = serializer.save(
             owner=self.request.user, 
-            slug=slug, 
+            subdomain=subdomain,
+            slug=subdomain, # Sync slug for now
             settings=settings,
-            theme=theme
+            theme=theme,
+            provisioning_status='optimizing_products'
         )
+        
+        # Create UserSubdomain record and save user IP
+        from .models import UserSubdomain
+        x_forwarded_for = self.request.META.get('HTTP_X_FORWARDED_FOR')
+        if x_forwarded_for:
+            ip = x_forwarded_for.split(',')[0]
+        else:
+            ip = self.request.META.get('REMOTE_ADDR')
+            
+        UserSubdomain.objects.create(
+            subdomain=subdomain,
+            site=site,
+            user_ip=ip
+        )
+        
+        # Trigger the provisioning task
+        from .tasks import provision_site_task
+        provision_site_task.delay(site.id)
 
 class SitePublicView(generics.RetrieveAPIView):
     queryset = Site.objects.select_related('theme').all()
@@ -134,7 +160,15 @@ class SiteActivePluginsView(generics.RetrieveAPIView):
     permission_classes = [permissions.IsAuthenticated]
 
     def get(self, request, *args, **kwargs):
-        site = request.user.sites.first()
+        slug = request.query_params.get('slug')
+        if slug:
+            try:
+                site = request.user.sites.get(slug=slug)
+            except Site.DoesNotExist:
+                return Response({"detail": "Site not found."}, status=404)
+        else:
+            site = request.user.sites.first()
+            
         if not site:
             return Response({"detail": "No site found."}, status=404)
         return Response(site.get_active_plugins())
@@ -145,7 +179,15 @@ class SitePluginToggleView(generics.GenericAPIView):
 
     @transaction.atomic
     def post(self, request, *args, **kwargs):
-        site = request.user.sites.first()
+        site_slug = request.data.get('site_slug')
+        if site_slug:
+            try:
+                site = request.user.sites.get(slug=site_slug)
+            except Site.DoesNotExist:
+                return Response({"detail": "Site not found."}, status=404)
+        else:
+            site = request.user.sites.first()
+            
         if not site:
             return Response({"detail": "No site found."}, status=404)
         
@@ -203,6 +245,13 @@ class SiteSettingsUpdateView(generics.UpdateAPIView):
     http_method_names = ['patch']
 
     def get_object(self):
+        # We can pass slug in query params or it might be in the request data
+        slug = self.request.query_params.get('slug') or self.request.data.get('slug')
+        if slug:
+            try:
+                return self.request.user.sites.get(slug=slug)
+            except Site.DoesNotExist:
+                return None
         return self.request.user.sites.first()
 
     @transaction.atomic
@@ -277,6 +326,80 @@ class SiteSettingsUpdateView(generics.UpdateAPIView):
 
         instance.save()
         return Response(self.get_serializer(instance).data)
+
+class SubdomainAvailabilityView(generics.GenericAPIView):
+    permission_classes = [permissions.AllowAny]
+
+    def get(self, request, *args, **kwargs):
+        subdomain = request.query_params.get('subdomain') or request.query_params.get('slug') or request.query_params.get('domain')
+        if not subdomain:
+            return Response({"error": "Subdomain is required"}, status=400)
+        
+        # If it's the full domain, extract the subdomain
+        if subdomain.endswith('.vofino.ir'):
+            subdomain = subdomain.replace('.vofino.ir', '')
+        
+        # If it's the main domain, it's always available/valid for SSL
+        if subdomain == 'vofino.ir':
+            return Response({"available": True}, status=200)
+
+        # Reserved subdomains
+        if subdomain.lower() in ['www', 'admin', 'api', 'vofino', 'blog', 'support']:
+            return Response({"available": False, "reserved": True}, status=400 if 'domain' in request.query_params else 200)
+
+        from .models import UserSubdomain
+        is_available = not Site.objects.filter(models.Q(subdomain=subdomain) | models.Q(slug=subdomain)).exists() and \
+                       not UserSubdomain.objects.filter(subdomain=subdomain).exists()
+        
+        # For Caddy 'ask' endpoint: return 200 if site EXISTS (for SSL), or for normal check return availability
+        if 'domain' in request.query_params:
+            if not is_available: # Site exists
+                return Response(status=200)
+            return Response(status=404)
+
+        return Response({"available": is_available})
+
+class SiteCreationProgressView(generics.GenericAPIView):
+    permission_classes = [permissions.IsAuthenticated]
+
+    def get(self, request, *args, **kwargs):
+        site_id = request.query_params.get('site_id')
+        if site_id:
+            try:
+                site = request.user.sites.get(id=site_id)
+            except Site.DoesNotExist:
+                return Response({"detail": "Site not found."}, status=404)
+        else:
+            site = request.user.sites.first()
+
+        if not site:
+            return Response({"detail": "No site found."}, status=404)
+
+        status_map = {
+            'optimizing_products': 1,
+            'preparing_settings': 2,
+            'setting_subdomain': 3,
+            'receiving_ssl': 4,
+            'ready': 5,
+        }
+        
+        current_step_idx = status_map.get(site.provisioning_status, 1)
+        
+        steps = [
+            {"id": 1, "label": "در حال بهینه‌سازی محصولات", "status": "completed" if current_step_idx > 1 else ("in_progress" if current_step_idx == 1 else "pending")},
+            {"id": 2, "label": "در حال آماده‌سازی تنظیمات سایت", "status": "completed" if current_step_idx > 2 else ("in_progress" if current_step_idx == 2 else "pending")},
+            {"id": 3, "label": "در حال ست کردن سابدامین", "status": "completed" if current_step_idx > 3 else ("in_progress" if current_step_idx == 3 else "pending")},
+            {"id": 4, "label": "در حال دریافت و فعال‌سازی SSL", "status": "completed" if current_step_idx > 4 else ("in_progress" if current_step_idx == 4 else "pending")},
+            {"id": 5, "label": "سایت آماده است", "status": "completed" if current_step_idx == 5 else "pending"},
+        ]
+        
+        return Response({
+            "site_id": site.id,
+            "current_status": site.provisioning_status,
+            "subdomain": site.subdomain,
+            "steps": steps,
+            "is_ready": site.provisioning_status == 'ready'
+        })
 
 class SiteRedirectView(View):
     def get(self, request, slug):

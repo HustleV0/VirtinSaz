@@ -43,7 +43,7 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
     "@type": site.schema_type || "Restaurant",
     "name": site.name,
     "description": description,
-    "url": `https://virtinsaz.ir/preview/${slug}`,
+    "url": `https://vofino.ir/preview/${slug}`,
     "logo": site.logo,
     "image": site.cover_image,
     "address": {
@@ -96,7 +96,8 @@ export default async function PreviewPage({ params }: PageProps) {
       primaryColor: siteData.settings?.primaryColor || "#000000",
       showPrices: siteData.settings?.showPrices ?? true,
       address_line: siteData.settings?.address_line,
-    }
+    },
+    activePlugins: siteData.active_plugins || []
   }
 
   const schema = {
@@ -104,7 +105,7 @@ export default async function PreviewPage({ params }: PageProps) {
     "@type": siteData.schema_type || "Restaurant",
     "name": siteData.name,
     "description": siteData.meta_description || siteData.settings?.description,
-    "url": `https://virtinsaz.ir/preview/${slug}`,
+    "url": `https://vofino.ir/preview/${slug}`,
     "logo": siteData.logo,
     "image": siteData.cover_image,
   }

@@ -2,7 +2,7 @@ import { MetadataRoute } from 'next'
 import { api } from '@/lib/api'
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
-  const baseUrl = 'https://virtinsaz.ir'
+  const baseUrl = 'https://vofino.ir'
   
   // Static routes
   const staticRoutes = [
@@ -20,7 +20,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
 
   // Dynamic sites
   try {
-    const sites = await api.get('/site/sitemap/')
+    const sites = await api.get('/sites/site/sitemap/')
     const dynamicRoutes = sites.map((site: any) => ({
       url: `${baseUrl}/preview/${site.slug}`,
       lastModified: new Date(site.updated_at),

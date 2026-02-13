@@ -1,7 +1,7 @@
 "use client"
 
 import { useEffect, useState } from "react"
-import { useRouter } from "next/navigation"
+import { useRouter, useParams } from "next/navigation"
 import { toast } from "sonner"
 import Link from "next/link"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
@@ -22,6 +22,8 @@ import { api } from "@/lib/api"
 
 export default function NewProductPage() {
   const router = useRouter()
+  const params = useParams()
+  const slug = params.slug
   const [isLoading, setIsLoading] = useState(false)
   const [categories, setCategories] = useState<any[]>([])
   const [availableTags, setAvailableTags] = useState<any[]>([])
@@ -97,7 +99,7 @@ export default function NewProductPage() {
 
       await api.post("/menu/products/", data)
       toast.success("محصول جدید با موفقیت اضافه شد")
-      router.push("/dashboard/cafe/menu")
+      router.push(`/dashboard/${slug}/cafe/menu`)
     } catch (error) {
       toast.error("خطا در ذخیره محصول")
     } finally {
@@ -115,7 +117,7 @@ export default function NewProductPage() {
     <div className="space-y-6">
       {/* Page Header */}
       <div className="flex items-center gap-4">
-        <Link href="/dashboard/cafe/menu">
+        <Link href={`/dashboard/${slug}/cafe/menu`}>
           <Button variant="ghost" size="icon">
             <ArrowRight className="h-5 w-5" />
           </Button>
@@ -375,7 +377,7 @@ export default function NewProductPage() {
               <Button type="submit" disabled={isLoading}>
                 {isLoading ? "در حال ذخیره..." : "ذخیره محصول"}
               </Button>
-              <Link href="/dashboard/cafe/menu">
+              <Link href={`/dashboard/${slug}/cafe/menu`}>
                 <Button type="button" variant="outline" className="w-full bg-transparent">
                   انصراف
                 </Button>

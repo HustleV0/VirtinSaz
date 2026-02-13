@@ -9,6 +9,9 @@ import { Label } from "@/components/ui/label"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { User, Mail, Phone, Upload, UtensilsCrossed } from "lucide-react"
 import { useAuth } from "@/hooks/use-auth"
+import { api } from "@/lib/api"
+
+const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL?.replace('/api', '') || "https://dash.vofino.ir"
 
 export default function ProfilePage() {
   const { user, token, updateUser } = useAuth()
@@ -39,25 +42,11 @@ export default function ProfilePage() {
 
     setIsLoading(true)
     try {
-      const response = await fetch("http://localhost:8000/api/accounts/profile/", {
-        method: "PUT",
-        headers: {
-          "Content-Type": "application/json",
-          "Authorization": `Bearer ${token}`
-        },
-        body: JSON.stringify(formData)
-      })
-
-      if (response.ok) {
-        const data = await response.json()
-        updateUser(data)
-        toast.success("اطلاعات پروفایل با موفقیت به‌روزرسانی شد")
-      } else {
-        const errorData = await response.json()
-        toast.error(errorData.detail || "خطا در به‌روزرسانی اطلاعات")
-      }
-    } catch (error) {
-      toast.error("خطا در برقراری ارتباط با سرور")
+      const data = await api.patch("/accounts/profile/", formData)
+      updateUser(data)
+      toast.success("اطلاعات پروفایل با موفقیت به‌روزرسانی شد")
+    } catch (error: any) {
+      toast.error(error.message || "خطا در به‌روزرسانی اطلاعات")
     } finally {
       setIsLoading(false)
     }
@@ -77,23 +66,11 @@ export default function ProfilePage() {
 
     setIsLoading(true)
     try {
-      const response = await fetch("http://localhost:8000/api/accounts/profile/", {
-        method: "PATCH",
-        headers: {
-          "Authorization": `Bearer ${token}`
-        },
-        body: formDataObj
-      })
-
-      if (response.ok) {
-        const data = await response.json()
-        updateUser(data)
-        toast.success("آواتار با موفقیت تغییر کرد")
-      } else {
-        toast.error("خطا در آپلود آواتار")
-      }
-    } catch (error) {
-      toast.error("خطا در برقراری ارتباط")
+      const data = await api.patch("/accounts/profile/", formDataObj)
+      updateUser(data)
+      toast.success("آواتار با موفقیت تغییر کرد")
+    } catch (error: any) {
+      toast.error(error.message || "خطا در آپلود آواتار")
     } finally {
       setIsLoading(false)
     }
@@ -101,7 +78,7 @@ export default function ProfilePage() {
 
   if (!user) return null
 
-  const avatarUrl = user.avatar ? (user.avatar.startsWith('http') ? user.avatar : `http://localhost:8000${user.avatar}`) : null
+  const avatarUrl = user.avatar ? (user.avatar.startsWith('http') ? user.avatar : `${API_BASE_URL}${user.avatar}`) : null
 
   return (
     <div className="space-y-6">
