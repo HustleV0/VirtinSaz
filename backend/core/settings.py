@@ -31,8 +31,18 @@ SECRET_KEY = env('SECRET_KEY', default='django-insecure-fallback-key')
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = env('DEBUG')
 
-ALLOWED_HOSTS = env.list('ALLOWED_HOSTS', default=['vofino.ir', '.vofino.ir', 'dash.vofino.ir', 'localhost', '127.0.0.1'])
-CSRF_TRUSTED_ORIGINS = env.list('CSRF_TRUSTED_ORIGINS', default=['https://vofino.ir', 'https://*.vofino.ir', 'https://dash.vofino.ir', 'http://localhost:8000', 'http://127.0.0.1:8000', 'http://127.0.0.1:8001'])
+ALLOWED_HOSTS = env.list('ALLOWED_HOSTS', default=['vofino.ir', '.vofino.ir', 'dash.vofino.ir', 'localhost', '127.0.0.1', 'dash.localhost'])
+CSRF_TRUSTED_ORIGINS = env.list('CSRF_TRUSTED_ORIGINS', default=[
+    'https://vofino.ir', 
+    'https://*.vofino.ir', 
+    'https://dash.vofino.ir', 
+    'http://localhost', 
+    'http://localhost:8000', 
+    'http://127.0.0.1:8000', 
+    'http://dash.localhost',
+    'https://dash.localhost',
+    'http://localhost:3000'
+])
 
 
 # Application definition
@@ -87,8 +97,8 @@ SIMPLE_JWT = {
     'AUTH_HEADER_TYPES': ('Bearer',),
 }
 
-STATIC_URL = 'static/'
-STATIC_ROOT = BASE_DIR / 'static'
+STATIC_URL = '/static/'
+STATIC_ROOT = BASE_DIR / 'staticfiles'
 
 MEDIA_URL = '/media/'
 MEDIA_ROOT = BASE_DIR / 'media'

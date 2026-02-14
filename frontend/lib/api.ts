@@ -1,4 +1,7 @@
-const BASE_URL = process.env.NEXT_PUBLIC_API_URL || "https://dash.vofino.ir/api"
+const isServer = typeof window === 'undefined'
+const BASE_URL = isServer 
+  ? (process.env.INTERNAL_API_URL || "http://django:8000/api")
+  : (process.env.NEXT_PUBLIC_API_URL || "/api")
 
 async function getAuthHeaders() {
   const token = typeof window !== 'undefined' ? localStorage.getItem("access_token") : null

@@ -9,39 +9,23 @@ services:
       timeout: 5s
       retries: 5
 
-  db:
-    image: mysql:8.0
-    container_name: vofino_db
-    restart: always
-    environment:
-      MYSQL_DATABASE: ${DB_NAME:-vofino_db}
-      MYSQL_USER: ${DB_USER:-vofino_user}
-      MYSQL_PASSWORD: ${DB_PASSWORD:-vofino_pass}
-      MYSQL_ROOT_PASSWORD: ${DB_ROOT_PASSWORD:-root_pass}
-    volumes:
-      - mysql_data:/var/lib/mysql
-    healthcheck:
-      test: ["CMD", "mysqladmin" ,"ping", "-h", "localhost"]
-      interval: 10s
-      timeout: 5s
-      retries: 5
-
   django:
     build: ./backend
     container_name: vofino_django
     restart: always
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/api/sites/"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
     env_file: .env
-    environment:
-      - DATABASE_URL=mysql://${DB_USER:-vofino_user}:${DB_PASSWORD:-vofino_pass}@db:3306/${DB_NAME:-vofino_db}
     depends_on:
       redis:
         condition: service_healthy
-      db:
-        condition: service_healthy
     volumes:
-      - ./backend:/app
-      - static_volume:/app/static
+      - static_volume:/app/staticfiles
       - media_volume:/app/media
+      - ./backend/db.sqlite3:/app/db.sqlite3
 
   celery:
     build: ./backend
@@ -49,20 +33,17 @@ services:
     command: celery -A core worker -l info
     restart: always
     env_file: .env
-    environment:
-      - DATABASE_URL=mysql://${DB_USER:-vofino_user}:${DB_PASSWORD:-vofino_pass}@db:3306/${DB_NAME:-vofino_db}
     depends_on:
       redis:
         condition: service_healthy
-      db:
-        condition: service_healthy
     volumes:
-      - ./backend:/app
+      - ./backend/db.sqlite3:/app/db.sqlite3
 
   caddy:
     image: caddy:latest
     container_name: vofino_caddy
     restart: always
+    env_file: .env
     ports:
       - "80:80"
       - "443:443"
@@ -80,14 +61,10 @@ services:
     build:
       context: ./frontend
       args:
-        - NEXT_PUBLIC_API_URL=${NEXT_PUBLIC_API_URL:-https://dash.vofino.ir/api}
+        - NEXT_PUBLIC_API_URL=${NEXT_PUBLIC_API_URL:-/api}
     container_name: vofino_frontend
     restart: always
     env_file: .env
-    volumes:
-      - ./frontend:/app
-      - /app/node_modules
-      - /app/.next
     depends_on:
       - django
 
@@ -96,4 +73,3 @@ volumes:
   media_volume:
   caddy_data:
   caddy_config:
-  mysql_data:
