@@ -31,18 +31,8 @@ SECRET_KEY = env('SECRET_KEY', default='django-insecure-fallback-key')
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = env('DEBUG')
 
-ALLOWED_HOSTS = env.list('ALLOWED_HOSTS', default=['vofino.ir', '.vofino.ir', 'dash.vofino.ir', 'localhost', '127.0.0.1', 'dash.localhost'])
-CSRF_TRUSTED_ORIGINS = env.list('CSRF_TRUSTED_ORIGINS', default=[
-    'https://vofino.ir', 
-    'https://*.vofino.ir', 
-    'https://dash.vofino.ir', 
-    'http://localhost', 
-    'http://localhost:8000', 
-    'http://127.0.0.1:8000', 
-    'http://dash.localhost',
-    'https://dash.localhost',
-    'http://localhost:3000'
-])
+ALLOWED_HOSTS = env.list('ALLOWED_HOSTS', default=['vofino.ir', '.vofino.ir'])
+CSRF_TRUSTED_ORIGINS = env.list('CSRF_TRUSTED_ORIGINS', default=['https://vofino.ir', 'https://*.vofino.ir'])
 
 
 # Application definition
@@ -97,8 +87,8 @@ SIMPLE_JWT = {
     'AUTH_HEADER_TYPES': ('Bearer',),
 }
 
-STATIC_URL = '/static/'
-STATIC_ROOT = BASE_DIR / 'staticfiles'
+STATIC_URL = 'static/'
+STATIC_ROOT = BASE_DIR / 'static'
 
 MEDIA_URL = '/media/'
 MEDIA_ROOT = BASE_DIR / 'media'
@@ -122,35 +112,13 @@ TEMPLATES = [
 
 WSGI_APPLICATION = 'core.wsgi.application'
 
-import dj_database_url
-
 DATABASES = {
-    'default': dj_database_url.config(
-        default=f"sqlite:///{BASE_DIR / 'db.sqlite3'}",
-        conn_max_age=600,
-        conn_health_checks=True,
-    )
+    'default': env.db('DATABASE_URL', default=f"mysql://{env('MYSQL_USER')}:{env('MYSQL_PASSWORD')}@{env('MYSQL_HOST')}:{env('MYSQL_PORT')}/{env('MYSQL_DATABASE')}")
 }
 
-# Production Security Settings
-if not DEBUG:
-    SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
-    SECURE_SSL_REDIRECT = env.bool('SECURE_SSL_REDIRECT', default=True)
-    SESSION_COOKIE_SECURE = True
-    CSRF_COOKIE_SECURE = True
-    SECURE_HSTS_SECONDS = 31536000
-    SECURE_HSTS_INCLUDE_SUBDOMAINS = True
-    SECURE_HSTS_PRELOAD = True
-else:
-    # Local Development Settings
-    SECURE_SSL_REDIRECT = False
-    SESSION_COOKIE_SECURE = False
-    CSRF_COOKIE_SECURE = False
-    SECURE_HSTS_SECONDS = 0
 
-SECURE_CONTENT_TYPE_NOSNIFF = True
-SECURE_BROWSER_XSS_FILTER = True
-X_FRAME_OPTIONS = 'DENY'
+
+
 
 AUTH_PASSWORD_VALIDATORS = [
     {

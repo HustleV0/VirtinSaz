@@ -13,7 +13,7 @@ class SubdomainMiddleware:
         # Subdomain structure: <slug>.vofino.ir
         if len(domain_parts) > 2:
             subdomain = domain_parts[0]
-            if subdomain not in ['www', 'admin', 'api']:
+            if subdomain not in ['www', 'admin', 'api', 'dash', 'vofino', 'blog', 'support']:
                 try:
                     from django.db.models import Q
                     site = Site.objects.get(Q(subdomain=subdomain) | Q(slug=subdomain))

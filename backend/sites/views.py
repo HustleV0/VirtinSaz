@@ -344,7 +344,7 @@ class SubdomainAvailabilityView(generics.GenericAPIView):
             return Response({"available": True}, status=200)
 
         # Reserved subdomains
-        if subdomain.lower() in ['www', 'admin', 'api', 'vofino', 'blog', 'support']:
+        if subdomain.lower() in ['www', 'admin', 'api', 'vofino', 'blog', 'support', 'dash']:
             return Response({"available": False, "reserved": True}, status=400 if 'domain' in request.query_params else 200)
 
         from .models import UserSubdomain
