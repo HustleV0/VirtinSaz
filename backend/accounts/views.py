@@ -7,19 +7,25 @@ from rest_framework_simplejwt.tokens import RefreshToken
 class RegisterView(views.APIView):
     permission_classes = [permissions.AllowAny]
     def post(self, request):
-        serializer = RegisterSerializer(data=request.data)
-        if serializer.is_valid():
-            user = serializer.save()
-            user_data = UserSerializer(user).data
-            
-            # Get tokens from serializer method
-            refresh = RefreshToken.for_user(user)
-            user_data['tokens'] = {
-                'refresh': str(refresh),
-                'access': str(refresh.access_token),
-            }
-            
-            return Response(user_data, status=status.HTTP_201_CREATED)
+        try:
+            serializer = RegisterSerializer(data=request.data)
+            if serializer.is_valid():
+                user = serializer.save()
+                user_data = UserSerializer(user).data
+                
+                # Get tokens from serializer method
+                refresh = RefreshToken.for_user(user)
+                user_data['tokens'] = {
+                    'refresh': str(refresh),
+                    'access': str(refresh.access_token),
+                }
+                
+                return Response(user_data, status=status.HTTP_201_CREATED)
+        except Exception as e:
+            import traceback
+            print("--- REGISTRATION ERROR ---")
+            traceback.print_exc()
+            return Response({'error': str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
         
         # Humanize errors
         errors = serializer.errors

@@ -1,0 +1,64 @@
+services:
+  redis:
+    image: redis:alpine
+    restart: always
+
+  django:
+    build: ./backend
+    restart: always
+    volumes:
+      - ./backend:/app
+      - backend_static:/app/static
+      - backend_media:/app/media
+    env_file: .env
+    environment:
+      CELERY_BROKER_URL: redis://redis:6379/0
+      CELERY_RESULT_BACKEND: redis://redis:6379/0
+    depends_on:
+      - redis
+
+  celery_worker:
+    build: ./backend
+    restart: always
+    command: celery -A core worker --loglevel=info
+    volumes:
+      - ./backend:/app
+    env_file: .env
+    environment:
+      CELERY_BROKER_URL: redis://redis:6379/0
+      CELERY_RESULT_BACKEND: redis://redis:6379/0
+    depends_on:
+      - redis
+
+  frontend:
+    build: ./frontend
+    restart: always
+    env_file: .env
+    environment:
+      NEXT_PUBLIC_API_URL: https://dash.vofino.ir/api
+    depends_on:
+      - django
+
+  caddy:
+    image: caddy:latest
+    restart: always
+    ports:
+      - "80:80"
+      - "443:443"
+      - "443:443/udp"
+    volumes:
+      - ./Caddyfile:/etc/caddy/Caddyfile
+      - ./backend/static:/app/staticfiles
+      - ./backend/media:/app/media
+      - caddy_data:/data
+      - caddy_config:/config
+    env_file: .env
+    depends_on:
+      - frontend
+      - django
+
+volumes:
+  backend_static:
+  backend_media:
+  caddy_data:
+  caddy_config:

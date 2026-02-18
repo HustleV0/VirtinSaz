@@ -113,7 +113,10 @@ TEMPLATES = [
 WSGI_APPLICATION = 'core.wsgi.application'
 
 DATABASES = {
-    'default': env.db('DATABASE_URL', default=f"mysql://{env('MYSQL_USER')}:{env('MYSQL_PASSWORD')}@{env('MYSQL_HOST')}:{env('MYSQL_PORT')}/{env('MYSQL_DATABASE')}")
+    'default': {
+        'ENGINE': 'django.db.backends.sqlite3',
+        'NAME': BASE_DIR / 'db.sqlite3',
+    }
 }
 
 
@@ -139,6 +142,9 @@ LANGUAGE_CODE = 'en-us'
 TIME_ZONE = 'UTC'
 USE_I18N = True
 USE_TZ = True
+
+# Disable strict slash appending for REST APIs
+APPEND_SLASH = False
 
 # Celery Configuration Options
 CELERY_BROKER_URL = env('CELERY_BROKER_URL', default='redis://redis:6379/0')
