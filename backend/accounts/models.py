@@ -19,6 +19,7 @@ class User(AbstractBaseUser, PermissionsMixin):
     username = models.CharField(max_length=150, unique=True, null=True, blank=True)
     phone_number = models.CharField(max_length=15, unique=True, null=True, blank=True)
     email = models.EmailField(blank=True, null=True)
+    tenant = models.ForeignKey('tenants.Tenant', on_delete=models.SET_NULL, null=True, blank=True, related_name='users', db_index=True)
     full_name = models.CharField(max_length=255, blank=True)
     restaurant_name = models.CharField(max_length=255, blank=True, null=True)
     is_active = models.BooleanField(default=True)

@@ -59,3 +59,32 @@ vofino.ir, *.vofino.ir {
         reverse_proxy frontend:3000
     }
 }
+
+# Custom domains (validated by the ask endpoint)
+:80, :443 {
+    tls {
+        on_demand
+    }
+
+    handle_path /static/* {
+        root * /app/staticfiles
+        file_server
+    }
+
+    handle_path /media/* {
+        root * /app/media
+        file_server
+    }
+
+    handle /api/* {
+        reverse_proxy django:8000
+    }
+
+    handle /admin/* {
+        reverse_proxy django:8000
+    }
+
+    handle {
+        reverse_proxy frontend:3000
+    }
+}

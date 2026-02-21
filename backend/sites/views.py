@@ -3,6 +3,7 @@ from rest_framework.response import Response
 from django.shortcuts import redirect
 from django.http import Http404
 from django.db import transaction
+from django.conf import settings
 from django.views import View
 from django.utils.decorators import method_decorator
 from django.views.decorators.cache import cache_page
@@ -12,6 +13,9 @@ from .serializers import (
     SignupSerializer, PluginSerializer, SitePluginSerializer
 )
 from .services import ThemeService
+from tenants.models import Tenant
+from tenants.resolver import resolve_tenant_from_host
+from tenants.services import ensure_tenant_for_site
 
 class PluginListView(generics.ListAPIView):
     queryset = Plugin.objects.filter(is_usable=True)
@@ -110,23 +114,24 @@ class SiteCreateView(generics.CreateAPIView):
             
         # Get theme default settings and merge with provided settings
         theme = validated_data.get('theme')
-        settings = {}
+        site_settings = {}
         if theme:
-            settings = theme.default_settings.copy()
+            site_settings = theme.default_settings.copy()
         
         # Update with any settings provided in the request
         request_settings = validated_data.get('settings', {})
         if isinstance(request_settings, dict):
-            settings.update(request_settings)
+            site_settings.update(request_settings)
 
         site = serializer.save(
             owner=self.request.user, 
             subdomain=subdomain,
             slug=subdomain, # Sync slug for now
-            settings=settings,
+            settings=site_settings,
             theme=theme,
             provisioning_status='optimizing_products'
         )
+        ensure_tenant_for_site(site)
         
         # Create UserSubdomain record and save user IP
         from .models import UserSubdomain
@@ -151,6 +156,12 @@ class SitePublicView(generics.RetrieveAPIView):
     serializer_class = SiteSerializer
     permission_classes = [permissions.AllowAny]
     lookup_field = 'slug'
+
+    def get_object(self):
+        tenant = getattr(self.request, 'tenant', None)
+        if tenant and tenant.site_id:
+            return tenant.site
+        return super().get_object()
 
     @method_decorator(cache_page(60 * 15)) # Cache for 15 minutes
     def get(self, request, *args, **kwargs):
@@ -331,32 +342,35 @@ class SubdomainAvailabilityView(generics.GenericAPIView):
     permission_classes = [permissions.AllowAny]
 
     def get(self, request, *args, **kwargs):
-        subdomain = request.query_params.get('subdomain') or request.query_params.get('slug') or request.query_params.get('domain')
-        if not subdomain:
+        value = request.query_params.get('subdomain') or request.query_params.get('slug') or request.query_params.get('domain')
+        if not value:
             return Response({"error": "Subdomain is required"}, status=400)
-        
-        # If it's the full domain, extract the subdomain
-        if subdomain.endswith('.vofino.ir'):
-            subdomain = subdomain.replace('.vofino.ir', '')
-        
-        # If it's the main domain, it's always available/valid for SSL
-        if subdomain == 'vofino.ir':
-            return Response({"available": True}, status=200)
 
-        # Reserved subdomains
-        if subdomain.lower() in ['www', 'admin', 'api', 'vofino', 'blog', 'support', 'dash']:
-            return Response({"available": False, "reserved": True}, status=400 if 'domain' in request.query_params else 200)
+        value = value.strip().lower()
+        is_caddy_ask = 'domain' in request.query_params
 
-        from .models import UserSubdomain
-        is_available = not Site.objects.filter(models.Q(subdomain=subdomain) | models.Q(slug=subdomain)).exists() and \
-                       not UserSubdomain.objects.filter(subdomain=subdomain).exists()
-        
-        # For Caddy 'ask' endpoint: return 200 if site EXISTS (for SSL), or for normal check return availability
-        if 'domain' in request.query_params:
-            if not is_available: # Site exists
+        if is_caddy_ask:
+            tenant, is_control_plane = resolve_tenant_from_host(value)
+            if tenant or is_control_plane:
                 return Response(status=200)
             return Response(status=404)
 
+        if value.endswith(f".{settings.PLATFORM_DOMAIN}"):
+            value = value[: -(len(settings.PLATFORM_DOMAIN) + 1)]
+
+        if value == settings.PLATFORM_DOMAIN:
+            return Response({"available": False, "reserved": True}, status=200)
+
+        reserved = {item.lower() for item in settings.TENANT_RESERVED_SUBDOMAINS}
+        if value.lower() in reserved:
+            return Response({"available": False, "reserved": True}, status=200)
+
+        from .models import UserSubdomain
+        normalized = value.lower()
+        is_available = (
+            not Tenant.objects.filter(subdomain=normalized).exists()
+            and not UserSubdomain.objects.filter(subdomain=normalized).exists()
+        )
         return Response({"available": is_available})
 
 class SiteCreationProgressView(generics.GenericAPIView):
@@ -409,4 +423,3 @@ class SiteRedirectView(View):
             return redirect(f'http://localhost:3000/preview/{site.slug}/')
         except Site.DoesNotExist:
             raise Http404("Site not found")
-

@@ -8,6 +8,7 @@ router.register(r'categories', ProductCategoryViewSet)
 router.register(r'products', ProductViewSet)
 
 urlpatterns = [
+    path('public-data/', PublicMenuDataView.as_view(), name='public-menu-data-by-host'),
     re_path(r'^public-data/(?P<slug>[^/]+)/$', PublicMenuDataView.as_view(), name='public-menu-data'),
     path('', include(router.urls)),
 ]

@@ -1,9 +1,12 @@
-from django.db import models
 from django.conf import settings
-from sites.models import Site
-from menu.models import Product
+from django.db import models
 
-class Cart(models.Model):
+from menu.models import Product
+from sites.models import Site
+from tenants.models import TenantOwnedModel
+
+
+class Cart(TenantOwnedModel):
     site = models.ForeignKey(Site, on_delete=models.CASCADE, related_name='carts')
     user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, null=True, blank=True, related_name='carts')
     session_key = models.CharField(max_length=40, null=True, blank=True, db_index=True)
@@ -14,20 +17,24 @@ class Cart(models.Model):
         indexes = [
             models.Index(fields=['site', 'user']),
             models.Index(fields=['site', 'session_key']),
+            models.Index(fields=['tenant', 'user']),
+            models.Index(fields=['tenant', 'session_key']),
         ]
 
     def __str__(self):
-        return f"Cart {self.id} - {self.site.name}"
+        return f'Cart {self.id} - {self.site.name}'
 
-class CartItem(models.Model):
+
+class CartItem(TenantOwnedModel):
     cart = models.ForeignKey(Cart, on_delete=models.CASCADE, related_name='items')
     product = models.ForeignKey(Product, on_delete=models.CASCADE)
     quantity = models.PositiveIntegerField(default=1)
-    # Snapshots for persistence if product price changes or product is deleted (though here it's still linked)
     price_snapshot = models.BigIntegerField()
     product_name_snapshot = models.CharField(max_length=255)
 
     def save(self, *args, **kwargs):
+        if self.cart_id and not self.tenant_id:
+            self.tenant_id = self.cart.tenant_id
         if not self.price_snapshot:
             self.price_snapshot = self.product.price
         if not self.product_name_snapshot:
@@ -38,7 +45,8 @@ class CartItem(models.Model):
     def total_price(self):
         return self.price_snapshot * self.quantity
 
-class Order(models.Model):
+
+class Order(TenantOwnedModel):
     STATUS_CHOICES = (
         ('pending', 'Pending'),
         ('paid', 'Paid'),
@@ -50,13 +58,12 @@ class Order(models.Model):
     user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, null=True, blank=True, related_name='orders')
     status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='pending', db_index=True)
     total_amount = models.BigIntegerField(default=0)
-    
-    # Customer Info (Captured at checkout)
+
     first_name = models.CharField(max_length=100)
     last_name = models.CharField(max_length=100)
     phone_number = models.CharField(max_length=20)
     address = models.TextField()
-    
+
     created_at = models.DateTimeField(auto_now_add=True, db_index=True)
     updated_at = models.DateTimeField(auto_now=True)
 
@@ -64,17 +71,19 @@ class Order(models.Model):
         ordering = ['-created_at']
         indexes = [
             models.Index(fields=['site', 'status']),
+            models.Index(fields=['tenant', 'status']),
             models.Index(fields=['user', 'status']),
         ]
 
     def __str__(self):
-        return f"Order {self.id} - {self.site.name} ({self.status})"
+        return f'Order {self.id} - {self.site.name} ({self.status})'
 
     def update_total_amount(self):
         self.total_amount = sum(item.price_snapshot * item.quantity for item in self.items.all())
         self.save(update_fields=['total_amount'])
 
-class OrderItem(models.Model):
+
+class OrderItem(TenantOwnedModel):
     order = models.ForeignKey(Order, on_delete=models.CASCADE, related_name='items')
     product = models.ForeignKey(Product, on_delete=models.SET_NULL, null=True, blank=True)
     quantity = models.PositiveIntegerField()
@@ -82,6 +91,8 @@ class OrderItem(models.Model):
     product_name_snapshot = models.CharField(max_length=255)
 
     def save(self, *args, **kwargs):
+        if self.order_id and not self.tenant_id:
+            self.tenant_id = self.order.tenant_id
         if self.product:
             if not self.price_snapshot:
                 self.price_snapshot = self.product.price
@@ -90,9 +101,10 @@ class OrderItem(models.Model):
         super().save(*args, **kwargs)
 
     def __str__(self):
-        return f"{self.product_name_snapshot} x {self.quantity}"
+        return f'{self.product_name_snapshot} x {self.quantity}'
 
-class Payment(models.Model):
+
+class Payment(TenantOwnedModel):
     STATUS_CHOICES = (
         ('pending', 'Pending'),
         ('completed', 'Completed'),
@@ -107,5 +119,10 @@ class Payment(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
+    def save(self, *args, **kwargs):
+        if self.order_id and not self.tenant_id:
+            self.tenant_id = self.order.tenant_id
+        super().save(*args, **kwargs)
+
     def __str__(self):
-        return f"Payment for Order {self.order.id} - {self.status}"
+        return f'Payment for Order {self.order.id} - {self.status}'

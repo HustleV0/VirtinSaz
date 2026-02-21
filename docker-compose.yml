@@ -7,13 +7,17 @@ services:
     build: ./backend
     restart: always
     volumes:
-      - backend_data:/app
+      - backend_db:/app/data
       - backend_static:/app/static
       - backend_media:/app/media
     env_file: .env
     environment:
       - CELERY_BROKER_URL=redis://redis:6379/0
       - CELERY_RESULT_BACKEND=redis://redis:6379/0
+      - REDIS_URL=redis://redis:6379/1
+      - SQLITE_PATH=/app/data/db.sqlite3
+      - RUN_MIGRATIONS=1
+      - COLLECT_STATIC=1
     depends_on:
       - redis
 
@@ -22,13 +26,17 @@ services:
     restart: always
     command: celery -A core worker --loglevel=info
     volumes:
-      - backend_data:/app
+      - backend_db:/app/data
       - backend_static:/app/static
       - backend_media:/app/media
     env_file: .env
     environment:
       - CELERY_BROKER_URL=redis://redis:6379/0
       - CELERY_RESULT_BACKEND=redis://redis:6379/0
+      - REDIS_URL=redis://redis:6379/1
+      - SQLITE_PATH=/app/data/db.sqlite3
+      - RUN_MIGRATIONS=0
+      - COLLECT_STATIC=0
     depends_on:
       - redis
 
@@ -58,7 +66,7 @@ services:
       - django
 
 volumes:
-  backend_data:
+  backend_db:
   backend_static:
   backend_media:
   caddy_data:

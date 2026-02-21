@@ -16,7 +16,8 @@ from pathlib import Path
 
 # Initialize environ
 env = environ.Env(
-    DEBUG=(bool, False)
+    DEBUG=(bool, False),
+    USE_REDIS_CACHE=(bool, True),
 )
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
@@ -31,8 +32,19 @@ SECRET_KEY = env('SECRET_KEY', default='django-insecure-fallback-key')
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = env('DEBUG')
 
-ALLOWED_HOSTS = env.list('ALLOWED_HOSTS', default=['vofino.ir', '.vofino.ir'])
-CSRF_TRUSTED_ORIGINS = env.list('CSRF_TRUSTED_ORIGINS', default=['https://vofino.ir', 'https://*.vofino.ir'])
+PLATFORM_DOMAIN = env("PLATFORM_DOMAIN", default="vofino.ir")
+TENANT_RESERVED_SUBDOMAINS = env.list(
+    "TENANT_RESERVED_SUBDOMAINS",
+    default=["www", "admin", "api", "dash", "vofino", "blog", "support"],
+)
+TENANT_CONTROL_PLANE_HOSTS = env.list(
+    "TENANT_CONTROL_PLANE_HOSTS",
+    default=["vofino.ir", "dash.vofino.ir", "localhost", "127.0.0.1", "testserver"],
+)
+TENANT_CACHE_TTL = env.int("TENANT_CACHE_TTL", default=300)
+
+ALLOWED_HOSTS = env.list('ALLOWED_HOSTS', default=['vofino.ir', '.vofino.ir', 'dash.vofino.ir', 'testserver', 'localhost', '127.0.0.1'])
+CSRF_TRUSTED_ORIGINS = env.list('CSRF_TRUSTED_ORIGINS', default=['https://vofino.ir', 'https://*.vofino.ir', 'https://dash.vofino.ir'])
 
 
 # Application definition
@@ -46,6 +58,7 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'rest_framework',
     'corsheaders',
+    'tenants.apps.TenantsConfig',
     'accounts',
     'sites',
     'menu',
@@ -63,7 +76,7 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
-    'sites.middleware.SubdomainMiddleware',
+    'tenants.middleware.TenantResolverMiddleware',
 ]
 
 AUTH_USER_MODEL = 'accounts.User'
@@ -115,10 +128,30 @@ WSGI_APPLICATION = 'core.wsgi.application'
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
+        'NAME': env("SQLITE_PATH", default=str(BASE_DIR / 'db.sqlite3')),
     }
 }
 
+USE_REDIS_CACHE = env("USE_REDIS_CACHE")
+REDIS_URL = env("REDIS_URL", default="redis://redis:6379/1")
+if USE_REDIS_CACHE:
+    CACHES = {
+        "default": {
+            "BACKEND": "django.core.cache.backends.redis.RedisCache",
+            "LOCATION": REDIS_URL,
+            "TIMEOUT": TENANT_CACHE_TTL,
+            "OPTIONS": {
+                "socket_connect_timeout": 2,
+                "socket_timeout": 2,
+            },
+        }
+    }
+else:
+    CACHES = {
+        "default": {
+            "BACKEND": "django.core.cache.backends.locmem.LocMemCache",
+        }
+    }
 
 
 

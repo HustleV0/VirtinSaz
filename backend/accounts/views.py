@@ -44,8 +44,12 @@ class LoginView(views.APIView):
     def post(self, request):
         username = request.data.get('username')
         password = request.data.get('password')
+        tenant = getattr(request, 'tenant', None)
         user = User.objects.filter(username=username).first()
         if user and user.check_password(password):
+            if tenant and user.tenant_id and user.tenant_id != tenant.id:
+                return Response({'error': 'Tenant mismatch for this user account'}, status=status.HTTP_401_UNAUTHORIZED)
+
             refresh = RefreshToken.for_user(user)
             return Response({
                 'refresh': str(refresh),

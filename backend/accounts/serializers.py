@@ -3,6 +3,7 @@ from .models import User
 from rest_framework_simplejwt.tokens import RefreshToken
 from sites.models import Site, SiteCategory, Theme
 from django.db import transaction
+from tenants.services import ensure_tenant_for_site
 
 class UserSerializer(serializers.ModelSerializer):
     has_site = serializers.SerializerMethodField()
@@ -54,6 +55,7 @@ class RegisterSerializer(serializers.ModelSerializer):
         )
         
         # Create site if requested
+        created_site = None
         if site_slug or category_id or theme_id:
             try:
                 category = None
@@ -68,10 +70,12 @@ class RegisterSerializer(serializers.ModelSerializer):
                 if not theme:
                     theme = Theme.objects.filter(category=category).first() or Theme.objects.first()
                 
-                Site.objects.create(
+                resolved_slug = site_slug or f"site-{user.username}"
+                created_site = Site.objects.create(
                     owner=user,
                     name=user.restaurant_name or f"Site for {user.username}",
-                    slug=site_slug or f"site-{user.username}",
+                    slug=resolved_slug,
+                    subdomain=resolved_slug,
                     category=category,
                     theme=theme,
                     settings=theme.default_settings if theme else {}
@@ -79,5 +83,8 @@ class RegisterSerializer(serializers.ModelSerializer):
             except Exception:
                 # If site creation fails, we still have the user
                 pass
+
+        if created_site:
+            ensure_tenant_for_site(created_site)
                 
         return user
