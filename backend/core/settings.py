@@ -32,6 +32,7 @@ SECRET_KEY = env('SECRET_KEY', default='django-insecure-fallback-key')
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = env('DEBUG')
 
+<<<<<<< HEAD
 PLATFORM_DOMAIN = env("PLATFORM_DOMAIN", default="vofino.ir")
 TENANT_RESERVED_SUBDOMAINS = env.list(
     "TENANT_RESERVED_SUBDOMAINS",
@@ -45,6 +46,20 @@ TENANT_CACHE_TTL = env.int("TENANT_CACHE_TTL", default=300)
 
 ALLOWED_HOSTS = env.list('ALLOWED_HOSTS', default=['vofino.ir', '.vofino.ir', 'dash.vofino.ir', 'testserver', 'localhost', '127.0.0.1'])
 CSRF_TRUSTED_ORIGINS = env.list('CSRF_TRUSTED_ORIGINS', default=['https://vofino.ir', 'https://*.vofino.ir', 'https://dash.vofino.ir'])
+=======
+DOMAIN_NAME = env('DOMAIN_NAME', default='yourdomain.com')
+
+ALLOWED_HOSTS = env.list('ALLOWED_HOSTS', default=[DOMAIN_NAME, f'.{DOMAIN_NAME}'])
+CSRF_TRUSTED_ORIGINS = env.list(
+    'CSRF_TRUSTED_ORIGINS',
+    default=[f'https://{DOMAIN_NAME}', f'https://*.{DOMAIN_NAME}']
+)
+SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
+USE_X_FORWARDED_HOST = True
+SECURE_SSL_REDIRECT = env.bool('SECURE_SSL_REDIRECT', default=not DEBUG)
+SESSION_COOKIE_SECURE = env.bool('SESSION_COOKIE_SECURE', default=not DEBUG)
+CSRF_COOKIE_SECURE = env.bool('CSRF_COOKIE_SECURE', default=not DEBUG)
+>>>>>>> e6d1ebd (update)
 
 
 # Application definition
@@ -81,7 +96,7 @@ MIDDLEWARE = [
 
 AUTH_USER_MODEL = 'accounts.User'
 
-CORS_ALLOW_ALL_ORIGINS = True # In development
+CORS_ALLOW_ALL_ORIGINS = DEBUG
 
 REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES': (
@@ -100,7 +115,7 @@ SIMPLE_JWT = {
     'AUTH_HEADER_TYPES': ('Bearer',),
 }
 
-STATIC_URL = 'static/'
+STATIC_URL = '/static/'
 STATIC_ROOT = BASE_DIR / 'static'
 
 MEDIA_URL = '/media/'

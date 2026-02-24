@@ -1,4 +1,4 @@
-"use client"
+﻿"use client"
 
 import Link from "next/link"
 import { Instagram, Send, Phone } from "lucide-react"
@@ -50,7 +50,7 @@ export function Footer() {
               <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-primary">
                 <span className="text-sm font-bold text-primary-foreground">و</span>
               </div>
-              <span className="text-xl font-bold">ویترین ساز</span>
+              <span className="text-xl font-bold">وفینو</span>
             </Link>
             <p className="mt-4 max-w-sm text-sm text-muted-foreground">
               پلتفرم پیشرفته ساخت وبسایت برای تمامی کسب‌وکارها. به سادگی وبسایت مدرن
@@ -109,7 +109,7 @@ export function Footer() {
         {/* Bottom Bar */}
         <div className="mt-12 flex flex-col items-center justify-between gap-4 border-t border-border pt-8 md:flex-row">
           <p className="text-sm text-muted-foreground">
-            © ۱۴۰۴ ویترین ساز. تمامی حقوق محفوظ است.
+            © ۱۴۰۴ وفینو. تمامی حقوق محفوظ است.
           </p>
           <p className="text-sm text-muted-foreground">
             ساخته شده با عشق در ایران

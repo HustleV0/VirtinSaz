@@ -1,4 +1,4 @@
-import { Metadata } from "next"
+﻿import { Metadata } from "next"
 import { MinimalCafe } from "@/components/templates/MinimalCafe"
 import { TraditionalIranian } from "@/components/templates/TraditionalIranian"
 import { ModernRestaurant } from "@/components/templates/ModernRestaurant"
@@ -35,7 +35,7 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
   }
 
   const { site } = data
-  const title = site.meta_title || `${site.name} | ${site.category_name || "ویترین ساز"}`
+  const title = site.meta_title || `${site.name} | ${site.category_name || "وفینو"}`
   const description = site.meta_description || site.settings?.description || `مشاهده منو و اطلاعات ${site.name}`
 
   const schema = {

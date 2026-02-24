@@ -1,4 +1,4 @@
-"use client"
+﻿"use client"
 
 import { motion, useScroll, useTransform } from "framer-motion"
 import Link from "next/link"
@@ -203,7 +203,7 @@ export function ModernRestaurantContact({ restaurant }: { restaurant: Restaurant
               <span className="text-2xl font-black tracking-tighter uppercase">{restaurant.name}</span>
             </div>
            <p className="text-xs font-bold uppercase tracking-[0.2em] opacity-30">
-              © 2024 Powered by VitrinSaz
+              © 2024 Powered by Vofino
             </p>
         </div>
       </footer>

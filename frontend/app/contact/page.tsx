@@ -1,4 +1,4 @@
-import React from "react"
+﻿import React from "react"
 import { Header } from "@/components/landing/header"
 import { Footer } from "@/components/landing/footer"
 import { Phone, Mail, MapPin } from "lucide-react"
@@ -6,8 +6,8 @@ import { ContactForm } from "@/components/landing/ContactForm"
 import { Metadata } from "next"
 
 export const metadata: Metadata = {
-  title: "تماس با ما | ویترین ساز",
-  description: "سوالات، پیشنهادات و نظرات خود را با ما در میان بگذارید. پل‌های ارتباطی با ویترین ساز.",
+  title: "تماس با ما | وفینو",
+  description: "سوالات، پیشنهادات و نظرات خود را با ما در میان بگذارید. پل‌های ارتباطی با وفینو.",
 }
 
 export default function ContactPage() {

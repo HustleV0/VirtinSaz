@@ -1,4 +1,4 @@
-"use client"
+﻿"use client"
 
 import React, { useState } from "react"
 import Link from "next/link"
@@ -60,7 +60,7 @@ export default function RegisterPage() {
             <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-primary">
               <span className="text-lg font-bold text-primary-foreground">و</span>
             </div>
-            <span className="text-2xl font-bold">ویترین ساز</span>
+            <span className="text-2xl font-bold">وفینو</span>
           </Link>
 
           <h1 className="text-2xl font-bold">ایجاد حساب کاربری</h1>
@@ -163,7 +163,7 @@ export default function RegisterPage() {
             وبسایت حرفه‌ای خود را در چند دقیقه بسازید
           </h2>
           <p className="mt-4 text-lg text-primary-foreground/80">
-            با ویترین ساز، به سادگی وبسایت مدرن و خاص برای برند خود بسازید و
+            با وفینو، به سادگی وبسایت مدرن و خاص برای برند خود بسازید و
             حضور آنلاین قدرتمندی داشته باشید.
           </p>
         </div>

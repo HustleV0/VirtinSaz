@@ -3,7 +3,11 @@ from .models import User
 from rest_framework_simplejwt.tokens import RefreshToken
 from sites.models import Site, SiteCategory, Theme
 from django.db import transaction
+<<<<<<< HEAD
 from tenants.services import ensure_tenant_for_site
+=======
+import uuid
+>>>>>>> e6d1ebd (update)
 
 class UserSerializer(serializers.ModelSerializer):
     has_site = serializers.SerializerMethodField()
@@ -43,14 +47,23 @@ class RegisterSerializer(serializers.ModelSerializer):
         site_slug = validated_data.pop('site_slug', None)
         category_id = validated_data.pop('category_id', None)
         theme_id = validated_data.pop('theme_id', None)
-        
+
+        username = validated_data.get('username')
+        if not username:
+            phone_number = validated_data.get('phone_number') or ''
+            digits = ''.join(ch for ch in phone_number if ch.isdigit())
+            username = f"user_{digits[-10:]}" if digits else f"user_{uuid.uuid4().hex[:8]}"
+
+        while User.objects.filter(username=username).exists():
+            username = f"{username}_{uuid.uuid4().hex[:4]}"
+
         user = User.objects.create_user(
-            username=validated_data['username'],
-            password=validated_data['password'],
+            username=username,
+            password=validated_data.get('password'),
             phone_number=validated_data.get('phone_number'),
             email=validated_data.get('email'),
-            full_name=validated_data.get('full_name'),
-            restaurant_name=validated_data.get('restaurant_name'),
+            full_name=validated_data.get('full_name') or '',
+            restaurant_name=validated_data.get('restaurant_name') or '',
             is_verified=True
         )
         

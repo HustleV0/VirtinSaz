@@ -1,9 +1,9 @@
-import LegalPage from "@/components/legal-layout"
+﻿import LegalPage from "@/components/legal-layout"
 import { Metadata } from "next"
 
 export const metadata: Metadata = {
-  title: "شرایط بازگشت وجه | ویترین ساز",
-  description: "اطلاعات مربوط به ضمانت بازگشت وجه و نحوه استرداد هزینه در ویترین ساز",
+  title: "شرایط بازگشت وجه | وفینو",
+  description: "اطلاعات مربوط به ضمانت بازگشت وجه و نحوه استرداد هزینه در وفینو",
 }
 
 export default function RefundPage() {

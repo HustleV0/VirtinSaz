@@ -1,4 +1,4 @@
-"use client"
+﻿"use client"
 
 import { useState } from "react"
 import { Button } from "@/components/ui/button"
@@ -118,7 +118,7 @@ export default function SupportPage() {
             </div>
             <div>
               <p className="text-sm text-muted-foreground">ایمیل</p>
-              <p className="font-medium" dir="ltr">support@vitrinsaz.ir</p>
+              <p className="font-medium" dir="ltr">support@vofino.ir</p>
             </div>
           </CardContent>
         </Card>
@@ -312,7 +312,7 @@ export default function SupportPage() {
               <div>
                 <h3 className="font-semibold">مستندات و راهنما</h3>
                 <p className="text-sm text-muted-foreground">
-                  راهنمای کامل استفاده از ویترین ساز
+                  راهنمای کامل استفاده از وفینو
                 </p>
               </div>
             </div>

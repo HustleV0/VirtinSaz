@@ -1,4 +1,4 @@
-import React from "react"
+﻿import React from "react"
 import { Header } from "@/components/landing/header"
 import { Footer } from "@/components/landing/footer"
 import { Button } from "@/components/ui/button"
@@ -30,8 +30,8 @@ const jobs = [
 ]
 
 export const metadata: Metadata = {
-  title: "فرصت‌های شغلی | ویترین ساز",
-  description: "به تیم ویترین ساز بپیوندید و با هم آینده صنعت رستوران‌داری را بسازیم.",
+  title: "فرصت‌های شغلی | وفینو",
+  description: "به تیم وفینو بپیوندید و با هم آینده صنعت رستوران‌داری را بسازیم.",
 }
 
 export default function CareersPage() {
@@ -41,7 +41,7 @@ export default function CareersPage() {
       <main className="flex-1 pt-24 pb-12">
         <div className="container mx-auto px-4">
           <div className="mx-auto max-w-4xl text-center mb-16">
-            <h1 className="text-4xl font-bold mb-4">به تیم ویترین ساز بپیوندید</h1>
+            <h1 className="text-4xl font-bold mb-4">به تیم وفینو بپیوندید</h1>
             <p className="text-muted-foreground text-lg">
               ما همیشه به دنبال افراد بااستعداد و باانگیزه هستیم تا با هم آینده صنعت رستوران‌داری را بسازیم.
             </p>

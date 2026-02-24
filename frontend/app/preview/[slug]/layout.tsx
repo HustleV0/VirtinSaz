@@ -1,4 +1,4 @@
-import React from "react"
+﻿import React from "react"
 import type { Metadata, Viewport } from "next"
 import { ThemeProvider } from "@/components/theme-provider"
 import { api } from "@/lib/api"
@@ -20,7 +20,7 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
   
   if (!site) {
     return {
-      title: "ویترین ساز",
+      title: "وفینو",
     }
   }
 
@@ -29,7 +29,7 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
     : "/favicon.ico"
     
   return {
-    title: `${site.name} | ویترین ساز`,
+    title: `${site.name} | وفینو`,
     description: site.settings?.description || "",
     icons: {
       icon: logoUrl,

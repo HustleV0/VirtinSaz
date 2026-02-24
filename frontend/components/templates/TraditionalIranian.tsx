@@ -1,4 +1,4 @@
-"use client"
+﻿"use client"
 
 import { useState, useMemo } from "react"
 import Link from "next/link"
@@ -320,7 +320,7 @@ export function TraditionalIranian({
                   </div>
                 </nav>
                 <div className="p-6 text-center text-xs opacity-40 border-t" style={{ borderColor: `${themeColors.accent}40` }}>
-                  ساخته شده با عشق در ویترین ساز
+                  ساخته شده با عشق در وفینو
                 </div>
               </SheetContent>
             </Sheet>
@@ -497,7 +497,7 @@ export function TraditionalIranian({
               </a>
             )}
           </div>
-          <p className="text-sm opacity-60">ساخته شده با عشق در ویترین ساز</p>
+          <p className="text-sm opacity-60">ساخته شده با عشق در وفینو</p>
         </div>
       </footer>
     </div>

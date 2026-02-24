@@ -20,9 +20,9 @@ from django.conf import settings
 from django.conf.urls.static import static
 from sites.views import SiteRedirectView
 
-admin.site.site_header = "VitrinSaz Admin"
-admin.site.site_title = "VitrinSaz Admin"
-admin.site.index_title = "Welcome to VitrinSaz Admin"
+admin.site.site_header = "Vofino Admin"
+admin.site.site_title = "Vofino Admin"
+admin.site.index_title = "Welcome to Vofino Admin"
 
 urlpatterns = [
     path('admin/', admin.site.urls),

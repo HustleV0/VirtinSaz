@@ -1,4 +1,4 @@
-"use client"
+﻿"use client"
 
 import { motion } from "framer-motion"
 import Link from "next/link"
@@ -169,7 +169,7 @@ export function TraditionalIranianAbout({ restaurant }: { restaurant: Restaurant
             )}
           </div>
           <p className="opacity-50 font-medium">
-             © ۱۴۰۳ {restaurant.name} | ساخته شده در ویترین ساز
+             © ۱۴۰۳ {restaurant.name} | ساخته شده در وفینو
           </p>
         </div>
       </footer>

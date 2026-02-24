@@ -1,4 +1,4 @@
-"use client"
+﻿"use client"
 
 import { motion } from "framer-motion"
 import Link from "next/link"
@@ -149,7 +149,7 @@ export function MinimalCafeContact({ restaurant }: { restaurant: Restaurant }) {
       <footer className="mt-20 border-t py-12">
         <div className="container mx-auto px-4 text-center">
           <p className="text-sm text-muted-foreground">
-            © {new Date().getFullYear()} {restaurant.name}. ساخته شده با ویترین ساز
+            © {new Date().getFullYear()} {restaurant.name}. ساخته شده با وفینو
           </p>
         </div>
       </footer>

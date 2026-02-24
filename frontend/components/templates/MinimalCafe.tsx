@@ -1,4 +1,4 @@
-"use client"
+﻿"use client"
 
 import { useState, useMemo } from "react"
 import Link from "next/link"
@@ -644,7 +644,7 @@ export function MinimalCafe({
             <p className="mt-4 text-xs text-muted-foreground">
               ساخته شده با{" "}
               <Link href="/" className="text-primary hover:underline">
-                ویترین ساز
+                وفینو
               </Link>
             </p>
           </div>

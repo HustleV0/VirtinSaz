@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 FROM node:20-alpine AS base
 
 # 1. Install dependencies only when needed
@@ -39,3 +40,24 @@ USER nextjs
 EXPOSE 3000
 ENV PORT 3000
 CMD ["npm", "start"]
+=======
+FROM node:22-alpine
+
+WORKDIR /app
+
+ARG NEXT_PUBLIC_API_URL=/api
+ARG INTERNAL_API_URL=http://django:8000/api
+ENV NEXT_PUBLIC_API_URL=${NEXT_PUBLIC_API_URL}
+ENV INTERNAL_API_URL=${INTERNAL_API_URL}
+
+COPY package*.json ./
+RUN npm install --no-audit --no-fund
+
+COPY . .
+
+RUN npm run build
+
+EXPOSE 3000
+
+CMD ["npm", "run", "start"]
+>>>>>>> e6d1ebd (update)

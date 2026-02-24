@@ -1,4 +1,4 @@
-"use client"
+﻿"use client"
 
 import { useState, useEffect } from "react"
 import Link from "next/link"
@@ -42,7 +42,7 @@ export function Header() {
           <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-primary">
             <span className="text-sm font-bold text-primary-foreground">و</span>
           </div>
-          <span className="text-xl font-bold">ویترین ساز</span>
+          <span className="text-xl font-bold">وفینو</span>
         </Link>
 
         {/* Desktop Navigation */}
@@ -101,7 +101,7 @@ export function Header() {
                   <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-primary">
                     <span className="text-sm font-bold text-primary-foreground">و</span>
                   </div>
-                  <span className="text-xl font-bold">ویترین ساز</span>
+                  <span className="text-xl font-bold">وفینو</span>
                 </Link>
                 <nav className="flex flex-col gap-4">
                   {navItems.map((item) => (

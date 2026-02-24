@@ -1,11 +1,11 @@
-import React from "react"
+﻿import React from "react"
 import { Header } from "@/components/landing/header"
 import { Footer } from "@/components/landing/footer"
 import { Metadata } from "next"
 
 export const metadata: Metadata = {
-  title: "درباره ما | ویترین ساز",
-  description: "ویترین ساز پلتفرمی نوآورانه برای حضور آنلاین و دیجیتال‌سازی تمامی کسب‌وکارها در ایران است.",
+  title: "درباره ما | وفینو",
+  description: "وفینو پلتفرمی نوآورانه برای حضور آنلاین و دیجیتال‌سازی تمامی کسب‌وکارها در ایران است.",
 }
 
 export default function AboutPage() {
@@ -18,7 +18,7 @@ export default function AboutPage() {
             <h1 className="text-4xl font-bold text-center">درباره ما</h1>
             <div className="prose prose-slate dark:prose-invert max-w-none">
               <p className="text-xl text-muted-foreground text-center">
-                ویترین ساز پلتفرمی نوآورانه برای حضور آنلاین و دیجیتال‌سازی تمامی کسب‌وکارها در ایران است.
+                وفینو پلتفرمی نوآورانه برای حضور آنلاین و دیجیتال‌سازی تمامی کسب‌وکارها در ایران است.
               </p>
               <div className="mt-12 grid gap-8">
                 <section>

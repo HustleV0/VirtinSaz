@@ -1,4 +1,4 @@
-import Link from "next/link"
+﻿import Link from "next/link"
 import { Header } from "@/components/landing/header"
 import { Footer } from "@/components/landing/footer"
 import { Button } from "@/components/ui/button"
@@ -22,8 +22,8 @@ interface BackendPlan {
 }
 
 export const metadata: Metadata = {
-  title: "تعرفه و قیمت‌ها | ویترین ساز",
-  description: "پلن‌های مختلف ویترین ساز برای کسب‌وکارهای مختلف",
+  title: "تعرفه و قیمت‌ها | وفینو",
+  description: "پلن‌های مختلف وفینو برای کسب‌وکارهای مختلف",
 }
 
 async function getPlans(): Promise<BackendPlan[]> {

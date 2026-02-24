@@ -1,4 +1,4 @@
-import { api } from "@/lib/api"
+﻿import { api } from "@/lib/api"
 import { ClientMenu } from "@/components/menu/ClientMenu"
 import { Metadata } from "next"
 
@@ -30,7 +30,7 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
   try {
     const site = await api.get(`/sites/site/public/${slug}/`)
     return {
-      title: `منوی ${site.name} | ویترین ساز`,
+      title: `منوی ${site.name} | وفینو`,
       description: `مشاهده منوی آنلاین ${site.name}`,
     }
   } catch {

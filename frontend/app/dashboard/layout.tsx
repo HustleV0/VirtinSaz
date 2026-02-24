@@ -1,4 +1,4 @@
-"use client"
+﻿"use client"
 
 import React from "react"
 import { useState } from "react"
@@ -150,7 +150,7 @@ function SidebarContent({ onItemClick, restaurantName, phone, siteSlug, hasSite 
           <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-sidebar-primary">
             <span className="text-sm font-bold text-sidebar-primary-foreground">و</span>
           </div>
-          <span className="text-xl font-bold text-sidebar-foreground">ویترین ساز</span>
+          <span className="text-xl font-bold text-sidebar-foreground">وفینو</span>
         </Link>
       </div>
 
@@ -204,7 +204,7 @@ function SidebarContent({ onItemClick, restaurantName, phone, siteSlug, hasSite 
                   )}
                 >
                   <span className="font-medium">{site.name}</span>
-                  <span className="text-xs text-muted-foreground" dir="ltr">{site.slug}.vitrinsaz.ir</span>
+                  <span className="text-xs text-muted-foreground" dir="ltr">{site.slug}.vofino.ir</span>
                 </DropdownMenuItem>
               ))}
             </ScrollArea>

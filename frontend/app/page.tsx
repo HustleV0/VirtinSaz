@@ -1,4 +1,4 @@
-import { Header } from "@/components/landing/header"
+﻿import { Header } from "@/components/landing/header"
 import { Hero } from "@/components/landing/hero"
 import { Features } from "@/components/landing/features"
 import { Templates } from "@/components/landing/templates"
@@ -9,8 +9,9 @@ import { Footer } from "@/components/landing/footer"
 import { Metadata } from "next"
 
 export const metadata: Metadata = {
-  title: 'ویترین ساز | ساخت وبسایت حرفه‌ای در ۵ دقیقه',
-  description: 'با ویترین ساز بدون نیاز به دانش فنی، سایت مدرن و خاص خود را بسازید. دارای تم‌های آماده و قابلیت شخصی‌سازی کامل برای تمامی کسب‌وکارها.',
+  title: "وفینو | سایت خود را در کمتر از 2 دقیقه بسازید",
+  description:
+    "با وفینو بدون نیاز به دانش فنی، سایت فروشگاهی، سایت رستورانی و سایت کافه خود را سریع راه اندازی کنید.",
 }
 
 export const revalidate = 3600
